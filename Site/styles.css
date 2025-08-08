@@ -577,3 +577,7 @@ body {
   line-height: 1.6;
   color: #e2e8f0;
 }
+
+.color {
+  color: rgb(16, 60, 255);
+}
