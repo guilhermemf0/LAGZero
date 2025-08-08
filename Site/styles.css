@@ -1,0 +1,579 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  background-color: #0d111a; /* Cor de fundo mais escura para maior contraste e profundidade */
+  /* Background com gradientes muito sutis para profundidade elegante */
+  background-image: radial-gradient(
+      circle at 15% 15%,
+      rgba(94, 137, 255, 0.05),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 85% 85%,
+      rgba(94, 137, 255, 0.04),
+      transparent 55%
+    ),
+    linear-gradient(to bottom, rgba(13, 17, 26, 0.8), transparent 40%),
+    linear-gradient(to top, rgba(13, 17, 26, 0.8), transparent 40%);
+  background-attachment: fixed;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Animação de partículas de fundo ainda mais suaves e etéreas */
+.background-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  background-color: rgba(
+    94,
+    137,
+    255,
+    0.25
+  ); /* Cor da partícula com opacidade bem reduzida */
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(94, 137, 255, 0.4), 0 0 8px rgba(94, 137, 255, 0.2); /* Brilho mínimo */
+  opacity: 0;
+  animation: particleAnimation linear infinite;
+  filter: blur(1.2px); /* Desfoque maior para um visual mais difuso */
+}
+
+@keyframes particleAnimation {
+  0% {
+    transform: translate(0, 0) scale(0.4);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.6; /* Aumenta a opacidade sutilmente */
+    transform: translate(calc(var(--x-drift) * 0.25), -25vh) scale(0.6);
+  }
+  50% {
+    opacity: 0.4; /* Pulsa a opacidade */
+    transform: translate(calc(var(--x-drift) * 0.5), -50vh) scale(0.8);
+  }
+  75% {
+    opacity: 0.6; /* Pulsa a opacidade novamente */
+    transform: translate(calc(var(--x-drift) * 0.75), -75vh) scale(1);
+  }
+  100% {
+    transform: translate(var(--x-drift), -100vh) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* Animação de entrada (fade-up simples) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px); /* Movimento mais sutil */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animação de deslize para a esquerda */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px); /* Movimento mais sutil */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animação de deslize para a direita */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px); /* Movimento mais sutil */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animated-fade-up {
+  opacity: 0;
+  animation: fadeInUp 0.7s ease-out forwards; /* Duração ligeiramente menor */
+}
+
+.animated-slide-left {
+  opacity: 0;
+  animation: slideInLeft 0.7s ease-out forwards;
+}
+
+.animated-slide-right {
+  opacity: 0;
+  animation: slideInRight 0.7s ease-out forwards;
+}
+
+.delay-1 {
+  animation-delay: 0.15s; /* Atrasos mais curtos */
+}
+.delay-2 {
+  animation-delay: 0.3s;
+}
+.delay-3 {
+  animation-delay: 0.45s;
+}
+.delay-4 {
+  animation-delay: 0.6s;
+}
+.delay-5 {
+  animation-delay: 0.75s;
+}
+.delay-6 {
+  animation-delay: 0.9s;
+}
+.delay-7 {
+  animation-delay: 1.05s;
+}
+.delay-8 {
+  animation-delay: 1.2s;
+}
+
+/* --- Estrutura e Layout --- */
+.container {
+  max-width: 1800px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 4rem; /* Aumentei o padding para um visual mais espaçoso e premium */
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 1rem 0; /* Padding ligeiramente maior */
+  background-color: rgba(
+    19,
+    22,
+    30,
+    0.85
+  ); /* Opacidade maior para um visual mais sólido */
+  backdrop-filter: blur(18px); /* Desfoque mais intenso */
+  border-bottom: 1px solid rgba(94, 137, 255, 0.12); /* Borda mais sutil */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6); /* Sombra mais pronunciada e elegante */
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo-img {
+  filter: drop-shadow(
+    0 0 10px rgba(255, 255, 255, 0.15)
+  ); /* Sombra mais sutil */
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+.nav-logo-img:hover {
+  transform: scale(1.1); /* Animação mais notável */
+  filter: drop-shadow(
+    0 0 20px rgba(94, 137, 255, 0.4)
+  ); /* Brilho de hover mais suave */
+}
+
+.nav-logo-text {
+  font-family: "Audiowide", sans-serif;
+  font-size: 3.8rem; /* Ajustado para proporcionalidade */
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0px 2px 0px #3c56a0, 0px 4px 4px rgba(0, 0, 0, 0.3); /* Sombra de texto mais nítida */
+  flex-grow: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.nav-logo-text span {
+  color: #5e89ff;
+  text-shadow: 0 0 8px rgba(131, 171, 252, 0.5); /* Brilho do span mais suave */
+}
+
+/* Botão da navegação com estilo mais premium */
+.nav-button {
+  font-family: "Montserrat", sans-serif;
+  background: linear-gradient(
+    45deg,
+    #6a93ff,
+    #4a6dff
+  ); /* Gradiente mais definido */
+  color: white;
+  font-weight: 700;
+  padding: 1rem 2.2rem; /* Padding maior */
+  border-radius: 10px; /* Cantos mais nítidos */
+  font-size: 1.3rem; /* Fonte maior */
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2); /* Sombra mais profunda e brilho interno sutil */
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-button:hover {
+  background: linear-gradient(
+    45deg,
+    #4a6dff,
+    #6a93ff
+  ); /* Inverte o gradiente no hover */
+  color: white;
+  transform: translateY(-4px); /* Efeito de elevação mais pronunciado */
+  box-shadow: 0 10px 30px rgba(94, 137, 255, 0.5); /* Sombra de hover mais visível */
+}
+
+.nav-button:active {
+  transform: translateY(0px);
+  box-shadow: 0 3px 12px rgba(94, 137, 255, 0.4);
+}
+
+/* --- Seção Principal (Download) --- */
+.download-section {
+  padding: 15rem 0; /* Padding maior para mais destaque */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 180px); /* Ajustado para acomodar o header maior */
+}
+
+/* Título principal com efeito 3D mais elegante */
+.download-section h2 {
+  font-size: 5.5rem; /* Ajustado para proporcionalidade */
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 2.5rem; /* Margem maior */
+  text-shadow: 0px 3px 0px #3c56a0, 0px 6px 0px #3c56a0, 0px 9px 0px #3c56a0,
+    0 20px 35px rgba(0, 0, 0, 0.7); /* Sombra mais profunda e definida */
+}
+
+.download-section p {
+  font-size: 1.5rem; /* Ajustado para proporcionalidade */
+  color: #cbd5e1;
+  margin-top: 4rem; /* Margem maior */
+  max-width: 800px; /* Limita a largura para melhor legibilidade */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Botão de Download principal com estilo premium */
+.download-button {
+  font-family: "Montserrat", sans-serif;
+  background: linear-gradient(45deg, #5e89ff, #4a6dff);
+  color: white;
+  font-weight: 700;
+  padding: 1.8rem 7rem; /* Padding maior para um botão mais robusto */
+  border-radius: 60px; /* Mantém o formato arredondado */
+  font-size: 1.8rem; /* Ajustado para proporcionalidade */
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 15px 40px -10px rgba(94, 137, 255, 0.8); /* Sombra mais intensa para destaque */
+  display: inline-block;
+  margin-top: 7rem; /* Margem maior */
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Efeito de brilho ao passar o mouse mais sutil e rápido */
+.download-button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%; /* Área de brilho menor */
+  height: 150%; /* Área de brilho menor */
+  background: rgba(255, 255, 255, 0.1); /* Menos opaco e mais sutil */
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s ease; /* Transição mais rápida */
+}
+
+.download-button:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.download-button:hover {
+  transform: translateY(-6px) scale(1.04); /* Elevação e escala mais notáveis, mas elegantes */
+  box-shadow: 0 20px 50px -10px rgba(94, 137, 255, 0.7); /* Sombra de hover mais forte */
+}
+
+.download-button:active {
+  transform: translateY(0px) scale(1);
+  box-shadow: 0 8px 25px -10px rgba(94, 137, 255, 0.7);
+}
+
+/* --- Rodapé (Footer) - Totalmente Reformulado e Compacto --- */
+.footer {
+  background: linear-gradient(90deg, #131722, #161c29);
+  backdrop-filter: blur(8px); /* Desfoque sutil */
+  border-top: 1px solid rgba(94, 137, 255, 0.08); /* Borda muito sutil */
+  padding: 1rem 0; /* Padding muito reduzido para compactar */
+  text-align: center;
+  margin-top: 5rem;
+  box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.3); /* Sombra discreta */
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: row; /* Layout em linha para desktop */
+  justify-content: center; /* Centraliza todos os grupos */
+  align-items: center; /* Alinha verticalmente no centro */
+  padding: 0 4rem; /* Padding horizontal para o conteúdo */
+  max-width: 1800px; /* Garante que o conteúdo não estique demais */
+  margin: 0 auto; /* Centraliza o conteúdo */
+  gap: 4rem; /* Aumenta o espaçamento entre os grupos para melhor simetria */
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center; /* Logo e texto na mesma linha */
+  gap: 0.8rem; /* Espaçamento ajustado */
+}
+
+.footer-logo-img {
+  width: 50px; /* Ajustado para proporcionalidade */
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.03)); /* Sombra mínima */
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.footer-logo-img:hover {
+  transform: scale(1.01); /* Animação mínima */
+  filter: drop-shadow(0 0 5px rgba(94, 137, 255, 0.08));
+}
+
+.footer-logo-text {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1.8rem; /* Ajustado para proporcionalidade */
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0px 1px 0px #3c56a0, 0px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.footer-logo-text span {
+  color: #5e89ff;
+  text-shadow: 0 0 2px rgba(131, 171, 252, 0.1);
+}
+
+.footer-nav {
+  /* Navegação centralizada e discreta */
+  flex-grow: 0; /* Remove flex-grow para controle total do espaçamento */
+  text-align: center;
+}
+
+.footer-nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 1.8rem; /* Espaçamento entre os links ajustado para melhor leitura */
+}
+
+.footer-nav a {
+  color: #a0aec0;
+  text-decoration: none;
+  font-weight: 500; /* Levemente mais pesado para legibilidade */
+  font-size: 1rem; /* Ajustado para proporcionalidade */
+  position: relative;
+  transition: color 0.15s ease, transform 0.15s ease;
+  padding-bottom: 0.1rem;
+}
+
+.footer-nav a::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  background-color: #5e89ff;
+  transition: width 0.2s ease-out;
+}
+
+.footer-nav a:hover::after {
+  width: 100%;
+}
+
+.footer-nav a:hover {
+  color: #5e89ff;
+  transform: translateY(-1px);
+  text-shadow: none;
+}
+
+.footer-contact-info {
+  display: flex;
+  flex-direction: row; /* Email e copyright na mesma linha */
+  align-items: center;
+  gap: 1.5rem; /* Espaçamento entre email e copyright */
+}
+
+.footer-email {
+  font-size: 1.1rem; /* Ajustado para proporcionalidade */
+  color: #e2e8f0; /* Cor branca para o email */
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Espaçamento entre ícone e texto */
+  transition: color 0.2s ease;
+}
+
+.footer-email:hover {
+  color: #5e89ff;
+}
+
+.footer-email .icon {
+  /* Usaremos um SVG inline no HTML para um ícone de email melhor */
+  width: 1.2em; /* Tamanho do SVG ajustado */
+  height: 1.2em;
+  vertical-align: middle; /* Alinhamento vertical para o SVG */
+  margin-right: 0.2em; /* Pequena margem para separar do texto */
+}
+
+.footer-copyright {
+  font-size: 0.9rem; /* Ajustado para proporcionalidade */
+  color: #718096;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Removendo todas as Media Queries */
+/* As media queries foram removidas para atender ao pedido de não responsividade */
+
+/* Estilos para o Modal "Sobre" */
+.modal-overlay {
+  display: none; /* Escondido por padrão */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Fundo escuro semi-transparente */
+  backdrop-filter: blur(10px); /* Efeito de desfoque no fundo */
+  z-index: 100; /* Acima de todo o conteúdo */
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+.modal-overlay.open {
+  display: flex; /* Mostra o modal */
+  opacity: 1;
+}
+
+.modal-content {
+  background-color: #1a202c; /* Cor de fundo do modal */
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7),
+    inset 0 2px 8px rgba(255, 255, 255, 0.1);
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  color: #e2e8f0;
+  animation: modalFadeIn 0.5s ease-out forwards;
+  text-align: left; /* Alinha o texto do modal à esquerda */
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-80px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-80px);
+  }
+}
+
+.modal-overlay:not(.open) .modal-content {
+  animation: modalFadeOut 0.4s ease-out forwards;
+}
+
+.modal-content h2 {
+  font-size: 2.8rem;
+  color: #94b1ff;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 0 12px rgba(94, 137, 255, 0.6);
+}
+
+.modal-content p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  color: #cbd5e1;
+}
+
+.close-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 2.5rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.close-button:hover {
+  color: #ff6b6b;
+  transform: rotate(90deg) scale(1.1);
+}
+
+.dev-list {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.dev-list ul {
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.dev-list li {
+  margin-bottom: 1.2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
