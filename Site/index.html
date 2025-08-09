@@ -6,156 +6,374 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap"
       rel="stylesheet"
     />
     <link
       href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
     <link rel="stylesheet" href="styles.css" />
-    <title>LAG Zero | Download</title>
+    <title>LAG Zero | Diagnóstico e Otimização Inteligente</title>
   </head>
   <body>
-    <!-- Header com elementos animados -->
+    <div id="preloader">
+      <div class="preloader-logo">
+        <img
+          src="https://iili.io/FsASse4.md.png"
+          alt="Logo LAG Zero"
+          class="preloader-img"
+        />
+        <div class="preloader-text">
+          <span>L</span><span>A</span><span>G</span><span> </span
+          ><span class="gradient-text">Z</span
+          ><span class="gradient-text">E</span
+          ><span class="gradient-text">R</span
+          ><span class="gradient-text">O</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="background-effects">
+      <div id="particles-container"></div>
+      <div class="aurora-layer"></div>
+    </div>
+
     <header class="header">
-      <nav class="container nav">
-        <!-- Logo da navegação com animação de deslize para a esquerda -->
-        <a href="#top" class="animated-slide-left">
+      <div class="container header-container">
+        <a href="#" class="header-brand">
           <img
-            class="nav-logo-img"
             src="https://iili.io/FsASse4.md.png"
-            width="150"
-            alt="Logo"
+            alt="Logo LAG Zero"
+            class="header-logo"
           />
+          <span class="header-title"
+            >LAG <span class="gradient-text">Zero</span></span
+          >
         </a>
-        <!-- Título da navegação centralizado com animação de fade-up -->
-        <h1 class="nav-logo-text animated-fade-up delay-1">
-          LAG <span>Zero</span>
-        </h1>
-        <!-- Botão de download da navegação com animação de deslize para a direita -->
-        <a href="#download" class="nav-button animated-slide-right delay-2">
-          Download
-        </a>
-      </nav>
+        <nav class="header-nav">
+          <a href="#solution"><span>Diagnóstico</span></a>
+          <a href="#features"><span>Recursos</span></a>
+          <a href="#" id="about-link"><span>Sobre</span></a>
+          <a href="#download" class="header-download-button">
+            <span>Download</span>
+            <i class="fas fa-download"></i>
+          </a>
+        </nav>
+      </div>
     </header>
 
-    <!-- Conteúdo principal com elementos animados -->
-    <main>
-      <section id="download" class="download-section">
-        <div class="container">
-          <!-- Título da seção de download com animação de fade-up -->
-          <h2 class="animated-fade-up delay-3">Zero travas. Fluidez Total.</h2>
-          <!-- Parágrafo da seção de download com animação de fade-up -->
-          <p class="animated-fade-up delay-4">
-            Descubra como seu computador realmente se comporta — em tempo real.
+    <main id="main-content">
+      <section id="hero" class="fullscreen-section">
+        <div class="container hero-content">
+          <h1 class="main-title">
+            Zero travas. <span class="gradient-text">Fluidez total.</span>
+          </h1>
+          <p class="subtitle">
+            O LAG Zero não apenas monitora. Ele usa análise matemática para
+            diagnosticar, correlacionar e otimizar sua performance.
           </p>
-          <!-- Botão de download principal com animação de fade-up -->
-          <a href="#" class="download-button animated-fade-up delay-5">
-            Download
+          <a href="#download" class="cta-button">
+            <span>Baixe a versão para Windows</span>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 15 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7.5 2C7.77614 2 8 2.22386 8 2.5L8 11.2929L10.1464 9.14645C10.3417 8.95118 10.6583 8.95118 10.8536 9.14645C11.0488 9.34171 11.0488 9.65829 10.8536 9.85355L7.85355 12.8536C7.65829 13.0488 7.34171 13.0488 7.14645 12.8536L4.14645 9.85355C3.95118 9.65829 3.95118 9.34171 4.14645 9.14645C4.34171 8.95118 4.65829 8.95118 4.85355 9.14645L7 11.2929L7 2.5C7 2.22386 7.22386 2 7.5 2Z"
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
           </a>
+        </div>
+      </section>
+
+      <section id="solution" class="content-section">
+        <div class="container solution-container">
+          <div class="solution-text">
+            <h2 class="section-title">
+              Análise de Causa e Efeito. <br />Não apenas
+              <span class="gradient-text">números.</span>
+            </h2>
+            <p>
+              Enquanto outros apps mostram gráficos, o LAG Zero revela o impacto
+              real. Nosso motor de análise matemática cruza os dados de
+              temperatura da CPU, GPU e outros componentes com a sua taxa de
+              quadros (FPS), mostrando exatamente onde e por que você está
+              perdendo performance. Chega de adivinhar, comece a resolver.
+            </p>
+          </div>
+          <div class="solution-visual">
+            <div class="mockup-card">
+              <div class="mockup-header">
+                <span>Análise de Sessão de Jogo</span>
+                <div class="status-dot"></div>
+              </div>
+              <div class="mockup-graph"></div>
+              <div class="mockup-insight">
+                <svg class="insight-icon" viewBox="0 0 24 24">
+                  <path
+                    fill="currentColor"
+                    d="M11 15h2v2h-2v-2m0-8h2v6h-2V7m1-5C6.47 2 2 6.5 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 18a8 8 0 0 1-8-8a8 8 0 0 1 8-8a8 8 0 0 1 8 8a8 8 0 0 1-8 8Z"
+                  />
+                </svg>
+                <div>
+                  <strong>Correlação Encontrada:</strong> Quedas de FPS de 15%
+                  ocorrem quando a temperatura da GPU excede 85°C.
+                  <a href="#">Ver plano de otimização <span>&rarr;</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="audience" class="content-section text-center">
+        <div class="container">
+          <h2 class="section-title">
+            Feito para quem busca
+            <span class="gradient-text">mais performance.</span>
+          </h2>
+          <p class="section-subtitle">
+            Seja você um gamer casual ou um entusiasta de hardware, o LAG Zero
+            tem as ferramentas para levar seu PC ao próximo nível.
+          </p>
+          <div class="audience-grid">
+            <div class="audience-card">
+              <div class="audience-icon">
+                <i class="fas fa-gamepad"></i>
+              </div>
+              <h3>Gamers Competitivos</h3>
+              <p>
+                Extraia cada quadro por segundo e elimine travamentos para
+                garantir a máxima fluidez e tempo de resposta em seus jogos.
+              </p>
+            </div>
+            <div class="audience-card">
+              <div class="audience-icon">
+                <i class="fas fa-microchip"></i>
+              </div>
+              <h3>Entusiastas de Hardware</h3>
+              <p>
+                Monitore, teste e otimize suas configurações de overclock e
+                underclock com dados precisos e insights de performance.
+              </p>
+            </div>
+            <div class="audience-card">
+              <div class="audience-icon">
+                <i class="fas fa-video"></i>
+              </div>
+              <h3>Criadores de Conteúdo</h3>
+              <p>
+                Garanta renderizações mais rápidas e uma experiência de
+                streaming sem interrupções, otimizando seu sistema para tarefas
+                pesadas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="content-section">
+        <div class="container features-container">
+          <div class="features-list">
+            <div class="feature-item active" data-target="vis-1">
+              <h3><i class="fas fa-chart-line"></i>Análise de Correlação</h3>
+              <p>Entenda o impacto real da temperatura no seu FPS.</p>
+            </div>
+            <div class="feature-item" data-target="vis-2">
+              <h3><i class="fas fa-book-open"></i>Guias de Otimização</h3>
+              <p>Receba guias visuais e seguros para otimizar seu sistema.</p>
+            </div>
+            <div class="feature-item" data-target="vis-3">
+              <h3>
+                <i class="fas fa-screwdriver-wrench"></i>Hardware Check-up
+              </h3>
+              <p>Monitore a saúde e a velocidade de suas ventoinhas.</p>
+            </div>
+          </div>
+          <div class="features-visual">
+            <div id="vis-1" class="feature-visual-content active">
+              <h4>Visualize o Impacto</h4>
+              <p>
+                Nossos gráficos mostram claramente a linha de tendência: à
+                medida que a temperatura sobe, o FPS cai. Identifique o ponto
+                exato onde seu hardware começa a perder eficiência e tome ações
+                preventivas.
+              </p>
+            </div>
+            <div id="vis-2" class="feature-visual-content">
+              <h4>Otimização Simplificada</h4>
+              <p>
+                Com base no seu hardware e nos problemas detectados, geramos um
+                plano de ação. Seja um ajuste fino no MSI Afterburner ou uma
+                configuração na BIOS, nós guiamos você em cada passo.
+              </p>
+            </div>
+            <div id="vis-3" class="feature-visual-content">
+              <h4>Saúde do Sistema</h4>
+              <p>
+                Uma ventoinha operando abaixo do esperado? O LAG Zero alerta
+                você. Manter seu sistema de refrigeração em perfeito estado é o
+                primeiro passo para uma performance estável.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="download" class="content-section download-section">
+        <div class="container text-center">
+          <img
+            src="https://iili.io/FsASse4.md.png"
+            alt="Logo LAG Zero"
+            class="download-logo"
+          />
+          <h2 class="section-title">
+            Pronto para <span class="gradient-text">desbloquear</span> seu
+            hardware?
+          </h2>
+          <p>
+            O protótipo inicial está disponível para Windows. Estamos
+            trabalhando para expandir para outras plataformas.
+          </p>
+          <a href="#" class="cta-button large">
+            <span>Download LAG Zero para Windows</span>
+          </a>
+          <div class="os-icons">
+            <div class="os-icon active" title="Windows">
+              <i class="fa-brands fa-windows"></i>
+            </div>
+            <div class="os-icon" title="Linux (em breve)">
+              <i class="fa-brands fa-linux"></i>
+            </div>
+            <div class="os-icon" title="macOS (em breve)">
+              <i class="fa-brands fa-apple"></i>
+            </div>
+          </div>
         </div>
       </section>
     </main>
 
-    <!-- Footer com elementos animados -->
     <footer class="footer">
-      <div class="container footer-content">
-        <!-- Logo do rodapé -->
-        <div class="footer-logo animated-fade-up delay-6">
-          <img
-            class="footer-logo-img"
-            src="https://iili.io/FsASse4.md.png"
-            width="150"
-            alt="Logo LAG Zero"
-          />
-          <h3 class="footer-logo-text">LAG <span>Zero</span></h3>
+      <div class="container footer-container">
+        <div class="footer-brand">
+          LAG <span class="gradient-text">Zero</span>
         </div>
-
-        <!-- Links de navegação do rodapé -->
-        <nav class="footer-nav animated-fade-up delay-7">
-          <ul>
-            <li><a href="#top">Início</a></li>
-            <li><a href="#project-info">Projeto</a></li>
-            <li><a href="#" id="about-link">Sobre</a></li>
-          </ul>
-        </nav>
-
-        <!-- Informações de contato e copyright do rodapé -->
-        <div class="footer-contact-info animated-fade-up delay-8">
-          <a href="mailto:lagzero@gmail.com" class="footer-email">
-            <!-- Ícone de e-mail SVG para melhor controle visual -->
-            <svg
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+        <div class="footer-copyright">
+          &copy; 2025 LAG Zero Team. Todos os direitos reservados.
+        </div>
+        <div class="footer-socials">
+          <a
+            href="https://github.com/guilhermemf0/LAGZero"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="GitHub"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
               <path
-                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5c.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34c-.46-1.16-1.11-1.47-1.11-1.47c-.91-.62.07-.6.07-.6c1 .07 1.53 1.03 1.53 1.03c.87 1.5 2.28 1.07 2.84.82c.09-.64.34-1.07.61-1.32c-2.17-.25-4.45-1.09-4.45-4.83c0-1.07.39-1.94 1.03-2.61c-.1-.25-.45-1.23.1-2.58c0 0 .82-.26 2.67 1c.78-.22 1.63-.33 2.48-.33c.85 0 1.7.11 2.48.33c1.85-1.26 2.67-1 2.67-1c.55 1.35.2 2.33.1 2.58c.64.67 1.03 1.54 1.03 2.61c0 3.76-2.3 4.56-4.47 4.82c.34.29.64.87.64 1.75v2.62c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"
               />
-              <polyline points="22,6 12,13 2,6" />
             </svg>
-            lagzero@gmail.com
           </a>
-          <p class="footer-copyright">
-            &copy; 2025 LAG Zero. Todos os direitos reservados.
-          </p>
         </div>
       </div>
     </footer>
 
-    <!-- Contêiner para as partículas de fundo -->
-    <div class="background-particles"></div>
-
-    <!-- Modal "Sobre" -->
     <div id="about-modal" class="modal-overlay">
       <div class="modal-content">
-        <button class="close-button">&times;</button>
-        <h2>Sobre os Desenvolvedores</h2>
-        <p>
-          O LAG Zero foi criado por três estudantes da UENP com o objetivo de
-          desenvolver uma solução eficiente para melhorar o desempenho dos
-          computadores.
-        </p>
-        <div class="dev-list">
-          <ul>
-            <li>
-              <strong
-                ><span class="color">L</span>eonardo Rodrigues de Souza</strong
-              >
-              – Desenvolvedor principal do aplicativo, sendo o primeiro a
-              trabalhar diretamente na sua estrutura.
-            </li>
-            <li>
-              <strong
-                ><span class="color">A</span>na Alice Lunardi Montoro</strong
-              >
-              – Responsável pelo design visual do site, logotipo e aplicativo,
-              além de também atuar no desenvolvimento do app.
-            </li>
-            <li>
-              <strong><span class="color">G</span>uilherme Motta Franco</strong>
-              – Responsável pelo desenvolvimento completo do site e colaborador
-              na criação do aplicativo.
-            </li>
-          </ul>
+        <button class="close-button" aria-label="Fechar modal">&times;</button>
+        <div class="modal-header">
+          <img
+            src="https://iili.io/FsASse4.md.png"
+            alt="Logo LAG Zero"
+            class="modal-logo"
+          />
+          <h2>Sobre o LAG Zero</h2>
         </div>
-
-        <p>
-          Nosso foco é entregar uma experiência mais fluida e sem travamentos,
-          com uma interface simples e funcional.
-        </p>
-        <p>Para dúvidas ou suporte, entre em contato: lagzero@gmail.com</p>
+        <div class="modal-body">
+          <div class="modal-section">
+            <h3>Nossa Missão</h3>
+            <p>
+              Nossa missão é democratizar a otimização de performance.
+              Acreditamos que todos os usuários, do casual ao entusiasta,
+              merecem extrair o máximo de seu hardware sem precisar de
+              conhecimentos técnicos aprofundados. O LAG Zero foi criado para
+              ser a ponte entre dados complexos e soluções práticas.
+            </p>
+          </div>
+          <div class="modal-section">
+            <h3>A Equipe</h3>
+            <p>
+              Somos três estudantes de Ciência da Computação da UENP,
+              apaixonados por games e tecnologia, que se uniram para criar uma
+              ferramenta que realmente gostaríamos de usar.
+            </p>
+            <div class="dev-list">
+              <div class="dev-item">
+                <strong
+                  ><span class="gradient-text">L</span>eonardo Rodrigues de
+                  Souza</strong
+                >
+                <span
+                  >Focado na arquitetura e desenvolvimento do núcleo do
+                  aplicativo, garantindo a precisão e eficiência na coleta de
+                  dados.</span
+                >
+              </div>
+              <div class="dev-item">
+                <strong
+                  ><span class="gradient-text">A</span>na Alice Lunardi
+                  Montoro</strong
+                >
+                <span
+                  >Responsável pela identidade visual, logotipo e design de
+                  interface (UI/UX), além de colaborar no desenvolvimento do
+                  app.</span
+                >
+              </div>
+              <div class="dev-item">
+                <strong
+                  ><span class="gradient-text">G</span>uilherme Motta
+                  Franco</strong
+                >
+                <span
+                  >Desenvolvedor do ecossistema web, incluindo este site, e
+                  colaborador na integração e funcionalidades do
+                  aplicativo.</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="modal-section">
+            <h3>Tecnologia</h3>
+            <p>
+              O núcleo do LAG Zero é construído em C++ para garantir o
+              monitoramento de sistema mais rápido e de baixo nível possível,
+              assegurando precisão sem impactar sua performance. A interface é
+              desenvolvida com tecnologias web modernas para ser leve, bonita e,
+              acima de tudo, personalizável.
+            </p>
+          </div>
+          <p class="contact-info">
+            Dúvidas ou sugestões?
+            <a href="mailto:lagzero@gmail.com">lagzero@gmail.com</a>
+          </p>
+        </div>
       </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
