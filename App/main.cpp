@@ -1,13 +1,27 @@
 #include "mainwindow.h"
-
 #include <QApplication>
-
 #include <QSplashScreen>
 #include <QPixmap>
 #include <QThread>
+#include <QMessageBox> // Para a mensagem de erro
+
+#include <comdef.h> // Inclua as bibliotecas do COM
+#include <Wbemidl.h>
+
+// Adicione os pragma comments aqui
+#pragma comment(lib, "wbemuuid.lib")
+#pragma comment(lib, "comsuppw.lib")
 
 int main(int argc, char *argv[])
 {
+    // A inicialização correta para threads de UI (como o thread principal do Qt)
+    HRESULT hres = CoInitializeEx(0, COINIT_APARTMENTTHREADED);
+    if(FAILED(hres))
+    {
+        QMessageBox::critical(nullptr, "Erro Crítico", "Falha ao inicializar o COM. O programa não pode continuar.");
+        return -1; // Sai do programa
+    }
+
     QApplication a(argc, argv);
 
     QPixmap pixmap(":/logo-site.png");
@@ -20,5 +34,10 @@ int main(int argc, char *argv[])
     splash.finish(&w);
     w.show();
 
-    return a.exec();
+    int result = a.exec();
+
+    // Desinicialização do COM no final
+    CoUninitialize();
+
+    return result;
 }
