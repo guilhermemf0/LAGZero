@@ -1,0 +1,7 @@
+Helper iniciado em: 23/08/2025 15:11:43
+Diretório de Trabalho: C:\Projetos\LAGZero\App\helper
+Objeto 'Computer' criado.
+Comando 'computer.Open()' executado.
+Visitor aceite, sensores atualizados.
+Temperaturas encontradas - CPU: 67.0, Placa-mãe: -1, GPU: 57.0
+Valores impressos na consola com sucesso.

@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Globalization;
 using LibreHardwareMonitor.Hardware;
+using System.IO; // Necessário para escrever no ficheiro de log
 
 public class UpdateVisitor : IVisitor
 {
@@ -19,99 +20,86 @@ public class HardwareMonitor
 {
     public static void Main()
     {
-        Computer computer = new Computer
-        {
-            IsCpuEnabled = true,
-            IsGpuEnabled = true,
-            IsMotherboardEnabled = true,
-        };
-
-        string cpuTemp = "-1";
-        string motherboardTemp = "-1";
-        string gpuTemp = "-1";
+        // O ficheiro de log será criado ao lado do TempReader.exe
+        string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log.txt");
 
         try
         {
+            File.WriteAllText(logPath, "Helper iniciado em: " + DateTime.Now + "\n");
+            File.AppendAllText(logPath, "Diretório de Trabalho: " + Directory.GetCurrentDirectory() + "\n");
+
+            Computer computer = new Computer
+            {
+                IsCpuEnabled = true,
+                IsGpuEnabled = true,
+                IsMotherboardEnabled = true,
+            };
+
+            File.AppendAllText(logPath, "Objeto 'Computer' criado.\n");
             computer.Open();
-            Thread.Sleep(500);
+            File.AppendAllText(logPath, "Comando 'computer.Open()' executado.\n");
+
+            Thread.Sleep(1500);
             computer.Accept(new UpdateVisitor());
+            File.AppendAllText(logPath, "Visitor aceite, sensores atualizados.\n");
+
+            string cpuTemp = "-1", motherboardTemp = "-1", gpuTemp = "-1";
 
             foreach (IHardware hardware in computer.Hardware)
             {
-                // Encontra a temperatura da CPU
+                hardware.Update();
                 if (hardware.HardwareType == HardwareType.Cpu)
                 {
-                    foreach (ISensor sensor in hardware.Sensors)
-                    {
-                        if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue)
-                        {
-                            cpuTemp = sensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
-                            break;
-                        }
-                    }
+                    ISensor packageSensor = null, coreMaxSensor = null, fallbackSensor = null;
+                    Action<IHardware> findCpuSensors = (hw) => {
+                        foreach (ISensor sensor in hw.Sensors)
+                            if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue) {
+                                if (sensor.Name.IndexOf("Package", StringComparison.OrdinalIgnoreCase) >= 0) { packageSensor = sensor; return; }
+                                if (coreMaxSensor == null && sensor.Name.IndexOf("Core Max", StringComparison.OrdinalIgnoreCase) >= 0) { coreMaxSensor = sensor; }
+                                if (fallbackSensor == null) { fallbackSensor = sensor; }
+                            }
+                    };
+                    findCpuSensors(hardware);
+                    if (packageSensor == null) foreach (IHardware subHardware in hardware.SubHardware) { subHardware.Update(); findCpuSensors(subHardware); if (packageSensor != null) break; }
+                    ISensor finalSensor = packageSensor ?? coreMaxSensor ?? fallbackSensor;
+                    if (finalSensor != null) cpuTemp = finalSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
                 }
-                // Encontra a temperatura da Placa-mãe
                 if (hardware.HardwareType == HardwareType.Motherboard)
                 {
-                    ISensor systemSensor = null;
-                    ISensor fallbackSensor = null;
-
-                    // Procura nos sub-componentes
-                    foreach (IHardware subHardware in hardware.SubHardware)
-                    {
+                    ISensor systemSensor = null, fallbackSensor = null;
+                    foreach (IHardware subHardware in hardware.SubHardware) {
                         subHardware.Update();
                         foreach (ISensor sensor in subHardware.Sensors)
-                        {
-                            if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue)
-                            {
-                                // Tenta encontrar o sensor "System" preferencialmente
-                                if (sensor.Name.Contains("System"))
-                                {
-                                    systemSensor = sensor;
-                                    break; // Encontrou o sensor preferencial
-                                }
-                                // Guarda o primeiro sensor genérico como alternativa
-                                if (fallbackSensor == null)
-                                {
-                                    fallbackSensor = sensor;
-                                }
+                            if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue) {
+                                if (sensor.Name.IndexOf("System", StringComparison.OrdinalIgnoreCase) >= 0) { systemSensor = sensor; break; }
+                                if (fallbackSensor == null) { fallbackSensor = sensor; }
                             }
-                        }
                         if (systemSensor != null) break;
                     }
-
-                    // Usa o sensor "System" se encontrou, senão usa a alternativa
-                    ISensor finalSensor = systemSensor != null ? systemSensor : fallbackSensor;
-                    if (finalSensor != null)
-                    {
-                        motherboardTemp = finalSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
-                    }
+                    ISensor finalSensor = systemSensor ?? fallbackSensor;
+                    if (finalSensor != null) motherboardTemp = finalSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
                 }
-                // Encontra a temperatura da GPU
                 if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
                 {
-                    ISensor coreSensor = null;
+                    ISensor hotspotSensor = null, coreSensor = null, fallbackSensor = null;
                     foreach (ISensor sensor in hardware.Sensors)
-                    {
-                        if (sensor.SensorType == SensorType.Temperature && sensor.Name.Contains("Core") && sensor.Value.HasValue)
-                        {
-                            coreSensor = sensor;
-                            break;
+                        if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue) {
+                            if (sensor.Name.IndexOf("Hotspot", StringComparison.OrdinalIgnoreCase) >= 0) { hotspotSensor = sensor; break; }
+                            if (coreSensor == null && sensor.Name.IndexOf("Core", StringComparison.OrdinalIgnoreCase) >= 0) { coreSensor = sensor; }
+                            if (fallbackSensor == null) { fallbackSensor = sensor; }
                         }
-                    }
-                    if (coreSensor != null)
-                    {
-                        gpuTemp = coreSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
-                    }
+                    ISensor finalSensor = hotspotSensor ?? coreSensor ?? fallbackSensor;
+                    if (finalSensor != null) gpuTemp = finalSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
                 }
             }
-        }
-        catch (Exception) { }
-        finally
-        {
-            computer.Close();
-        }
 
-        Console.Write(String.Format("CPU:{0};MOTHERBOARD:{1};GPU:{2};", cpuTemp, motherboardTemp, gpuTemp));
+            File.AppendAllText(logPath, string.Format("Temperaturas encontradas - CPU: {0}, Placa-mãe: {1}, GPU: {2}\n", cpuTemp, motherboardTemp, gpuTemp));
+            Console.Write(String.Format("CPU:{0};MOTHERBOARD:{1};GPU:{2};", cpuTemp, motherboardTemp, gpuTemp));
+            File.AppendAllText(logPath, "Valores impressos na consola com sucesso.\n");
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText(logPath, "\n\n--- OCORREU UMA EXCEÇÃO ---\n" + ex.ToString());
+        }
     }
 }

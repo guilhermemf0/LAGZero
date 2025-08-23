@@ -52,7 +52,7 @@ void TemperatureWorker::readTemperature() {
         QString appDir = QCoreApplication::applicationDirPath();
         QString program = appDir + "/TempReader.exe";
 
-        // CORREÇÃO: Define o diretório de trabalho para que o .exe encontre a .dll
+        // CORREÇÃO CRÍTICA: Define o diretório de trabalho para que o .exe encontre a .dll
         m_process->setWorkingDirectory(appDir);
         m_process->start(program, QStringList());
     }
@@ -86,7 +86,7 @@ void TemperatureWorker::onProcessFinished(int exitCode, QProcess::ExitStatus exi
 
     } else {
         // O programa auxiliar falhou ao executar
-        qDebug() << "Helper process failed to run. Error:" << stdErr;
+        qDebug() << "Helper process failed to run. ExitCode:" << exitCode << "Error:" << stdErr;
         emit temperatureUpdated(-1.0, -1.0, -1.0); // Código de erro "falha na execução"
     }
 }

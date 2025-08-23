@@ -1,0 +1,23 @@
+# ninja log v6
+28	1952	7776751076348557	App_autogen/timestamp	43bb803390891b19
+28	1952	7776751076348557	App_autogen/mocs_compilation.cpp	43bb803390891b19
+28	1952	7776751076348557	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/timestamp	43bb803390891b19
+28	1952	7776751076348557	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/mocs_compilation.cpp	43bb803390891b19
+2010	2709	7776751078569877	CMakeFiles/App.dir/app.rc.obj	5ed79c4f946eca16
+2002	10130	7776751078479902	CMakeFiles/App.dir/cputemperature.cpp.obj	840eb4f4ecc042a6
+1986	10283	7776751078329954	CMakeFiles/App.dir/main.cpp.obj	a8cd7500ed59695a
+1976	10580	7776751078229979	CMakeFiles/App.dir/App_autogen/mocs_compilation.cpp.obj	26b961a70a7c3bd
+1995	10613	7776751078409934	CMakeFiles/App.dir/mainwindow.cpp.obj	fd2cd87da0b5d421
+10613	11254	7776751164596986	App.exe	c382a1b47ccd6d8
+26	70	7776764989359605	CMakeFiles/clean.additional	baedbe210acaa455
+70	91	7776764989796517	clean	d6542ab91c93f907
+51	2051	7776765010022743	App_autogen/timestamp	43bb803390891b19
+51	2051	7776765010022743	App_autogen/mocs_compilation.cpp	43bb803390891b19
+51	2051	7776765010022743	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/timestamp	43bb803390891b19
+51	2051	7776765010022743	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/mocs_compilation.cpp	43bb803390891b19
+2078	2643	7776765011853310	CMakeFiles/App.dir/app.rc.obj	5ed79c4f946eca16
+2071	9460	7776765011686335	CMakeFiles/App.dir/cputemperature.cpp.obj	840eb4f4ecc042a6
+2059	9529	7776765011686335	CMakeFiles/App.dir/main.cpp.obj	a8cd7500ed59695a
+2054	9731	7776765011633314	CMakeFiles/App.dir/App_autogen/mocs_compilation.cpp.obj	26b961a70a7c3bd
+2066	9905	7776765011686335	CMakeFiles/App.dir/mainwindow.cpp.obj	fd2cd87da0b5d421
+9906	10606	7776765090172947	App.exe	c382a1b47ccd6d8

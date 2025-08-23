@@ -21,27 +21,21 @@ set(PROJECT_SOURCES
         cputemperature.h
 )
 
+set(PROJECT_RESOURCES app.rc)
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(App
         MANUAL_FINALIZATION
+        WIN32
         ${PROJECT_SOURCES}
+        ${PROJECT_RESOURCES}
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET App APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
-    if(ANDROID)
-        add_library(App SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(App
-            ${PROJECT_SOURCES}
-        )
-    endif()
+    add_executable(App WIN32 ${PROJECT_SOURCES} ${PROJECT_RESOURCES})
 endif()
 
 target_link_libraries(App PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
