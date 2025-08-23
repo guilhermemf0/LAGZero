@@ -53,19 +53,38 @@ public class HardwareMonitor
                 // Encontra a temperatura da Placa-mãe
                 if (hardware.HardwareType == HardwareType.Motherboard)
                 {
-                    // CORREÇÃO: Procura também nos sub-componentes
+                    ISensor systemSensor = null;
+                    ISensor fallbackSensor = null;
+
+                    // Procura nos sub-componentes
                     foreach (IHardware subHardware in hardware.SubHardware)
                     {
                         subHardware.Update();
                         foreach (ISensor sensor in subHardware.Sensors)
                         {
-                            if (sensor.SensorType == SensorType.Temperature && sensor.Name.Contains("System") && sensor.Value.HasValue)
+                            if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue)
                             {
-                                motherboardTemp = sensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
-                                break;
+                                // Tenta encontrar o sensor "System" preferencialmente
+                                if (sensor.Name.Contains("System"))
+                                {
+                                    systemSensor = sensor;
+                                    break; // Encontrou o sensor preferencial
+                                }
+                                // Guarda o primeiro sensor genérico como alternativa
+                                if (fallbackSensor == null)
+                                {
+                                    fallbackSensor = sensor;
+                                }
                             }
                         }
-                        if (motherboardTemp != "-1") break;
+                        if (systemSensor != null) break;
+                    }
+
+                    // Usa o sensor "System" se encontrou, senão usa a alternativa
+                    ISensor finalSensor = systemSensor != null ? systemSensor : fallbackSensor;
+                    if (finalSensor != null)
+                    {
+                        motherboardTemp = finalSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture);
                     }
                 }
                 // Encontra a temperatura da GPU
