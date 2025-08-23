@@ -17,6 +17,8 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        cputemperature.cpp
+        cputemperature.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -43,6 +45,21 @@ else()
 endif()
 
 target_link_libraries(App PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+set(HELPER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/helper/TempReader.exe
+    ${CMAKE_CURRENT_SOURCE_DIR}/helper/LibreHardwareMonitorLib.dll
+)
+
+add_custom_command(TARGET App POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${HELPER_FILES}
+    $<TARGET_FILE_DIR:App>
+)
+
+if(WIN32)
+    target_link_libraries(App PRIVATE ole32 oleaut32 wbemuuid)
+endif()
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
