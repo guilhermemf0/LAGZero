@@ -17,8 +17,8 @@ public:
     ~MainWindow();
 
 private slots:
-    // Slot para receber a nova temperatura e atualizar a UI
-    void onTemperatureUpdated(double temperature);
+    // Slot agora recebe as três temperaturas
+    void onTemperatureUpdated(double cpu, double motherboard, double gpu);
 
 private:
     Ui::MainWindow *ui;

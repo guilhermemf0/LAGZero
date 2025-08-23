@@ -42,15 +42,18 @@ void TemperatureWorker::process() {
 
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &TemperatureWorker::readTemperature);
-    m_timer->start(2000); // Atualiza a cada 2 segundos
+    m_timer->start(1000);
     readTemperature(); // Leitura inicial
 }
 
 void TemperatureWorker::readTemperature() {
     // Verifica se um processo já está em execução
     if (m_process->state() == QProcess::NotRunning) {
-        // O caminho para o executável é relativo ao executável principal do seu App
-        QString program = QCoreApplication::applicationDirPath() + "/TempReader.exe";
+        QString appDir = QCoreApplication::applicationDirPath();
+        QString program = appDir + "/TempReader.exe";
+
+        // CORREÇÃO: Define o diretório de trabalho para que o .exe encontre a .dll
+        m_process->setWorkingDirectory(appDir);
         m_process->start(program, QStringList());
     }
 }
@@ -60,23 +63,30 @@ void TemperatureWorker::onProcessFinished(int exitCode, QProcess::ExitStatus exi
     QByteArray stdErr = m_process->readAllStandardError();
 
     if (exitStatus == QProcess::NormalExit && exitCode == 0) {
-        QString tempStr = QString::fromLatin1(stdOut).trimmed();
+        QString resultStr = QString::fromLatin1(stdOut).trimmed();
+        resultStr.replace(',', '.');
 
-        // --- CORREÇÃO: Substitui a vírgula pelo ponto ---
-        tempStr.replace(',', '.');
+        // Analisa a string para obter os três valores
+        double cpuTemp = -2.0, mbTemp = -2.0, gpuTemp = -2.0;
+        QStringList parts = resultStr.split(';', Qt::SkipEmptyParts);
 
-        bool ok;
-        double temperature = tempStr.toDouble(&ok);
-
-        if (ok && !tempStr.isEmpty()) {
-            emit temperatureUpdated(temperature);
-        } else {
-            // O programa rodou mas não retornou um número válido
-            emit temperatureUpdated(-2.0); // Código de erro "não encontrado"
+        for (const QString &part : parts) {
+            QStringList pair = part.split(':');
+            if (pair.length() == 2) {
+                bool ok;
+                double temp = pair[1].toDouble(&ok);
+                if (ok) {
+                    if (pair[0] == "CPU") cpuTemp = temp;
+                    else if (pair[0] == "MOTHERBOARD") mbTemp = temp;
+                    else if (pair[0] == "GPU") gpuTemp = temp;
+                }
+            }
         }
+        emit temperatureUpdated(cpuTemp, mbTemp, gpuTemp);
+
     } else {
         // O programa auxiliar falhou ao executar
         qDebug() << "Helper process failed to run. Error:" << stdErr;
-        emit temperatureUpdated(-1.0); // Código de erro "falha na execução"
+        emit temperatureUpdated(-1.0, -1.0, -1.0); // Código de erro "falha na execução"
     }
 }

@@ -18,7 +18,8 @@ public slots:
     void process();
 
 signals:
-    void temperatureUpdated(double temperature);
+    // Sinal agora emite as três temperaturas
+    void temperatureUpdated(double cpu, double motherboard, double gpu);
 
 private slots:
     void readTemperature();
@@ -39,7 +40,8 @@ public:
     ~CpuTemperature();
 
 signals:
-    void temperatureUpdated(double temperature);
+    // Sinal encaminhado com os três valores
+    void temperatureUpdated(double cpu, double motherboard, double gpu);
 
 private:
     QThread workerThread;

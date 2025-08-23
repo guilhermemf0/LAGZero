@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QString>
+#include <QLabel> // Necessário incluir para usar QLabel
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -8,10 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Cria uma instância do nosso leitor de temperatura
     m_cpuTempReader = new CpuTemperature(this);
-
-    // Conecta o sinal da classe CpuTemperature ao nosso slot
     connect(m_cpuTempReader, &CpuTemperature::temperatureUpdated, this, &MainWindow::onTemperatureUpdated);
 }
 
@@ -20,17 +18,22 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::onTemperatureUpdated(double temperature)
+// Função auxiliar para formatar o texto
+void setLabelText(QLabel* label, const QString& prefix, double temperature)
 {
+    if (!label) return; // Proteção para caso o label não exista
+
     if (temperature >= 0) {
-        // Formata a string para exibir com uma casa decimal e o símbolo de grau
-        ui->tempLabel->setText(QString("Temperatura da CPU: %1 °C").arg(temperature, 0, 'f', 1));
-    } else if (temperature == -2.0) {
-        // Código de erro para sensor não encontrado
-        ui->tempLabel->setText("Sensor não encontrado via WMI");
+        // Usando QString::number para evitar erros de compilação
+        label->setText(prefix + QString::number(temperature, 'f', 1) + " °C");
+    } else if (temperature == -2.0 || temperature == -1.0) { // Trata ambos os erros
+        label->setText(prefix + "Não encontrado");
     }
-    else {
-        // Outros erros de leitura
-        ui->tempLabel->setText("Erro na conexão com WMI");
-    }
+}
+
+void MainWindow::onTemperatureUpdated(double cpu, double motherboard, double gpu)
+{
+    setLabelText(ui->tempLabel, "CPU: ", cpu);
+    setLabelText(ui->motherboardTempLabel, "Placa-mãe: ", motherboard);
+    setLabelText(ui->gpuTempLabel, "GPU: ", gpu);
 }
