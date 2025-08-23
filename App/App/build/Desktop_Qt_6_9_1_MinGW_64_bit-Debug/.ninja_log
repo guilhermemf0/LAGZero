@@ -1,0 +1,9 @@
+# ninja log v7
+11	644	7776133359685464	App_autogen/timestamp	63e76e0852fc17e1
+11	644	7776133359685464	App_autogen/mocs_compilation.cpp	63e76e0852fc17e1
+11	644	7776133359685464	C:/Projetos/LAGZero/App/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/timestamp	63e76e0852fc17e1
+11	644	7776133359685464	C:/Projetos/LAGZero/App/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/mocs_compilation.cpp	63e76e0852fc17e1
+651	2592	7776133360487360	CMakeFiles/App.dir/App_autogen/mocs_compilation.cpp.obj	cf55a5ec27779053
+654	2594	7776133360522472	CMakeFiles/App.dir/main.cpp.obj	ba0f1a9b13a1b457
+658	2649	7776133360562479	CMakeFiles/App.dir/mainwindow.cpp.obj	5d760b5119631ebb
+2650	2805	7776133380476165	App.exe	e018fa06abe3f760
