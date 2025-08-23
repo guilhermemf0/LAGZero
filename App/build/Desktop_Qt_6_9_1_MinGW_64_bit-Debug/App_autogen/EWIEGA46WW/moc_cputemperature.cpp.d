@@ -1,7 +1,9 @@
 C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EWIEGA46WW/moc_cputemperature.cpp: C:/Projetos/LAGZero/App/cputemperature.h \
   C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/moc_predefs.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QMap \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QObject \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QProcess \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QString \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QThread \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QTimer \
   C:/Qt/6.9.1/mingw_64/include/QtCore/q17memory.h \
@@ -58,6 +60,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtCore/qlist.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qlogging.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmalloc.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/qmap.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmath.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmetacontainer.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmetatype.h \
@@ -76,6 +79,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtCore/qscopedpointer.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qscopeguard.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata_impl.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qspan.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qstdlibdetection.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qstring.h \

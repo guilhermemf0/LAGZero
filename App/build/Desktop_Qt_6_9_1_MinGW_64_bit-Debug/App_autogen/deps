@@ -11,8 +11,10 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/main.cpp \
 	C:/Projetos/LAGZero/App/mainwindow.cpp \
 	C:/Projetos/LAGZero/App/mainwindow.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QMap \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QObject \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QProcess \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QString \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QThread \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QTimer \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/q17memory.h \

@@ -15,6 +15,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -26,6 +27,8 @@ public:
     QLabel *tempLabel;
     QLabel *motherboardTempLabel;
     QLabel *gpuTempLabel;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *storageLayout;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -45,6 +48,12 @@ public:
         gpuTempLabel = new QLabel(centralwidget);
         gpuTempLabel->setObjectName("gpuTempLabel");
         gpuTempLabel->setGeometry(QRect(170, 190, 431, 16));
+        verticalLayoutWidget = new QWidget(centralwidget);
+        verticalLayoutWidget->setObjectName("verticalLayoutWidget");
+        verticalLayoutWidget->setGeometry(QRect(170, 230, 160, 80));
+        storageLayout = new QVBoxLayout(verticalLayoutWidget);
+        storageLayout->setObjectName("storageLayout");
+        storageLayout->setContentsMargins(0, 0, 0, 0);
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");

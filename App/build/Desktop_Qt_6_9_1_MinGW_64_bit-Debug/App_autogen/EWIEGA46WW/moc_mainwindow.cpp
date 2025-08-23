@@ -39,17 +39,16 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "MainWindow",
-        "onTemperatureUpdated",
+        "onTemperaturesUpdated",
         "",
-        "cpu",
-        "motherboard",
-        "gpu"
+        "QMap<QString,double>",
+        "temps"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Slot 'onTemperatureUpdated'
-        QtMocHelpers::SlotData<void(double, double, double)>(1, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Double, 3 }, { QMetaType::Double, 4 }, { QMetaType::Double, 5 },
+        // Slot 'onTemperaturesUpdated'
+        QtMocHelpers::SlotData<void(const QMap<QString,double> &)>(1, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 3, 4 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -74,7 +73,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     auto *_t = static_cast<MainWindow *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->onTemperatureUpdated((*reinterpret_cast< std::add_pointer_t<double>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
+        case 0: _t->onTemperaturesUpdated((*reinterpret_cast< std::add_pointer_t<QMap<QString,double>>>(_a[1]))); break;
         default: ;
         }
     }

@@ -39,11 +39,10 @@ template <> constexpr inline auto TemperatureWorker::qt_create_metaobjectdata<qt
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "TemperatureWorker",
-        "temperatureUpdated",
+        "temperaturesUpdated",
         "",
-        "cpu",
-        "motherboard",
-        "gpu",
+        "QMap<QString,double>",
+        "temps",
         "process",
         "readTemperature",
         "onProcessFinished",
@@ -53,17 +52,17 @@ template <> constexpr inline auto TemperatureWorker::qt_create_metaobjectdata<qt
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Signal 'temperatureUpdated'
-        QtMocHelpers::SignalData<void(double, double, double)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::Double, 3 }, { QMetaType::Double, 4 }, { QMetaType::Double, 5 },
+        // Signal 'temperaturesUpdated'
+        QtMocHelpers::SignalData<void(const QMap<QString,double> &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 3, 4 },
         }}),
         // Slot 'process'
-        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'readTemperature'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onProcessFinished'
-        QtMocHelpers::SlotData<void(int, QProcess::ExitStatus)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 9 }, { 0x80000000 | 10, 11 },
+        QtMocHelpers::SlotData<void(int, QProcess::ExitStatus)>(7, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 8 }, { 0x80000000 | 9, 10 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -88,7 +87,7 @@ void TemperatureWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
     auto *_t = static_cast<TemperatureWorker *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->temperatureUpdated((*reinterpret_cast< std::add_pointer_t<double>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
+        case 0: _t->temperaturesUpdated((*reinterpret_cast< std::add_pointer_t<QMap<QString,double>>>(_a[1]))); break;
         case 1: _t->process(); break;
         case 2: _t->readTemperature(); break;
         case 3: _t->onProcessFinished((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QProcess::ExitStatus>>(_a[2]))); break;
@@ -96,7 +95,7 @@ void TemperatureWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
-        if (QtMocHelpers::indexOfMethod<void (TemperatureWorker::*)(double , double , double )>(_a, &TemperatureWorker::temperatureUpdated, 0))
+        if (QtMocHelpers::indexOfMethod<void (TemperatureWorker::*)(const QMap<QString,double> & )>(_a, &TemperatureWorker::temperaturesUpdated, 0))
             return;
     }
 }
@@ -133,9 +132,9 @@ int TemperatureWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void TemperatureWorker::temperatureUpdated(double _t1, double _t2, double _t3)
+void TemperatureWorker::temperaturesUpdated(const QMap<QString,double> & _t1)
 {
-    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1, _t2, _t3);
+    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1);
 }
 namespace {
 struct qt_meta_tag_ZN14CpuTemperatureE_t {};
@@ -146,17 +145,16 @@ template <> constexpr inline auto CpuTemperature::qt_create_metaobjectdata<qt_me
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "CpuTemperature",
-        "temperatureUpdated",
+        "temperaturesUpdated",
         "",
-        "cpu",
-        "motherboard",
-        "gpu"
+        "QMap<QString,double>",
+        "temps"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Signal 'temperatureUpdated'
-        QtMocHelpers::SignalData<void(double, double, double)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::Double, 3 }, { QMetaType::Double, 4 }, { QMetaType::Double, 5 },
+        // Signal 'temperaturesUpdated'
+        QtMocHelpers::SignalData<void(const QMap<QString,double> &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 3, 4 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -181,12 +179,12 @@ void CpuTemperature::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     auto *_t = static_cast<CpuTemperature *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->temperatureUpdated((*reinterpret_cast< std::add_pointer_t<double>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
+        case 0: _t->temperaturesUpdated((*reinterpret_cast< std::add_pointer_t<QMap<QString,double>>>(_a[1]))); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
-        if (QtMocHelpers::indexOfMethod<void (CpuTemperature::*)(double , double , double )>(_a, &CpuTemperature::temperatureUpdated, 0))
+        if (QtMocHelpers::indexOfMethod<void (CpuTemperature::*)(const QMap<QString,double> & )>(_a, &CpuTemperature::temperaturesUpdated, 0))
             return;
     }
 }
@@ -223,8 +221,8 @@ int CpuTemperature::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void CpuTemperature::temperatureUpdated(double _t1, double _t2, double _t3)
+void CpuTemperature::temperaturesUpdated(const QMap<QString,double> & _t1)
 {
-    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1, _t2, _t3);
+    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1);
 }
 QT_WARNING_POP
