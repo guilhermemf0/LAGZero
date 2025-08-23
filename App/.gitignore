@@ -68,10 +68,7 @@ CMakeLists.txt.user*
 # Python byte code
 *.pyc
 
-# Binaries
-# --------
-*.dll
-*.exe
+
 
 # Directories with generated files
 .moc/
