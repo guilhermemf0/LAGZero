@@ -8,7 +8,13 @@
 #include <QMap>
 #include <QString>
 
-// --- Classe Worker ---
+// --- CORREÇÃO: Estrutura para armazenar nome, temperatura e tipo de disco ---
+struct HardwareInfo {
+    QString name = "N/D";
+    double temperature = -1.0;
+    QString driveType = ""; // Pode ser "SSD" ou "HD"
+};
+
 class TemperatureWorker : public QObject
 {
     Q_OBJECT
@@ -17,8 +23,7 @@ public:
 public slots:
     void process();
 signals:
-    // Sinal agora emite um mapa com todos os sensores encontrados
-    void temperaturesUpdated(const QMap<QString, double> &temps);
+    void temperaturesUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
 private slots:
     void readTemperature();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -27,7 +32,6 @@ private:
     QProcess *m_process = nullptr;
 };
 
-// --- Classe Principal (Controladora) ---
 class CpuTemperature : public QObject
 {
     Q_OBJECT
@@ -35,8 +39,7 @@ public:
     explicit CpuTemperature(QObject *parent = nullptr);
     ~CpuTemperature();
 signals:
-    // Sinal encaminhado com o mapa
-    void temperaturesUpdated(const QMap<QString, double> &temps);
+    void temperaturesUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
 private:
     QThread workerThread;
 };

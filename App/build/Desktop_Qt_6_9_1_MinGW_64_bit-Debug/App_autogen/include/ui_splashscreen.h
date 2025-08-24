@@ -26,9 +26,7 @@ public:
     QSpacerItem *verticalSpacer_2;
     QLabel *logoLabel;
     QWidget *titleContainer;
-    QHBoxLayout *horizontalLayout;
-    QLabel *lagLabel;
-    QLabel *zeroLabel;
+    QHBoxLayout *titleLayout;
     QSpacerItem *verticalSpacer;
 
     void setupUi(QWidget *SplashScreen)
@@ -54,23 +52,12 @@ public:
 
         titleContainer = new QWidget(SplashScreen);
         titleContainer->setObjectName("titleContainer");
-        horizontalLayout = new QHBoxLayout(titleContainer);
-        horizontalLayout->setSpacing(0);
-        horizontalLayout->setObjectName("horizontalLayout");
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        lagLabel = new QLabel(titleContainer);
-        lagLabel->setObjectName("lagLabel");
-        lagLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        titleLayout = new QHBoxLayout(titleContainer);
+        titleLayout->setSpacing(0);
+        titleLayout->setObjectName("titleLayout");
+        titleLayout->setContentsMargins(0, 0, 0, 0);
 
-        horizontalLayout->addWidget(lagLabel);
-
-        zeroLabel = new QLabel(titleContainer);
-        zeroLabel->setObjectName("zeroLabel");
-
-        horizontalLayout->addWidget(zeroLabel);
-
-
-        verticalLayout->addWidget(titleContainer, 0, Qt::AlignHCenter);
+        verticalLayout->addWidget(titleContainer);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
@@ -86,8 +73,6 @@ public:
     {
         SplashScreen->setWindowTitle(QCoreApplication::translate("SplashScreen", "Form", nullptr));
         logoLabel->setText(QString());
-        lagLabel->setText(QCoreApplication::translate("SplashScreen", "LAG", nullptr));
-        zeroLabel->setText(QCoreApplication::translate("SplashScreen", "ZERO", nullptr));
     } // retranslateUi
 
 };

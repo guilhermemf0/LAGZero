@@ -1,8 +1,11 @@
 #include "splashscreen.h"
 #include "ui_splashscreen.h"
+#include "strokedlabel.h"
 #include <QPropertyAnimation>
-#include <QFontDatabase> // Necessário para adicionar fontes personalizadas
-#include <QDebug>        // Necessário para verificar se a fonte foi carregada
+#include <QFontDatabase>
+#include <QDebug>
+#include <QPen>
+#include <QLinearGradient>
 
 SplashScreen::SplashScreen(QWidget *parent) :
     QWidget(parent),
@@ -15,43 +18,54 @@ SplashScreen::SplashScreen(QWidget *parent) :
     setAttribute(Qt::WA_TranslucentBackground);
 
     // --- Estilo ---
-    // Cor de fundo exata do seu site e bordas arredondadas
     this->setStyleSheet("QWidget#SplashScreen { background-color: #05070d; border-radius: 10px; }");
 
-    // Adiciona e verifica a fonte personalizada "Audiowide"
+    // --- Fonte ---
     int fontId = QFontDatabase::addApplicationFont(":/fonts/Audiowide-Regular.ttf");
     QString fontFamily;
     if (fontId != -1) {
         fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
     } else {
-        // Se a fonte não for encontrada, imprime um aviso e usa uma fonte padrão
-        qDebug() << "Aviso: A fonte 'Audiowide-Regular.ttf' não foi encontrada no caminho de recursos ':/fonts/'. Usando uma fonte padrão.";
+        qDebug() << "Aviso: A fonte 'Audiowide-Regular.ttf' não foi encontrada. Usando uma fonte padrão.";
         fontFamily = "sans-serif";
     }
 
-    // Define um estilo base para ambas as partes do título, usando a fonte do site
-    const QString baseTitleStyle = QString(
-        "font-family: '%1';"
-        "font-size: 38pt;"      // Tamanho ajustado para melhor aparência
-        "font-weight: normal;"
-        "padding: 0px;"         // Remove o preenchimento
-        "margin: 0px;"          // Remove a margem
-    ).arg(fontFamily);
+    QFont titleFont(fontFamily, 38, QFont::Normal);
 
-    // Estiliza a parte "LAG" para ser branca
-    ui->lagLabel->setStyleSheet(baseTitleStyle + "color: #ffffff;");
+    // --- Criação dos StrokedLabels ---
+    m_lagLabel = new StrokedLabel("LAG", this);
+    m_zeroLabel = new StrokedLabel("ZERO", this);
 
-    // Estiliza a parte "ZERO" com o gradiente exato do site
-    ui->zeroLabel->setStyleSheet(baseTitleStyle +
-        "color: qlineargradient(spread:pad, x1:0, y1:0.5, x2:1, y2:0.5, "
-        "stop:0 rgba(0, 133, 255, 255), "  // --color-accent-primary
-        "stop:1 rgba(0, 209, 255, 255));"   // --color-accent-secondary
-    );
+    // --- CORREÇÃO: Borda ainda mais espessa ---
+    QPen strokePen(QColor("#000000"), 5.0); // Aumentado de 3.5 para 5.0
+    strokePen.setJoinStyle(Qt::RoundJoin);
+
+    // --- Estiliza o "LAG" ---
+    m_lagLabel->setFont(titleFont);
+    m_lagLabel->setStrokePen(strokePen);
+    m_lagLabel->setFillBrush(QColor("#ffffff"));
+    m_lagLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+    // --- Estiliza o "ZERO" ---
+    QLinearGradient zeroGradient(0, 0, m_zeroLabel->sizeHint().width(), 0);
+    zeroGradient.setColorAt(0, QColor(0, 133, 255));
+    zeroGradient.setColorAt(1, QColor(0, 209, 255));
+
+    m_zeroLabel->setFont(titleFont);
+    m_zeroLabel->setStrokePen(strokePen);
+    m_zeroLabel->setFillBrush(zeroGradient);
+    m_zeroLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    // --- CORREÇÃO: Centralização e Mais Espaçamento ---
+    ui->titleLayout->addStretch(1);
+    ui->titleLayout->addWidget(m_lagLabel);
+    ui->titleLayout->addWidget(m_zeroLabel);
+    ui->titleLayout->addStretch(1);
+    ui->titleLayout->setSpacing(10); // Aumentado de 4 para 10
 
     // --- Animação ---
-    // Aumenta a duração para corresponder à do site
     QPropertyAnimation *animation = new QPropertyAnimation(this, "windowOpacity");
-    animation->setDuration(2000); // 2 segundos
+    animation->setDuration(2000);
     animation->setStartValue(0.0);
     animation->setEndValue(1.0);
     animation->setEasingCurve(QEasingCurve::InOutCubic);

@@ -2,3 +2,4 @@
 #include "EWIEGA46WW/moc_cputemperature.cpp"
 #include "EWIEGA46WW/moc_mainwindow.cpp"
 #include "EWIEGA46WW/moc_splashscreen.cpp"
+#include "EWIEGA46WW/moc_strokedlabel.cpp"

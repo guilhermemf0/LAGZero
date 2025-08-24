@@ -3,6 +3,9 @@
 
 #include <QWidget>
 
+// Forward declaration da nossa nova classe
+class StrokedLabel;
+
 namespace Ui {
 class SplashScreen;
 }
@@ -17,6 +20,9 @@ public:
 
 private:
     Ui::SplashScreen *ui;
+    // Ponteiros para nossos novos widgets de texto
+    StrokedLabel *m_lagLabel;
+    StrokedLabel *m_zeroLabel;
 };
 
 #endif // SPLASHSCREEN_H

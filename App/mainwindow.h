@@ -5,23 +5,13 @@
 #include <QStackedWidget>
 #include <QLabel>
 #include <QMap>
-#include <QColor>
-
-// Enumeração para os ícones das abas
-enum IconIndex {
-    OverviewIcon = 0,
-    CpuIcon,
-    GpuIcon,
-    MotherboardIcon,
-    StorageIcon,
-    SettingsIcon
-};
+#include <QPushButton>
+#include <QVBoxLayout>
+#include "cputemperature.h" // Incluído para a struct HardwareInfo
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
-class CpuTemperature;
 
 class MainWindow : public QMainWindow
 {
@@ -32,34 +22,36 @@ public:
     ~MainWindow();
 
 private slots:
-    // Slot para atualizar as temperaturas
-    void onTemperaturesUpdated(const QMap<QString, double> &temps);
-    // Slot para lidar com os cliques dos botões de navegação
+    // --- CORREÇÃO: Assinatura do slot atualizada ---
+    void onTemperaturesUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
     void onNavigationButtonClicked();
+    void onTempNavigationButtonClicked();
 
 private:
     Ui::MainWindow *ui;
     CpuTemperature *m_tempReader;
-    QMap<QString, QLabel*> m_storageLabels;
 
-    // Widgets para as abas principais
     QStackedWidget *m_mainStackedWidget;
-    QWidget *m_overviewPage;
-    QWidget *m_temperaturePage;
-    QWidget *m_settingsPage;
+    QList<QPushButton*> m_navButtons;
 
-    // Widgets para as sub-abas de temperatura
-    QStackedWidget *m_tempSubStackedWidget;
-    QWidget *m_cpuPage;
-    QWidget *m_gpuPage;
-    QWidget *m_motherboardPage;
-    QWidget *m_storagePage;
+    QStackedWidget *m_tempStackedWidget;
+    QList<QPushButton*> m_tempNavButtons;
 
-    // Funções para estilizar e atualizar os rótulos de temperatura
-    QColor getTemperatureColor(double temperature);
-    void setLabelText(QLabel* label, const QString& prefix, double temperature);
+    // --- CORREÇÃO: Declaração dos ponteiros de labels que estavam faltando ---
+    QLabel *m_cpuTitleLabel;
+    QLabel *m_cpuTempValueLabel;
+    QLabel *m_gpuTitleLabel;
+    QLabel *m_gpuTempValueLabel;
+    QLabel *m_mbTitleLabel;
+    QLabel *m_mbTempValueLabel;
 
-    // Funções legadas que podem ser removidas mais tarde se não forem usadas
-    QColor getCpuColor(double temperature);
+    // Mapas para os labels de armazenamento criados dinamicamente
+    QMap<QString, QLabel*> m_storageTitleLabels;
+    QMap<QString, QLabel*> m_storageValueLabels;
+    QVBoxLayout *m_storagePageLayout;
+
+    // --- CORREÇÃO: Assinatura da função atualizada ---
+    QWidget* createTemperatureRow(const QString &title, QLabel* &titleLabel, QLabel* &valueLabel);
+    void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);
 };
 #endif // MAINWINDOW_H

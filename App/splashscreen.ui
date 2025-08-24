@@ -55,9 +55,10 @@
      </property>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item>
+    <!-- O container do título agora está vazio. Vamos adicionar os widgets via código. -->
     <widget class="QWidget" name="titleContainer" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="titleLayout">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -73,23 +74,6 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QLabel" name="lagLabel">
-        <property name="text">
-         <string>LAG</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="zeroLabel">
-        <property name="text">
-         <string>ZERO</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

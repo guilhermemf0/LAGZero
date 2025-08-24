@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Core)
 
+# Adicionado os novos arquivos strokedlabel.cpp e strokedlabel.h
 set(PROJECT_SOURCES
     main.cpp
     mainwindow.cpp
@@ -21,6 +22,8 @@ set(PROJECT_SOURCES
     splashscreen.cpp
     splashscreen.h
     splashscreen.ui
+    strokedlabel.cpp
+    strokedlabel.h
     resources.qrc
     app.rc
 )
@@ -58,11 +61,12 @@ if(QT_VERSION VERSION_LESS 6.1.0)
 endif()
 set_target_properties(App PROPERTIES
     ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
+    MACOSX_BUNDLE_ICON_FILE icns/AppIcon.icns
     WIN32_EXECUTABLE TRUE
+    WIN32_APPLICATION_ICON "images/logo.ico"
 )
+
 
 include(GNUInstallDirs)
 install(TARGETS App

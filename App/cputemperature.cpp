@@ -31,7 +31,7 @@ void TemperatureWorker::readTemperature() {
     }
 }
 void TemperatureWorker::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus) {
-    QMap<QString, double> temperatures;
+    QMap<QString, HardwareInfo> deviceInfos;
     if (exitStatus == QProcess::NormalExit && exitCode == 0) {
         QByteArray stdOut = m_process->readAllStandardOutput();
         QString resultStr = QString::fromLatin1(stdOut).trimmed();
@@ -39,15 +39,29 @@ void TemperatureWorker::onProcessFinished(int exitCode, QProcess::ExitStatus exi
 
         QStringList parts = resultStr.split(';', Qt::SkipEmptyParts);
         for (const QString &part : parts) {
+            // --- CORREÇÃO: Interpreta os novos formatos ---
             QStringList pair = part.split(':');
-            if (pair.length() == 2) {
-                bool ok;
-                double temp = pair[1].toDouble(&ok);
-                if (ok) {
-                    temperatures.insert(pair[0], temp);
-                }
+            if (pair.length() < 3) continue;
+
+            QString key = pair[0];
+            HardwareInfo info;
+            bool ok = false;
+
+            if (key.startsWith("STORAGE") && pair.length() == 4) {
+                // Formato Storage: STORAGE_KEY:NAME:TYPE:TEMP
+                info.name = pair[1];
+                info.driveType = pair[2];
+                info.temperature = pair[3].toDouble(&ok);
+            } else if (pair.length() == 3) {
+                // Formato Padrão: KEY:NAME:TEMP
+                info.name = pair[1];
+                info.temperature = pair[2].toDouble(&ok);
+            }
+
+            if (ok) {
+                deviceInfos.insert(key, info);
             }
         }
     }
-    emit temperaturesUpdated(temperatures);
+    emit temperaturesUpdated(deviceInfos);
 }
