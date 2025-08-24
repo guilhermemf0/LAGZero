@@ -13,22 +13,30 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        cputemperature.cpp
-        cputemperature.h
+    main.cpp
+    mainwindow.cpp
+    mainwindow.h
+    mainwindow.ui
+    cputemperature.cpp
+    cputemperature.h
+    splashscreen.cpp
+    splashscreen.h
+    splashscreen.ui
+    resources.qrc
+    app.rc
 )
 
-set(PROJECT_RESOURCES app.rc)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
     qt_add_executable(App
         MANUAL_FINALIZATION
         WIN32
         ${PROJECT_SOURCES}
-        ${PROJECT_RESOURCES}
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET App APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -39,6 +47,7 @@ else()
 endif()
 
 target_link_libraries(App PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
 
 set(HELPER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/helper/TempReader.exe
@@ -53,6 +62,10 @@ add_custom_command(TARGET App POST_BUILD
 
 if(WIN32)
     target_link_libraries(App PRIVATE ole32 oleaut32 wbemuuid)
+target_link_libraries(App PRIVATE Qt6::Widgets)
+target_link_libraries(App PRIVATE Qt6::Widgets)
+target_link_libraries(App PRIVATE Qt6::Core)
+target_link_libraries(App PRIVATE Qt6::Core)
 endif()
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

@@ -4,12 +4,14 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QString>
+#include <QColor>
 
 // Forward declarations
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 class QLabel;
+class CpuTemperature;
 
 class MainWindow : public QMainWindow
 {
@@ -18,12 +20,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 private slots:
-    // Slot agora recebe o mapa de temperaturas
     void onTemperaturesUpdated(const QMap<QString, double> &temps);
 private:
     Ui::MainWindow *ui;
-    class CpuTemperature *m_tempReader;
-    // Mapa para guardar os labels dos discos que criamos
+    CpuTemperature *m_tempReader;
     QMap<QString, QLabel*> m_storageLabels;
+
+    void setLabelText(QLabel* label, const QString& prefix, double temperature, bool isCpu = false);
+    QColor getCpuColor(double temperature);
 };
 #endif // MAINWINDOW_H

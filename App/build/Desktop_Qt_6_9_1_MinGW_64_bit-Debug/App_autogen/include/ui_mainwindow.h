@@ -11,9 +11,11 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -24,11 +26,12 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
+    QGridLayout *gridLayout;
+    QVBoxLayout *storageLayout;
+    QLabel *gpuTempLabel;
+    QSpacerItem *verticalSpacer;
     QLabel *tempLabel;
     QLabel *motherboardTempLabel;
-    QLabel *gpuTempLabel;
-    QWidget *verticalLayoutWidget;
-    QVBoxLayout *storageLayout;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -39,21 +42,32 @@ public:
         MainWindow->resize(800, 600);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
-        tempLabel = new QLabel(centralwidget);
-        tempLabel->setObjectName("tempLabel");
-        tempLabel->setGeometry(QRect(170, 100, 431, 16));
-        motherboardTempLabel = new QLabel(centralwidget);
-        motherboardTempLabel->setObjectName("motherboardTempLabel");
-        motherboardTempLabel->setGeometry(QRect(170, 140, 431, 16));
+        gridLayout = new QGridLayout(centralwidget);
+        gridLayout->setObjectName("gridLayout");
+        storageLayout = new QVBoxLayout();
+        storageLayout->setObjectName("storageLayout");
+
+        gridLayout->addLayout(storageLayout, 3, 0, 1, 1);
+
         gpuTempLabel = new QLabel(centralwidget);
         gpuTempLabel->setObjectName("gpuTempLabel");
-        gpuTempLabel->setGeometry(QRect(170, 190, 431, 16));
-        verticalLayoutWidget = new QWidget(centralwidget);
-        verticalLayoutWidget->setObjectName("verticalLayoutWidget");
-        verticalLayoutWidget->setGeometry(QRect(170, 230, 160, 80));
-        storageLayout = new QVBoxLayout(verticalLayoutWidget);
-        storageLayout->setObjectName("storageLayout");
-        storageLayout->setContentsMargins(0, 0, 0, 0);
+
+        gridLayout->addWidget(gpuTempLabel, 1, 0, 1, 1);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        gridLayout->addItem(verticalSpacer, 4, 0, 1, 1);
+
+        tempLabel = new QLabel(centralwidget);
+        tempLabel->setObjectName("tempLabel");
+
+        gridLayout->addWidget(tempLabel, 2, 0, 1, 1);
+
+        motherboardTempLabel = new QLabel(centralwidget);
+        motherboardTempLabel->setObjectName("motherboardTempLabel");
+
+        gridLayout->addWidget(motherboardTempLabel, 0, 0, 1, 1);
+
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
@@ -71,9 +85,9 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
+        gpuTempLabel->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         tempLabel->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         motherboardTempLabel->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
-        gpuTempLabel->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
     } // retranslateUi
 
 };
