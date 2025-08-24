@@ -9,8 +9,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -26,27 +25,17 @@ set(PROJECT_SOURCES
     app.rc
 )
 
-
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    find_package(Qt6 REQUIRED COMPONENTS Widgets)
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
+if(QT_VERSION_MAJOR GREATER_EQUAL 6)
     qt_add_executable(App
         MANUAL_FINALIZATION
         WIN32
         ${PROJECT_SOURCES}
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET App APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     add_executable(App WIN32 ${PROJECT_SOURCES} ${PROJECT_RESOURCES})
 endif()
 
-target_link_libraries(App PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core)
 
 
 set(HELPER_FILES
@@ -62,17 +51,10 @@ add_custom_command(TARGET App POST_BUILD
 
 if(WIN32)
     target_link_libraries(App PRIVATE ole32 oleaut32 wbemuuid)
-target_link_libraries(App PRIVATE Qt6::Widgets)
-target_link_libraries(App PRIVATE Qt6::Widgets)
-target_link_libraries(App PRIVATE Qt6::Core)
-target_link_libraries(App PRIVATE Qt6::Core)
 endif()
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.App)
+if(QT_VERSION VERSION_LESS 6.1.0)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.App)
 endif()
 set_target_properties(App PROPERTIES
     ${BUNDLE_ID_OPTION}
