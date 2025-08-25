@@ -1,23 +1,20 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "cputemperature.h"
+#include "hardwaremonitor.h"
+#include "fpsmonitor.h"
 #include <QFontDatabase>
 #include <QIcon>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QGridLayout>
 #include <QFrame>
 #include <QStyle>
-#include <QSpacerItem>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     ui->statusbar->hide();
-
     this->setWindowTitle("LAG Zero | Monitor");
     this->setWindowIcon(QIcon(":/images/logo.png"));
     this->setMinimumSize(800, 600);
@@ -38,20 +35,12 @@ MainWindow::MainWindow(QWidget *parent)
             color: #ffffff; background-color: #05070d; border-left-color: #0085ff;
         }
         #settingsButton {
-            text-align: center;
-            font-size: 16px;
-            padding: 0;
-            margin: 10px;
-            border-radius: 5px;
-            min-height: 28px;
-            max-height: 28px;
-            min-width: 28px;
-            max-width: 28px;
-            border: 1px solid #222;
+            text-align: center; font-size: 16px; padding: 0; margin: 10px;
+            border-radius: 5px; min-height: 28px; max-height: 28px;
+            min-width: 28px; max-width: 28px; border: 1px solid #222;
         }
         #settingsButton[selected="true"] {
-            background-color: #05070d;
-            border: 1px solid #222;
+            background-color: #05070d; border: 1px solid #222;
             border-left-color: #222 !important;
         }
         #contentPanel { background-color: #05070d; padding: 20px; }
@@ -65,59 +54,61 @@ MainWindow::MainWindow(QWidget *parent)
         #tempNavPanel QPushButton[selected="true"] {
             color: #ffffff; border-bottom-color: #0085ff;
         }
-        QLabel[objectName="tempTitleLabel"] {
-            color: #aeb9d6;
-            font-size: 16px;
-        }
+        QLabel[objectName="tempTitleLabel"] { color: #aeb9d6; font-size: 16px; }
         QLabel[objectName="tempValueLabel"] {
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: bold;
-            min-width: 70px;
-            text-align: right;
+            color: #ffffff; font-size: 16px; font-weight: bold;
+            min-width: 70px; text-align: right;
         }
     )";
     this->setStyleSheet(globalStyleSheet);
 
+    // --- ESTRUTURA DA UI CORRIGIDA ---
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
     QHBoxLayout* mainLayout = new QHBoxLayout(centralWidget);
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    QFrame* navPanel = new QFrame(this);
+    // Painel de Navegação Esquerdo
+    QFrame* navPanel = new QFrame();
     navPanel->setObjectName("navPanel");
     navPanel->setFixedWidth(200);
     QVBoxLayout* navLayout = new QVBoxLayout(navPanel);
     navLayout->setContentsMargins(0, 10, 0, 0);
     navLayout->setSpacing(5);
 
-    QPushButton* overviewBtn = new QPushButton("Visão Geral", this);
-    QPushButton* tempBtn = new QPushButton("Temperaturas", this);
-    QPushButton* settingsBtn = new QPushButton("⚙", this);
+    QPushButton* overviewBtn = new QPushButton("Visão Geral", navPanel);
+    QPushButton* tempBtn = new QPushButton("Temperaturas", navPanel);
+    QPushButton* settingsBtn = new QPushButton("⚙", navPanel);
     settingsBtn->setObjectName("settingsButton");
 
     m_navButtons << overviewBtn << tempBtn << settingsBtn;
-
-    connect(overviewBtn, &QPushButton::clicked, this, &MainWindow::onNavigationButtonClicked);
-    connect(tempBtn, &QPushButton::clicked, this, &MainWindow::onNavigationButtonClicked);
-    connect(settingsBtn, &QPushButton::clicked, this, &MainWindow::onNavigationButtonClicked);
+    for(auto btn : m_navButtons) connect(btn, &QPushButton::clicked, this, &MainWindow::onNavigationButtonClicked);
 
     navLayout->addWidget(overviewBtn);
     navLayout->addWidget(tempBtn);
     navLayout->addStretch();
     navLayout->addWidget(settingsBtn);
 
-    QFrame* contentPanel = new QFrame(this);
+    // Painel de Conteúdo Direito
+    QFrame* contentPanel = new QFrame();
     contentPanel->setObjectName("contentPanel");
     QVBoxLayout* contentLayout = new QVBoxLayout(contentPanel);
-    m_mainStackedWidget = new QStackedWidget(this);
+    m_mainStackedWidget = new QStackedWidget();
     contentLayout->addWidget(m_mainStackedWidget);
+
     mainLayout->addWidget(navPanel);
     mainLayout->addWidget(contentPanel, 1);
 
-    m_mainStackedWidget->addWidget(new QLabel("Visão Geral do Sistema (Em breve)"));
+    // --- PÁGINA 1: Visão Geral ---
+    QWidget* overviewPage = new QWidget();
+    QVBoxLayout* overviewLayout = new QVBoxLayout(overviewPage);
+    overviewLayout->setAlignment(Qt::AlignTop);
+    overviewLayout->setContentsMargins(0, 10, 0, 0);
+    overviewLayout->addWidget(createTemperatureRow("Taxa de Quadros (FPS):", m_fpsTitleLabel, m_fpsValueLabel));
+    m_mainStackedWidget->addWidget(overviewPage);
 
+    // --- PÁGINA 2: Temperaturas ---
     QWidget* tempPage = new QWidget();
     QVBoxLayout* tempPageLayout = new QVBoxLayout(tempPage);
     tempPageLayout->setSpacing(20);
@@ -129,10 +120,10 @@ MainWindow::MainWindow(QWidget *parent)
     tempNavLayout->setSpacing(10);
     tempNavLayout->setContentsMargins(0, 0, 0, 0);
 
-    QPushButton* cpuTempBtn = new QPushButton("CPU", this);
-    QPushButton* gpuTempBtn = new QPushButton("GPU", this);
-    QPushButton* mbTempBtn = new QPushButton("Placa-mãe", this);
-    QPushButton* storageTempBtn = new QPushButton("Armazenamento", this);
+    QPushButton* cpuTempBtn = new QPushButton("CPU", tempNavPanel);
+    QPushButton* gpuTempBtn = new QPushButton("GPU", tempNavPanel);
+    QPushButton* mbTempBtn = new QPushButton("Placa-mãe", tempNavPanel);
+    QPushButton* storageTempBtn = new QPushButton("Armazenamento", tempNavPanel);
     m_tempNavButtons << cpuTempBtn << gpuTempBtn << mbTempBtn << storageTempBtn;
     for (QPushButton* btn : m_tempNavButtons) {
         tempNavLayout->addWidget(btn);
@@ -145,6 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
     tempPageLayout->addWidget(m_tempStackedWidget, 1);
     m_mainStackedWidget->addWidget(tempPage);
 
+    // Sub-páginas de temperatura
     QWidget* cpuPage = new QWidget();
     QVBoxLayout* cpuPageLayout = new QVBoxLayout(cpuPage);
     cpuPageLayout->setAlignment(Qt::AlignTop);
@@ -173,13 +165,19 @@ MainWindow::MainWindow(QWidget *parent)
     m_storagePageLayout->setContentsMargins(0, 10, 0, 0);
     m_tempStackedWidget->addWidget(storagePage);
 
+    // --- PÁGINA 3: Configurações ---
     m_mainStackedWidget->addWidget(new QLabel("Configurações (Em breve)"));
 
+    // --- Estado Inicial ---
     overviewBtn->click();
     cpuTempBtn->click();
 
-    m_tempReader = new CpuTemperature(this);
-    connect(m_tempReader, &CpuTemperature::temperaturesUpdated, this, &MainWindow::onTemperaturesUpdated);
+    // --- Instancia e conecta os monitores ---
+    m_hardwareMonitor = new HardwareMonitor(this);
+    connect(m_hardwareMonitor, &HardwareMonitor::hardwareUpdated, this, &MainWindow::onHardwareUpdated);
+
+    m_fpsMonitor = new FpsMonitor(this);
+    connect(m_fpsMonitor, &FpsMonitor::fpsUpdated, this, &MainWindow::onFpsUpdated);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -189,76 +187,67 @@ QWidget* MainWindow::createTemperatureRow(const QString &title, QLabel* &titleLa
     QWidget* rowWidget = new QWidget();
     QHBoxLayout* rowLayout = new QHBoxLayout(rowWidget);
     rowLayout->setContentsMargins(0, 0, 0, 0);
-
     titleLabel = new QLabel(title, rowWidget);
     titleLabel->setObjectName("tempTitleLabel");
-
-    valueLabel = new QLabel("-- °C", rowWidget);
+    valueLabel = new QLabel("--", rowWidget);
     valueLabel->setObjectName("tempValueLabel");
     valueLabel->setAlignment(Qt::AlignRight);
-
     rowLayout->addWidget(titleLabel);
     rowLayout->addStretch();
     rowLayout->addWidget(valueLabel);
-
     rowWidget->setMaximumHeight(30);
-
     return rowWidget;
 }
 
-void MainWindow::onTemperaturesUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
+void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
 {
-    // --- CORREÇÃO: Lógica de atualização de texto refeita ---
-    auto updateRow = [](QLabel* titleLabel, QLabel* valueLabel, const HardwareInfo& info, const QString& prefix) {
+    auto updateRow = [](QLabel* titleLabel, QLabel* valueLabel, const QString& newTitle, double temperature) {
         if (titleLabel && valueLabel) {
-            QString fullTitle = prefix;
-            if (!info.name.isEmpty() && info.name != "N/D") {
-                fullTitle += info.name;
-            } else {
-                // Se o nome não for encontrado, usa um texto genérico
-                if (prefix.contains("CPU")) fullTitle += "CPU";
-                else if (prefix.contains("GPU")) fullTitle += "GPU";
-                else if (prefix.contains("Placa-mãe")) fullTitle += "Placa-mãe";
-            }
-            titleLabel->setText(fullTitle + ":");
-
-            if (info.temperature >= 0) {
-                valueLabel->setText(QString::number(info.temperature, 'f', 1) + " °C");
+            titleLabel->setText(newTitle);
+            if (temperature >= 0) {
+                valueLabel->setText(QString::number(temperature, 'f', 1) + " °C");
             } else {
                 valueLabel->setText("N/D");
             }
         }
     };
 
-    updateRow(m_cpuTitleLabel, m_cpuTempValueLabel, deviceInfos.value("CPU"), "Temperatura da ");
-    updateRow(m_gpuTitleLabel, m_gpuTempValueLabel, deviceInfos.value("GPU"), "Temperatura da ");
-    updateRow(m_mbTitleLabel, m_mbTempValueLabel, deviceInfos.value("MOTHERBOARD"), "Temperatura da ");
+    HardwareInfo cpuInfo = deviceInfos.value("CPU");
+    QString cpuTitle = cpuInfo.name != "N/D" ? "Temperatura da " + cpuInfo.name + ":" : "Temperatura da CPU:";
+    updateRow(m_cpuTitleLabel, m_cpuTempValueLabel, cpuTitle, cpuInfo.temperature);
 
-    for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it)
-    {
-        const QString &key = it.key();
-        if (key.startsWith("STORAGE_"))
-        {
+    HardwareInfo gpuInfo = deviceInfos.value("GPU");
+    QString gpuTitle = gpuInfo.name != "N/D" ? "Temperatura da " + gpuInfo.name + ":" : "Temperatura da GPU:";
+    updateRow(m_gpuTitleLabel, m_gpuTempValueLabel, gpuTitle, gpuInfo.temperature);
+
+    HardwareInfo mbInfo = deviceInfos.value("MOTHERBOARD");
+    QString mbTitle = mbInfo.name != "N/D" ? "Temperatura da " + mbInfo.name + ":" : "Temperatura da Placa-mãe:";
+    updateRow(m_mbTitleLabel, m_mbTempValueLabel, mbTitle, mbInfo.temperature);
+
+    for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
+        if (it.key().startsWith("STORAGE_")) {
             const HardwareInfo& info = it.value();
-            const QString& hardwareName = info.name;
-
-            if (!m_storageTitleLabels.contains(hardwareName))
-            {
-                QLabel* newTitleLabel = nullptr;
-                QLabel* newValueLabel = nullptr;
-                QWidget* newRow = createTemperatureRow(hardwareName + ":", newTitleLabel, newValueLabel);
-                m_storagePageLayout->addWidget(newRow);
-                m_storageTitleLabels.insert(hardwareName, newTitleLabel);
-                m_storageValueLabels.insert(hardwareName, newValueLabel);
+            if (!m_storageTitleLabels.contains(info.name)) {
+                QLabel *newTitleLabel = nullptr, *newValueLabel = nullptr;
+                m_storagePageLayout->addWidget(createTemperatureRow("", newTitleLabel, newValueLabel));
+                m_storageTitleLabels.insert(info.name, newTitleLabel);
+                m_storageValueLabels.insert(info.name, newValueLabel);
             }
+            QString storageTitle = "Temperatura do " + info.name + " (" + info.driveType + "):";
+            updateRow(m_storageTitleLabels.value(info.name), m_storageValueLabels.value(info.name), storageTitle, info.temperature);
+        }
+    }
+}
 
-            QString prefix = "Temperatura do " + info.name + " (" + info.driveType + ")";
-            // Para storage, o nome já está no prefixo, então passamos um objeto info "vazio"
-            // para a função não duplicar o nome.
-            HardwareInfo tempInfo;
-            tempInfo.temperature = info.temperature;
-
-            updateRow(m_storageTitleLabels.value(hardwareName), m_storageValueLabels.value(hardwareName), tempInfo, prefix);
+void MainWindow::onFpsUpdated(int fps, const QString& appName)
+{
+    if (m_fpsTitleLabel && m_fpsValueLabel) {
+        if (fps > 0 && !appName.isEmpty()) {
+            m_fpsTitleLabel->setText("Taxa de Quadros (" + appName + "):");
+            m_fpsValueLabel->setText(QString::number(fps));
+        } else {
+            m_fpsTitleLabel->setText("Taxa de Quadros (FPS):");
+            m_fpsValueLabel->setText("N/A");
         }
     }
 }

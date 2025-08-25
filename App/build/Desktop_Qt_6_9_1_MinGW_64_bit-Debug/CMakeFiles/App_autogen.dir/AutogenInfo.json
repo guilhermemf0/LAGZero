@@ -364,9 +364,15 @@
 	"HEADERS" : 
 	[
 		[
-			"C:/Projetos/LAGZero/App/cputemperature.h",
+			"C:/Projetos/LAGZero/App/fpsmonitor.h",
 			"MU",
-			"EWIEGA46WW/moc_cputemperature.cpp",
+			"EWIEGA46WW/moc_fpsmonitor.cpp",
+			null
+		],
+		[
+			"C:/Projetos/LAGZero/App/hardwaremonitor.h",
+			"MU",
+			"EWIEGA46WW/moc_hardwaremonitor.cpp",
 			null
 		],
 		[
@@ -459,7 +465,8 @@
 	"SETTINGS_FILE" : "C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/App_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
-		[ "C:/Projetos/LAGZero/App/cputemperature.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/fpsmonitor.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/hardwaremonitor.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/main.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/mainwindow.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/splashscreen.cpp", "MU", null ],
