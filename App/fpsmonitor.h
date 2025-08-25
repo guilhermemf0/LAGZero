@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QString>
 #include <QRegularExpression> // Para parsing com regex
+#include <QSettings> // Adicionado para QSettings
 
 #ifdef Q_OS_WIN
 #include <windows.h> // Necessário para APIs de Windows
@@ -20,19 +21,20 @@ public:
     FpsWorker();
     ~FpsWorker(); // Destrutor para liberar recursos
 
-public: // MUDADO: process() não é mais um slot do Qt
+public:
     void process(); // Função para iniciar o processamento do worker
 
 signals:
     // Sinal agora emite o FPS e o nome do app para a thread principal
     void fpsUpdated(int fps, const QString& appName);
+    // NOVO: Sinal para informar o status do RTSS (encontrado/não encontrado e caminho de instalação)
+    void rtssStatusUpdated(bool found, const QString& installPath);
 
 private:
     void readFps(); // Função privada para ler os dados de FPS
-    // Função para ler o FPS diretamente das entradas de aplicativo do RTSS.
-    // Não é mais um slot, então não precisa de `public slots:`
-    // void UpdateOSD(LPCSTR lpText, QString &appName, int &fpsValue); // Removido, lógica em readFps
-    // void ReleaseOSD(); // Removido, lógica no destrutor ou não mais necessária
+    // NOVO: Funções para verificar o status do RTSS
+    bool isRtssRunning();
+    QString getRtssInstallPath();
 
     QTimer *m_timer = nullptr; // Timer para chamar readFps periodicamente
     void* m_pMapFile = nullptr; // Ponteiro para a memória mapeada
@@ -50,6 +52,8 @@ public:
 signals:
     // Sinal encaminhado do worker com ambos os valores de FPS e nome do app
     void fpsUpdated(int fps, const QString& appName);
+    // NOVO: Sinal encaminhado do worker para informar o status do RTSS
+    void rtssStatusUpdated(bool found, const QString& installPath);
 
 private:
     QThread workerThread; // Thread dedicada para o worker

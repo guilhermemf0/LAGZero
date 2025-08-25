@@ -7,6 +7,7 @@ C:/Projetos/LAGZero/App/fpsmonitor.h
  mdp:C:/Projetos/LAGZero/App/fpsmonitor.h
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/QObject
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/QRegularExpression
+ mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/QSettings
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/QString
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/QThread
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/QTimer
@@ -86,6 +87,7 @@ C:/Projetos/LAGZero/App/fpsmonitor.h
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/qscopedpointer.h
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/qscopeguard.h
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/qset.h
+ mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/qsettings.h
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata.h
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata_impl.h
  mdp:C:/Qt/6.9.1/mingw_64/include/QtCore/qsharedpointer.h

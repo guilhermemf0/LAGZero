@@ -4,6 +4,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Projetos/LAGZero/App/RTSSSharedMemory.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QObject \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QRegularExpression \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QSettings \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QString \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QThread \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QTimer \
@@ -83,6 +84,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtCore/qscopedpointer.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qscopeguard.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qset.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/qsettings.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata_impl.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qsharedpointer.h \

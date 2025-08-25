@@ -8,6 +8,8 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QStyle>
+#include <QDesktopServices> // Adicionado para abrir URLs
+#include <QUrl> // Adicionado para URLs
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -59,6 +61,25 @@ MainWindow::MainWindow(QWidget *parent)
             color: #ffffff; font-size: 16px; font-weight: bold;
             min-width: 70px; text-align: right;
         }
+        // NOVO: Estilo para a mensagem de status do RTSS
+        #rtssStatusLabel {
+            color: #ff5555; /* Vermelho para erro */
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        #downloadRtssButton {
+            background-color: #0085ff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        #downloadRtssButton:hover {
+            background-color: #0070e0;
+        }
     )";
     this->setStyleSheet(globalStyleSheet);
 
@@ -105,6 +126,26 @@ MainWindow::MainWindow(QWidget *parent)
     QVBoxLayout* overviewLayout = new QVBoxLayout(overviewPage);
     overviewLayout->setAlignment(Qt::AlignTop);
     overviewLayout->setContentsMargins(0, 10, 0, 0);
+
+    // NOVO: Widget para exibir o status do RTSS
+    m_rtssStatusWidget = new QWidget(overviewPage);
+    QVBoxLayout *rtssStatusLayout = new QVBoxLayout(m_rtssStatusWidget);
+    rtssStatusLayout->setAlignment(Qt::AlignCenter);
+
+    m_rtssStatusLabel = new QLabel("Verificando RTSS...", m_rtssStatusWidget);
+    m_rtssStatusLabel->setObjectName("rtssStatusLabel");
+    m_rtssStatusLabel->setAlignment(Qt::AlignCenter);
+
+    m_downloadRtssButton = new QPushButton("Baixar RTSS", m_rtssStatusWidget);
+    m_downloadRtssButton->setObjectName("downloadRtssButton");
+    m_downloadRtssButton->hide(); // Esconde inicialmente
+    connect(m_downloadRtssButton, &QPushButton::clicked, this, &MainWindow::onDownloadRtssClicked);
+
+    rtssStatusLayout->addWidget(m_rtssStatusLabel);
+    rtssStatusLayout->addWidget(m_downloadRtssButton);
+    m_rtssStatusWidget->hide(); // Esconde o widget de status inicialmente
+
+    overviewLayout->addWidget(m_rtssStatusWidget); // Adiciona o widget de status ao layout da página de visão geral
     overviewLayout->addWidget(createTemperatureRow("Taxa de Quadros (FPS):", m_fpsTitleLabel, m_fpsValueLabel));
     m_mainStackedWidget->addWidget(overviewPage);
 
@@ -178,6 +219,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_fpsMonitor = new FpsMonitor(this);
     connect(m_fpsMonitor, &FpsMonitor::fpsUpdated, this, &MainWindow::onFpsUpdated);
+    // NOVO: Conecta o sinal de status do RTSS
+    connect(m_fpsMonitor, &FpsMonitor::rtssStatusUpdated, this, &MainWindow::onRtssStatusUpdated);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -245,11 +288,39 @@ void MainWindow::onFpsUpdated(int fps, const QString& appName)
         if (fps > 0 && !appName.isEmpty()) {
             m_fpsTitleLabel->setText("Taxa de Quadros (" + appName + "):");
             m_fpsValueLabel->setText(QString::number(fps));
+            // NOVO: Esconde a mensagem de status do RTSS se o FPS estiver sendo exibido
+            m_rtssStatusWidget->hide();
         } else {
             m_fpsTitleLabel->setText("Taxa de Quadros (FPS):");
             m_fpsValueLabel->setText("N/A");
+            // NOVO: Mostra a mensagem de status do RTSS se o FPS não estiver sendo exibido
+            m_rtssStatusWidget->show();
         }
     }
+}
+
+void MainWindow::onRtssStatusUpdated(bool found, const QString& installPath)
+{
+    if (found) {
+        m_rtssStatusLabel->setText("RTSS encontrado. Aguardando dados de FPS...");
+        m_downloadRtssButton->hide();
+        m_rtssStatusWidget->show(); // Mostra o widget de status
+    } else {
+        m_rtssStatusLabel->setText("RTSS não encontrado ou não está rodando. Por favor, instale ou inicie o RTSS.");
+        m_downloadRtssButton->show();
+        m_rtssStatusWidget->show(); // Mostra o widget de status
+    }
+    // Armazena o caminho de instalação para o botão de download, se disponível
+    // Embora o botão de download sempre aponte para o site, este path pode ser útil
+    // se quisermos tentar iniciar o RTSS automaticamente no futuro.
+    Q_UNUSED(installPath); // Para evitar warnings de variável não usada
+}
+
+void MainWindow::onDownloadRtssClicked()
+{
+    // URL para download do RTSS (geralmente faz parte do MSI Afterburner)
+    QUrl rtssDownloadUrl("https://www.guru3d.com/getdownload/2c1b2414f56a6594ffef91236a87c0e976d52e0519b1373846bab016c2f20c7c4d6ce7dfe19a0bc843da8d448bbb670058b0c9ee9a26f5cf49bc39c97da070e6eb314629af3da2d24ab0413917f73b946419b5af447da45cefb517a0840ad3003abff4f9d5fe7828bbbb910ee270b20632035fba6a450da22325b6bc5b6ecf760e598e0a09bb891387012d7e49a92b4a8f1c86af94bc77d60086a77bc5d35333a4a994caecfec48d7150f6815800664825e01f94ce3048ef6f");
+    QDesktopServices::openUrl(rtssDownloadUrl);
 }
 
 void MainWindow::onNavigationButtonClicked()
