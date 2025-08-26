@@ -7,10 +7,13 @@
 #include <QMap>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QCheckBox>
 #include "hardwaremonitor.h"
+#include "particleswidget.h"
 
-class FpsMonitor; // Forward declaration
-class QUrl; // Forward declaration para QUrl
+class FpsMonitor;
+class QUrl;
+class QFrame;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,11 +31,11 @@ private slots:
     void onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
     void onNavigationButtonClicked();
     void onTempNavigationButtonClicked();
+    void onSettingsButtonClicked();
     void onFpsUpdated(int fps, const QString& appName);
-    // NOVO: Slot para receber o status do RTSS
     void onRtssStatusUpdated(bool found, const QString& installPath);
-    // NOVO: Slot para lidar com o clique no botão de download do RTSS
     void onDownloadRtssClicked();
+    void onParticlesEnabledChanged(Qt::CheckState state);
 
 private:
     Ui::MainWindow *ui;
@@ -41,11 +44,11 @@ private:
 
     QStackedWidget *m_mainStackedWidget;
     QList<QPushButton*> m_navButtons;
+    QPushButton *m_settingsButton;
 
     QStackedWidget *m_tempStackedWidget;
     QList<QPushButton*> m_tempNavButtons;
 
-    // Labels para as temperaturas
     QLabel *m_cpuTitleLabel, *m_cpuTempValueLabel;
     QLabel *m_gpuTitleLabel, *m_gpuTempValueLabel;
     QLabel *m_mbTitleLabel, *m_mbTempValueLabel;
@@ -53,16 +56,22 @@ private:
     QMap<QString, QLabel*> m_storageValueLabels;
     QVBoxLayout *m_storagePageLayout;
 
-    // Labels para o FPS
     QLabel *m_fpsTitleLabel;
     QLabel *m_fpsValueLabel;
 
-    // NOVO: Widgets para a mensagem de status do RTSS
-    QLabel *m_rtssStatusLabel;
+    // Membros para o novo cartão de alerta minimalista do RTSS
+    QFrame *m_rtssStatusCard;
+    QLabel *m_rtssStatusIcon;
+    QLabel *m_rtssTitleLabel;
     QPushButton *m_downloadRtssButton;
-    QWidget *m_rtssStatusWidget; // Widget para agrupar a mensagem e o botão
 
-    QWidget* createTemperatureRow(const QString &title, QLabel* &titleLabel, QLabel* &valueLabel);
+
+    ParticlesWidget *m_particlesWidget;
+    QCheckBox *m_enableParticlesCheckBox;
+
+    QWidget* createDataRow(const QString &iconPath, const QString &title, QLabel* &titleLabel, QLabel* &valueLabel);
     void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);
+    void setupSettingsPage();
+    void updateSettingsButtonIcon(bool selected);
 };
 #endif // MAINWINDOW_H

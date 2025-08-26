@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.16)
 project(App VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON) # Garante que o MOC seja executado automaticamente
+set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Svg)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -19,7 +19,7 @@ set(PROJECT_SOURCES
     hardwaremonitor.cpp
     hardwaremonitor.h
     fpsmonitor.cpp
-    fpsmonitor.h # Certifique-se de que fpsmonitor.h está aqui
+    fpsmonitor.h
     splashscreen.cpp
     splashscreen.h
     splashscreen.ui
@@ -27,11 +27,9 @@ set(PROJECT_SOURCES
     strokedlabel.h
     resources.qrc
     app.rc
+    particleswidget.cpp
+    particleswidget.h
 )
-
-# Adiciona fpsmonitor.h explicitamente para o MOC, se necessário
-# Embora CMAKE_AUTOMOC ON geralmente cuide disso, esta é uma garantia extra.
-# qt_wrap_cpp(App_MOC_HEADERS fpsmonitor.h) # Para Qt5 ou se AUTOMOC não funcionar para headers
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)
     qt_add_executable(App
@@ -40,15 +38,10 @@ if(QT_VERSION_MAJOR GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
     )
 else()
-    add_executable(App WIN32 ${PROJECT_SOURCES} ${PROJECT_RESOURCES})
+    add_executable(App WIN32 ${PROJECT_SOURCES})
 endif()
 
-target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core)
-
-# Se você precisar linkar o arquivo moc_fpsmonitor.cpp gerado explicitamente,
-# o que CMAKE_AUTOMOC deveria fazer por você, você o adicionaria aqui.
-# target_sources(App PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/App_autogen/EWIEGA46WW/moc_fpsmonitor.cpp)
-# O caminho exato pode variar dependendo da versão do CMake e do Qt.
+target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core Qt6::Svg)
 
 set(HELPER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/helper/TempReader.exe
@@ -62,7 +55,6 @@ add_custom_command(TARGET App POST_BUILD
 )
 
 if(WIN32)
-    # Adicionado user32 para GetForegroundWindow e GetWindowThreadProcessId
     target_link_libraries(App PRIVATE ole32 oleaut32 wbemuuid user32)
 endif()
 
