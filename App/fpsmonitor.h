@@ -5,13 +5,23 @@
 #include <QThread>
 #include <QTimer>
 #include <QString>
-#include <QRegularExpression> // Para parsing com regex
-#include <QSettings> // Adicionado para QSettings
+#include <QMap>
+#include <QVector>
+#include <QDateTime>
+#include <cstdint> // CORREÇÃO: Incluído para uint32_t
 
 #ifdef Q_OS_WIN
-#include <windows.h> // Necessário para APIs de Windows
-#include "RTSSSharedMemory.h" // AGORA INCLUÍMOS O ARQUIVO OFICIAL DO RTSS
+#include <windows.h>
+#include "RTSSSharedMemory.h"
 #endif
+
+// Estrutura para guardar informações de uma sessão de jogo ativa
+struct GameSessionInfo {
+    QString appName;
+    QString exeName;
+    qint64 startTime;
+    QVector<int> fpsSamples;
+};
 
 // --- Worker que lê os dados do RTSS ---
 class FpsWorker : public QObject
@@ -19,26 +29,30 @@ class FpsWorker : public QObject
     Q_OBJECT
 public:
     FpsWorker();
-    ~FpsWorker(); // Destrutor para liberar recursos
+    ~FpsWorker();
 
-public:
-    void process(); // Função para iniciar o processamento do worker
+public slots:
+    void process();
 
 signals:
-    // Sinal agora emite o FPS e o nome do app para a thread principal
-    void fpsUpdated(int fps, const QString& appName);
-    // NOVO: Sinal para informar o status do RTSS (encontrado/não encontrado e caminho de instalação)
     void rtssStatusUpdated(bool found, const QString& installPath);
 
+    // Sinais para o gerenciamento de sessões de jogo
+    // CORREÇÃO: Trocado DWORD por uint32_t
+    void gameSessionStarted(const QString& exeName, uint32_t processId);
+    void gameSessionEnded(uint32_t processId, const QString& exeName, double averageFps);
+    void activeGameFpsUpdate(uint32_t processId, int currentFps);
+
+private slots:
+    void readFps();
+
 private:
-    void readFps(); // Função privada para ler os dados de FPS
-    // NOVO: Funções para verificar o status do RTSS
     bool isRtssRunning();
     QString getRtssInstallPath();
 
-    QTimer *m_timer = nullptr; // Timer para chamar readFps periodicamente
-    void* m_pMapFile = nullptr; // Ponteiro para a memória mapeada
-    void* m_hMapFile = nullptr; // Handle para o objeto de mapeamento de arquivo
+    QTimer *m_timer = nullptr;
+    // CORREÇÃO: Trocado DWORD por uint32_t
+    QMap<uint32_t, GameSessionInfo> m_activeSessions;
 };
 
 // --- Classe principal que controla o worker ---
@@ -47,16 +61,18 @@ class FpsMonitor : public QObject
     Q_OBJECT
 public:
     explicit FpsMonitor(QObject *parent = nullptr);
-    ~FpsMonitor(); // Destrutor para garantir que a thread seja finalizada
+    ~FpsMonitor();
 
 signals:
-    // Sinal encaminhado do worker com ambos os valores de FPS e nome do app
-    void fpsUpdated(int fps, const QString& appName);
-    // NOVO: Sinal encaminhado do worker para informar o status do RTSS
+    // Sinais encaminhados do worker
     void rtssStatusUpdated(bool found, const QString& installPath);
+    // CORREÇÃO: Trocado DWORD por uint32_t
+    void gameSessionStarted(const QString& exeName, uint32_t processId);
+    void gameSessionEnded(uint32_t processId, const QString& exeName, double averageFps);
+    void activeGameFpsUpdate(uint32_t processId, int currentFps);
 
 private:
-    QThread workerThread; // Thread dedicada para o worker
+    QThread workerThread;
 };
 
 #endif // FPSMONITOR_H

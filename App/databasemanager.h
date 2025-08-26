@@ -1,0 +1,45 @@
+#ifndef DATABASEMANAGER_H
+#define DATABASEMANAGER_H
+
+#include <QObject>
+#include <QSqlDatabase>
+#include <QString>
+#include <QList>
+#include <QVariant>
+
+struct GameData {
+    int id = -1;
+    QString executableName;
+    QString displayName;
+    QString coverPath; // Caminho para o pôster vertical
+    double allTimeAverageFps = 0.0;
+};
+
+class DatabaseManager : public QObject
+{
+    Q_OBJECT
+public:
+    static DatabaseManager& instance();
+
+    bool addGame(const QString& executableName, const QString& displayName, const QString& coverPath);
+    int getGameId(const QString& executableName);
+    bool isGameKnown(const QString& executableName);
+    GameData getGameData(const QString& executableName);
+    // CORREÇÃO: Nova função para buscar jogos ordenados por data
+    QList<GameData> getGamesByMostRecent();
+    bool updateGame(int gameId, const QString& displayName, const QString& coverPath);
+
+    bool addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps);
+
+private:
+    explicit DatabaseManager(QObject *parent = nullptr);
+    ~DatabaseManager();
+    DatabaseManager(const DatabaseManager&) = delete;
+    DatabaseManager& operator=(const DatabaseManager&) = delete;
+
+    void initDatabase();
+
+    QSqlDatabase m_db;
+};
+
+#endif // DATABASEMANAGER_H

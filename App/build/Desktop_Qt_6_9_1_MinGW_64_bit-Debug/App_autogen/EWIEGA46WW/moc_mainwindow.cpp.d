@@ -1,18 +1,26 @@
 C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Projetos/LAGZero/App/mainwindow.h \
   C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/moc_predefs.h \
+  C:/Projetos/LAGZero/App/apimanager.h \
+  C:/Projetos/LAGZero/App/databasemanager.h \
   C:/Projetos/LAGZero/App/hardwaremonitor.h \
   C:/Projetos/LAGZero/App/particleswidget.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QFlags \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QIODevice \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QList \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QMap \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QMetaType \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QObject \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QPointF \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QProcess \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QRect \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QSharedDataPointer \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QSize \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QSizeF \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QString \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QThread \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QTimer \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QUrl \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QVariant \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QVector \
   C:/Qt/6.9.1/mingw_64/include/QtCore/q17memory.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/q20functional.h \
@@ -21,6 +29,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtCore/q20type_traits.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/q20utility.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/q23utility.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/q26numeric.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qabstracteventdispatcher.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qalgorithms.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qanystringview.h \
@@ -37,6 +46,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtCore/qbytearrayalgorithms.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qbytearraylist.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qbytearrayview.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/qcalendar.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qchar.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qcompare.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qcompare_impl.h \
@@ -51,8 +61,10 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtCore/qcoreapplication.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qcoreapplication_platform.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qcoreevent.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/qcryptographichash.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qdarwinhelpers.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qdatastream.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/qdatetime.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qdeadlinetimer.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qdebug.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qelapsedtimer.h \
@@ -83,6 +95,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmargins.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmath.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmetacontainer.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/qmetaobject.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qmetatype.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qminmax.h \
   C:/Qt/6.9.1/mingw_64/include/QtCore/qnamespace.h \
@@ -197,14 +210,44 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtGui/qvectornd.h \
   C:/Qt/6.9.1/mingw_64/include/QtGui/qwindowdefs.h \
   C:/Qt/6.9.1/mingw_64/include/QtGui/qwindowdefs_win.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/QNetworkAccessManager \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/QNetworkReply \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/QNetworkRequest \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/QSslConfiguration \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/QSslPreSharedKeyAuthenticator \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qabstractsocket.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qhostaddress.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qhttpheaders.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qnetworkaccessmanager.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qnetworkreply.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qnetworkrequest.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qssl.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslcertificate.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslconfiguration.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslerror.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslpresharedkeyauthenticator.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslsocket.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtcpsocket.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtnetwork-config.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtnetworkexports.h \
+  C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtnetworkglobal.h \
+  C:/Qt/6.9.1/mingw_64/include/QtSql/QSqlDatabase \
+  C:/Qt/6.9.1/mingw_64/include/QtSql/qsqldatabase.h \
+  C:/Qt/6.9.1/mingw_64/include/QtSql/qtsql-config.h \
+  C:/Qt/6.9.1/mingw_64/include/QtSql/qtsqlexports.h \
+  C:/Qt/6.9.1/mingw_64/include/QtSql/qtsqlglobal.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QCheckBox \
+  C:/Qt/6.9.1/mingw_64/include/QtWidgets/QFrame \
+  C:/Qt/6.9.1/mingw_64/include/QtWidgets/QHBoxLayout \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QLabel \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QMainWindow \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QPushButton \
+  C:/Qt/6.9.1/mingw_64/include/QtWidgets/QScrollArea \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QStackedWidget \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QVBoxLayout \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QWidget \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qabstractbutton.h \
+  C:/Qt/6.9.1/mingw_64/include/QtWidgets/qabstractscrollarea.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qboxlayout.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qcheckbox.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qframe.h \
@@ -214,6 +257,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qlayoutitem.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qmainwindow.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qpushbutton.h \
+  C:/Qt/6.9.1/mingw_64/include/QtWidgets/qscrollarea.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qsizepolicy.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qstackedwidget.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/qtabwidget.h \

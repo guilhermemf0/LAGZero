@@ -2,14 +2,20 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/CMakeLists.txt \
 	C:/Projetos/LAGZero/App/RTSSHooksTypes.h \
 	C:/Projetos/LAGZero/App/RTSSSharedMemory.h \
+	C:/Projetos/LAGZero/App/apimanager.cpp \
+	C:/Projetos/LAGZero/App/apimanager.h \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/.qtc/package-manager/auto-setup.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/.qtc/package-manager/maintenance_tool_provider.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/moc_predefs.h \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeCXXCompiler.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeRCCompiler.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeSystem.cmake \
+	C:/Projetos/LAGZero/App/databasemanager.cpp \
+	C:/Projetos/LAGZero/App/databasemanager.h \
 	C:/Projetos/LAGZero/App/fpsmonitor.cpp \
 	C:/Projetos/LAGZero/App/fpsmonitor.h \
+	C:/Projetos/LAGZero/App/gamecoverwidget.cpp \
+	C:/Projetos/LAGZero/App/gamecoverwidget.h \
 	C:/Projetos/LAGZero/App/hardwaremonitor.cpp \
 	C:/Projetos/LAGZero/App/hardwaremonitor.h \
 	C:/Projetos/LAGZero/App/main.cpp \
@@ -22,19 +28,25 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/splashscreen.h \
 	C:/Projetos/LAGZero/App/strokedlabel.cpp \
 	C:/Projetos/LAGZero/App/strokedlabel.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QDateTime \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QFlags \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QIODevice \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QList \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QMap \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QMetaType \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QObject \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QPointF \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QProcess \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QPropertyAnimation \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QRect \
-	C:/Qt/6.9.1/mingw_64/include/QtCore/QRegularExpression \
-	C:/Qt/6.9.1/mingw_64/include/QtCore/QSettings \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QSharedDataPointer \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QSize \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QSizeF \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QString \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QThread \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QTimer \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QUrl \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QVariant \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QVector \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/q17memory.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/q20functional.h \
@@ -43,6 +55,8 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/q20type_traits.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/q20utility.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/q23utility.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/q26numeric.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qabstractanimation.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qabstracteventdispatcher.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qalgorithms.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qanystringview.h \
@@ -59,6 +73,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qbytearrayalgorithms.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qbytearraylist.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qbytearrayview.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qcalendar.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qchar.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qcompare.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qcompare_impl.h \
@@ -73,10 +88,13 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qcoreapplication.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qcoreapplication_platform.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qcoreevent.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qcryptographichash.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qdarwinhelpers.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qdatastream.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qdatetime.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qdeadlinetimer.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qdebug.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qeasingcurve.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qelapsedtimer.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qendian.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qeventloop.h \
@@ -105,6 +123,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qmargins.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qmath.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qmetacontainer.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qmetaobject.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qmetatype.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qminmax.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qnamespace.h \
@@ -119,13 +138,12 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qpoint.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qprocess.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qprocessordetection.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qpropertyanimation.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qrect.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qrefcount.h \
-	C:/Qt/6.9.1/mingw_64/include/QtCore/qregularexpression.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qscopedpointer.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qscopeguard.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qset.h \
-	C:/Qt/6.9.1/mingw_64/include/QtCore/qsettings.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qshareddata_impl.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qsharedpointer.h \
@@ -174,6 +192,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qurl.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qutf8stringview.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qvariant.h \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/qvariantanimation.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qvarlengtharray.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qvector.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/qversiontagging.h \
@@ -225,14 +244,44 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtGui/qvectornd.h \
 	C:/Qt/6.9.1/mingw_64/include/QtGui/qwindowdefs.h \
 	C:/Qt/6.9.1/mingw_64/include/QtGui/qwindowdefs_win.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/QNetworkAccessManager \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/QNetworkReply \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/QNetworkRequest \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/QSslConfiguration \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/QSslPreSharedKeyAuthenticator \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qabstractsocket.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qhostaddress.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qhttpheaders.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qnetworkaccessmanager.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qnetworkreply.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qnetworkrequest.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qssl.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslcertificate.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslconfiguration.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslerror.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslpresharedkeyauthenticator.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qsslsocket.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtcpsocket.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtnetwork-config.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtnetworkexports.h \
+	C:/Qt/6.9.1/mingw_64/include/QtNetwork/qtnetworkglobal.h \
+	C:/Qt/6.9.1/mingw_64/include/QtSql/QSqlDatabase \
+	C:/Qt/6.9.1/mingw_64/include/QtSql/qsqldatabase.h \
+	C:/Qt/6.9.1/mingw_64/include/QtSql/qtsql-config.h \
+	C:/Qt/6.9.1/mingw_64/include/QtSql/qtsqlexports.h \
+	C:/Qt/6.9.1/mingw_64/include/QtSql/qtsqlglobal.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QCheckBox \
+	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QFrame \
+	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QHBoxLayout \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QLabel \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QMainWindow \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QPushButton \
+	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QScrollArea \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QStackedWidget \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QVBoxLayout \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QWidget \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qabstractbutton.h \
+	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qabstractscrollarea.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qboxlayout.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qcheckbox.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qframe.h \
@@ -242,6 +291,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qlayoutitem.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qmainwindow.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qpushbutton.h \
+	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qscrollarea.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qsizepolicy.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qstackedwidget.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/qtabwidget.h \
@@ -386,6 +436,78 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6GuiTools/Qt6GuiToolsTargets-relwithdebinfo.cmake \
 	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6GuiTools/Qt6GuiToolsTargets.cmake \
 	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6GuiTools/Qt6GuiToolsVersionlessTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkConfigVersion.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkConfigVersionImpl.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkDependencies.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkPlugins.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkVersionlessAliasTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QNLMNIPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QNLMNIPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QNLMNIPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QNLMNIPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QSchannelBackendPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QSchannelBackendPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QSchannelBackendPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QSchannelBackendPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendOpenSSLPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendOpenSSLPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendOpenSSLPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network/Qt6QTlsBackendOpenSSLPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate/Qt6NetworkPrivateAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate/Qt6NetworkPrivateConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate/Qt6NetworkPrivateConfigVersion.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate/Qt6NetworkPrivateConfigVersionImpl.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate/Qt6NetworkPrivateDependencies.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate/Qt6NetworkPrivateTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate/Qt6NetworkPrivateVersionlessAliasTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QIBaseDriverPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QIBaseDriverPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QIBaseDriverPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QIBaseDriverPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QMimerSQLDriverPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QMimerSQLDriverPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QMimerSQLDriverPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QMimerSQLDriverPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QOCIDriverPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QOCIDriverPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QOCIDriverPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QOCIDriverPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QODBCDriverPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QODBCDriverPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QODBCDriverPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QODBCDriverPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QPSQLDriverPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlConfigVersion.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlConfigVersionImpl.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlDependencies.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlPlugins.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlTargets-relwithdebinfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql/Qt6SqlVersionlessAliasTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate/Qt6SqlPrivateAdditionalTargetInfo.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate/Qt6SqlPrivateConfig.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate/Qt6SqlPrivateConfigVersion.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate/Qt6SqlPrivateConfigVersionImpl.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate/Qt6SqlPrivateDependencies.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate/Qt6SqlPrivateTargets.cmake \
+	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate/Qt6SqlPrivateVersionlessAliasTargets.cmake \
 	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Svg/Qt6SvgAdditionalTargetInfo.cmake \
 	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Svg/Qt6SvgConfig.cmake \
 	C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Svg/Qt6SvgConfigVersion.cmake \

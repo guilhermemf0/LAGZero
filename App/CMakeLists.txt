@@ -9,7 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Svg)
+# Adicionado Network e Sql
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Svg Network Sql)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -29,6 +30,13 @@ set(PROJECT_SOURCES
     app.rc
     particleswidget.cpp
     particleswidget.h
+    databasemanager.cpp
+    databasemanager.h
+    apimanager.cpp
+    apimanager.h
+    # CORREÇÃO: Nome do ficheiro corrigido de gamelistitemwidget para gamecoverwidget
+    gamecoverwidget.cpp
+    gamecoverwidget.h
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)
@@ -41,7 +49,8 @@ else()
     add_executable(App WIN32 ${PROJECT_SOURCES})
 endif()
 
-target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core Qt6::Svg)
+# Adicionado Qt6::Network e Qt6::Sql
+target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core Qt6::Svg Qt6::Network Qt6::Sql)
 
 set(HELPER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/helper/TempReader.exe
