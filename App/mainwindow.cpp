@@ -18,6 +18,56 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 
+// --- INÍCIO DAS FUNÇÕES DE COR ---
+
+// --- CORRIGIDO ---
+// Retorna a cor para a temperatura da CPU com base nas NOVAS regras.
+static QString getCpuTempColor(double temp)
+{
+    if (temp < 0) return "#aeb9d6"; // Cor padrão para N/D
+    if (temp <= 50) return "#4FC3F7"; // Azul claro
+    if (temp <= 70) return "#81C784"; // Verde água
+    if (temp <= 85) return "#FFD54F"; // Amarelo dourado
+    if (temp <= 95) return "#FF7043"; // Laranja queimado
+    return "#D32F2F";                // Vermelho intenso
+}
+
+// Retorna a cor para a temperatura da GPU com base nas regras fornecidas.
+static QString getGpuTempColor(double temp)
+{
+    if (temp < 0) return "#aeb9d6";
+    if (temp <= 45) return "#4FC3F7"; // Azul claro
+    if (temp <= 65) return "#81C784"; // Verde água
+    if (temp <= 80) return "#FFD54F"; // Amarelo dourado
+    if (temp <= 90) return "#FF7043"; // Laranja queimado
+    return "#D32F2F";                // Vermelho intenso
+}
+
+// Retorna a cor para a temperatura da Placa-mãe com base nas regras fornecidas.
+static QString getMotherboardTempColor(double temp)
+{
+    if (temp < 0) return "#aeb9d6";
+    if (temp <= 40) return "#4FC3F7"; // Azul claro
+    if (temp <= 55) return "#81C784"; // Verde água
+    if (temp <= 65) return "#FFD54F"; // Amarelo dourado
+    if (temp <= 75) return "#FF7043"; // Laranja queimado
+    return "#D32F2F";                // Vermelho intenso
+}
+
+// Retorna a cor para a temperatura do Armazenamento com base nas regras fornecidas.
+static QString getStorageTempColor(double temp)
+{
+    if (temp < 0) return "#aeb9d6";
+    if (temp <= 40) return "#4FC3F7"; // Azul claro
+    if (temp <= 50) return "#81C784"; // Verde água
+    if (temp <= 60) return "#FFD54F"; // Amarelo dourado
+    if (temp <= 70) return "#FF7043"; // Laranja queimado
+    return "#D32F2F";                // Vermelho intenso
+}
+
+// --- FIM DAS FUNÇÕES DE COR ---
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -478,22 +528,34 @@ void MainWindow::onImageDownloaded(const QString& localPath, const QUrl& origina
 
 void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
 {
-    auto updateRow = [](QLabel* titleLabel, QLabel* valueLabel, const QString& newTitle, double temperature) {
+    // --- LÓGICA DE ATUALIZAÇÃO MODIFICADA ---
+    auto updateTempRow = [](QLabel* titleLabel, QLabel* valueLabel, const QString& newTitle, double temperature, const QString& color) {
         if (titleLabel && valueLabel) {
             titleLabel->setText(newTitle);
             if (temperature >= 0) {
                 valueLabel->setText(" " + QString::number(temperature, 'f', 1) + " °C");
+                // Aplica a cor e o negrito via stylesheet. As outras propriedades (tamanho da fonte)
+                // são herdadas do estilo global aplicado pelo seletor de nome de objeto.
+                valueLabel->setStyleSheet(QString("color: %1; font-weight: bold;").arg(color));
             } else {
                 valueLabel->setText(" N/D");
+                // Reverte para o estilo padrão do stylesheet quando não há dados
+                valueLabel->setStyleSheet("");
             }
         }
     };
+
     HardwareInfo cpuInfo = deviceInfos.value("CPU");
-    updateRow(m_cpuTitleLabel, m_cpuTempValueLabel, cpuInfo.name != "N/D" ? cpuInfo.name + ":" : "Temperatura da CPU:", cpuInfo.temperature);
+    QString cpuColor = getCpuTempColor(cpuInfo.temperature);
+    updateTempRow(m_cpuTitleLabel, m_cpuTempValueLabel, cpuInfo.name != "N/D" ? cpuInfo.name + ":" : "Temperatura da CPU:", cpuInfo.temperature, cpuColor);
+
     HardwareInfo gpuInfo = deviceInfos.value("GPU");
-    updateRow(m_gpuTitleLabel, m_gpuTempValueLabel, gpuInfo.name != "N/D" ? gpuInfo.name + ":" : "Temperatura da GPU:", gpuInfo.temperature);
+    QString gpuColor = getGpuTempColor(gpuInfo.temperature);
+    updateTempRow(m_gpuTitleLabel, m_gpuTempValueLabel, gpuInfo.name != "N/D" ? gpuInfo.name + ":" : "Temperatura da GPU:", gpuInfo.temperature, gpuColor);
+
     HardwareInfo mbInfo = deviceInfos.value("MOTHERBOARD");
-    updateRow(m_mbTitleLabel, m_mbTempValueLabel, mbInfo.name != "N/D" ? mbInfo.name + ":" : "Temperatura da Placa-mãe:", mbInfo.temperature);
+    QString mbColor = getMotherboardTempColor(mbInfo.temperature);
+    updateTempRow(m_mbTitleLabel, m_mbTempValueLabel, mbInfo.name != "N/D" ? mbInfo.name + ":" : "Temperatura da Placa-mãe:", mbInfo.temperature, mbColor);
 
     for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
         if (it.key().startsWith("STORAGE_")) {
@@ -504,7 +566,8 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
                 m_storageTitleLabels.insert(info.name, newTitleLabel);
                 m_storageValueLabels.insert(info.name, newValueLabel);
             }
-            updateRow(m_storageTitleLabels.value(info.name), m_storageValueLabels.value(info.name), info.name + " (" + info.driveType + "):", info.temperature);
+            QString storageColor = getStorageTempColor(info.temperature);
+            updateTempRow(m_storageTitleLabels.value(info.name), m_storageValueLabels.value(info.name), info.name + " (" + info.driveType + "):", info.temperature, storageColor);
         }
     }
 }
