@@ -54,6 +54,7 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "onSettingsButtonClicked",
         "onParticlesEnabledChanged",
         "state",
+        "onSaveReportsChanged",
         "onGameSessionStarted",
         "exeName",
         "uint32_t",
@@ -67,7 +68,9 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "result",
         "onImageDownloaded",
         "localPath",
-        "originalUrl"
+        "originalUrl",
+        "updateSessionDisplay",
+        "openReportsFolder"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -91,26 +94,34 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void(int)>(12, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::Int, 13 },
         }}),
+        // Slot 'onSaveReportsChanged'
+        QtMocHelpers::SlotData<void(int)>(14, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 13 },
+        }}),
         // Slot 'onGameSessionStarted'
-        QtMocHelpers::SlotData<void(const QString &, uint32_t)>(14, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 15 }, { 0x80000000 | 16, 17 },
+        QtMocHelpers::SlotData<void(const QString &, uint32_t)>(15, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 16 }, { 0x80000000 | 17, 18 },
         }}),
         // Slot 'onGameSessionEnded'
-        QtMocHelpers::SlotData<void(uint32_t, const QString &, double)>(18, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 16, 17 }, { QMetaType::QString, 15 }, { QMetaType::Double, 19 },
+        QtMocHelpers::SlotData<void(uint32_t, const QString &, double)>(19, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 17, 18 }, { QMetaType::QString, 16 }, { QMetaType::Double, 20 },
         }}),
         // Slot 'onActiveGameFpsUpdate'
-        QtMocHelpers::SlotData<void(uint32_t, int)>(20, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 16, 17 }, { QMetaType::Int, 21 },
+        QtMocHelpers::SlotData<void(uint32_t, int)>(21, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 17, 18 }, { QMetaType::Int, 22 },
         }}),
         // Slot 'onApiSearchFinished'
-        QtMocHelpers::SlotData<void(const ApiGameResult &)>(22, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 23, 24 },
+        QtMocHelpers::SlotData<void(const ApiGameResult &)>(23, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 24, 25 },
         }}),
         // Slot 'onImageDownloaded'
-        QtMocHelpers::SlotData<void(const QString &, const QUrl &)>(25, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 26 }, { QMetaType::QUrl, 27 },
+        QtMocHelpers::SlotData<void(const QString &, const QUrl &)>(26, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 27 }, { QMetaType::QUrl, 28 },
         }}),
+        // Slot 'updateSessionDisplay'
+        QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'openReportsFolder'
+        QtMocHelpers::SlotData<void()>(30, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -141,11 +152,14 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 4: _t->onTempNavigationButtonClicked(); break;
         case 5: _t->onSettingsButtonClicked(); break;
         case 6: _t->onParticlesEnabledChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 7: _t->onGameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[2]))); break;
-        case 8: _t->onGameSessionEnded((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
-        case 9: _t->onActiveGameFpsUpdate((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
-        case 10: _t->onApiSearchFinished((*reinterpret_cast< std::add_pointer_t<ApiGameResult>>(_a[1]))); break;
-        case 11: _t->onImageDownloaded((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QUrl>>(_a[2]))); break;
+        case 7: _t->onSaveReportsChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 8: _t->onGameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[2]))); break;
+        case 9: _t->onGameSessionEnded((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
+        case 10: _t->onActiveGameFpsUpdate((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
+        case 11: _t->onApiSearchFinished((*reinterpret_cast< std::add_pointer_t<ApiGameResult>>(_a[1]))); break;
+        case 12: _t->onImageDownloaded((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QUrl>>(_a[2]))); break;
+        case 13: _t->updateSessionDisplay(); break;
+        case 14: _t->openReportsFolder(); break;
         default: ;
         }
     }
@@ -170,14 +184,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 12)
+        if (_id < 15)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 15;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 12)
+        if (_id < 15)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 12;
+        _id -= 15;
     }
     return _id;
 }

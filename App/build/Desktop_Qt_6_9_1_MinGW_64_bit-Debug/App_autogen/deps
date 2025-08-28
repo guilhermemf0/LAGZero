@@ -4,6 +4,7 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/RTSSSharedMemory.h \
 	C:/Projetos/LAGZero/App/apimanager.cpp \
 	C:/Projetos/LAGZero/App/apimanager.h \
+	C:/Projetos/LAGZero/App/appconstants.h \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/.qtc/package-manager/auto-setup.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/.qtc/package-manager/maintenance_tool_provider.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/moc_predefs.h \
@@ -23,12 +24,15 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/mainwindow.h \
 	C:/Projetos/LAGZero/App/particleswidget.cpp \
 	C:/Projetos/LAGZero/App/particleswidget.h \
+	C:/Projetos/LAGZero/App/performancechartwidget.cpp \
+	C:/Projetos/LAGZero/App/performancechartwidget.h \
 	C:/Projetos/LAGZero/App/resources.qrc \
 	C:/Projetos/LAGZero/App/splashscreen.cpp \
 	C:/Projetos/LAGZero/App/splashscreen.h \
 	C:/Projetos/LAGZero/App/strokedlabel.cpp \
 	C:/Projetos/LAGZero/App/strokedlabel.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QDateTime \
+	C:/Qt/6.9.1/mingw_64/include/QtCore/QElapsedTimer \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QFlags \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QIODevice \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QList \

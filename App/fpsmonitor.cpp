@@ -96,7 +96,10 @@ void FpsWorker::readFps()
 
     if ((pMem->dwSignature == 0x52545353) && (pMem->dwVersion >= 0x00020000))
     {
-        QSet<uint32_t> currentPids; // CORREÇÃO: Trocado DWORD por uint32_t
+        QSet<uint32_t> currentPids;
+
+        // CORREÇÃO: Lista de processos a serem ignorados para evitar falsos positivos
+        const QList<QString> blacklist = {"App.exe", "TempReader.exe", "devenv.exe", "msedgewebview2.exe"};
 
         for (DWORD i = 0; i < pMem->dwAppArrSize; ++i)
         {
@@ -104,35 +107,40 @@ void FpsWorker::readFps()
             RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_APP_ENTRY pAppEntry =
                 (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_APP_ENTRY)(basePtr + i * pMem->dwAppEntrySize);
 
-            if (strlen(pAppEntry->szName) > 0 && pAppEntry->dwTime1 > pAppEntry->dwTime0)
+            QString exeName = QString::fromLocal8Bit(pAppEntry->szName);
+
+            // Verifica se o processo está na blacklist ou se não tem dados válidos
+            if (exeName.isEmpty() || blacklist.contains(exeName, Qt::CaseInsensitive) || pAppEntry->dwTime1 <= pAppEntry->dwTime0)
             {
-                float currentFps = 1000.0f * pAppEntry->dwFrames / (pAppEntry->dwTime1 - pAppEntry->dwTime0);
-                if (currentFps < 1.0f) continue;
-
-                uint32_t pid = pAppEntry->dwProcessID; // Conversão segura de DWORD para uint32_t
-                currentPids.insert(pid);
-
-                if (!m_activeSessions.contains(pid)) {
-                    GameSessionInfo newSession;
-                    newSession.exeName = QString::fromLocal8Bit(pAppEntry->szName);
-                    newSession.startTime = QDateTime::currentSecsSinceEpoch();
-                    m_activeSessions.insert(pid, newSession);
-                    emit gameSessionStarted(newSession.exeName, pid);
-                }
-
-                m_activeSessions[pid].fpsSamples.append(qRound(currentFps));
-                emit activeGameFpsUpdate(pid, qRound(currentFps));
+                continue;
             }
+
+            float currentFps = 1000.0f * pAppEntry->dwFrames / (pAppEntry->dwTime1 - pAppEntry->dwTime0);
+            if (currentFps < 1.0f) continue;
+
+            uint32_t pid = pAppEntry->dwProcessID;
+            currentPids.insert(pid);
+
+            if (!m_activeSessions.contains(pid)) {
+                GameSessionInfo newSession;
+                newSession.exeName = exeName;
+                newSession.startTime = QDateTime::currentSecsSinceEpoch();
+                m_activeSessions.insert(pid, newSession);
+                emit gameSessionStarted(newSession.exeName, pid);
+            }
+
+            m_activeSessions[pid].fpsSamples.append(qRound(currentFps));
+            emit activeGameFpsUpdate(pid, qRound(currentFps));
         }
 
-        QList<uint32_t> closedPids; // CORREÇÃO: Trocado DWORD por uint32_t
+        QList<uint32_t> closedPids;
         for (auto it = m_activeSessions.begin(); it != m_activeSessions.end(); ++it) {
             if (!currentPids.contains(it.key())) {
                 closedPids.append(it.key());
             }
         }
 
-        for (uint32_t pid : closedPids) { // CORREÇÃO: Trocado DWORD por uint32_t
+        for (uint32_t pid : closedPids) {
             GameSessionInfo session = m_activeSessions.take(pid);
             double avg = 0;
             if (!session.fpsSamples.isEmpty()) {

@@ -1,9 +1,12 @@
 C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Projetos/LAGZero/App/mainwindow.h \
   C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/moc_predefs.h \
   C:/Projetos/LAGZero/App/apimanager.h \
+  C:/Projetos/LAGZero/App/appconstants.h \
   C:/Projetos/LAGZero/App/databasemanager.h \
   C:/Projetos/LAGZero/App/hardwaremonitor.h \
   C:/Projetos/LAGZero/App/particleswidget.h \
+  C:/Projetos/LAGZero/App/performancechartwidget.h \
+  C:/Qt/6.9.1/mingw_64/include/QtCore/QElapsedTimer \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QFlags \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QIODevice \
   C:/Qt/6.9.1/mingw_64/include/QtCore/QList \

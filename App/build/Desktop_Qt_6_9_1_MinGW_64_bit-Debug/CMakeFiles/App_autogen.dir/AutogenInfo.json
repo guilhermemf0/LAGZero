@@ -473,6 +473,12 @@
 			null
 		],
 		[
+			"C:/Projetos/LAGZero/App/appconstants.h",
+			"MU",
+			"EWIEGA46WW/moc_appconstants.cpp",
+			null
+		],
+		[
 			"C:/Projetos/LAGZero/App/databasemanager.h",
 			"MU",
 			"EWIEGA46WW/moc_databasemanager.cpp",
@@ -506,6 +512,12 @@
 			"C:/Projetos/LAGZero/App/particleswidget.h",
 			"MU",
 			"EWIEGA46WW/moc_particleswidget.cpp",
+			null
+		],
+		[
+			"C:/Projetos/LAGZero/App/performancechartwidget.h",
+			"MU",
+			"EWIEGA46WW/moc_performancechartwidget.cpp",
 			null
 		],
 		[
@@ -606,6 +618,7 @@
 		[ "C:/Projetos/LAGZero/App/main.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/mainwindow.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/particleswidget.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/performancechartwidget.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/splashscreen.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/strokedlabel.cpp", "MU", null ]
 	],

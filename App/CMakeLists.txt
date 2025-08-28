@@ -34,9 +34,11 @@ set(PROJECT_SOURCES
     databasemanager.h
     apimanager.cpp
     apimanager.h
-    # CORREÇÃO: Nome do ficheiro corrigido de gamelistitemwidget para gamecoverwidget
     gamecoverwidget.cpp
     gamecoverwidget.h
+    performancechartwidget.cpp
+    performancechartwidget.h
+    appconstants.h # NOVO ARQUIVO ADICIONADO
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)

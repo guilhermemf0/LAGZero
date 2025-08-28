@@ -4,8 +4,6 @@
 #include <QMainWindow>
 #include <cstdint>
 #include <QMap>
-
-// CORREÇÃO: Inclusão completa de todos os cabeçalhos de widgets e layouts necessários
 #include <QStackedWidget>
 #include <QLabel>
 #include <QPushButton>
@@ -16,20 +14,32 @@
 #include <QFrame>
 #include <QUrl>
 #include <QList>
+#include <QTimer>
+#include <QElapsedTimer>
 
 #include "hardwaremonitor.h"
 #include "particleswidget.h"
 #include "databasemanager.h"
 #include "apimanager.h"
+#include "performancechartwidget.h"
+#include "appconstants.h"
 
-// Forward declarations para classes que não precisam de definição completa no header
 class FpsMonitor;
 class GameCoverWidget;
-class QListWidgetItem;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+struct CurrentSession {
+    uint32_t processId = 0;
+    QString exeName;
+    QString displayName;
+    QString coverPath;
+    QElapsedTimer timer;
+    int lastFps = 0;
+    QMap<QString, double> lastTemps;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -40,23 +50,21 @@ public:
     ~MainWindow();
 
 private slots:
-    // Slots de monitores e sistema
     void onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
     void onRtssStatusUpdated(bool found, const QString& installPath);
     void onDownloadRtssClicked();
-
-    // Slots de navegação e UI
     void onNavigationButtonClicked();
     void onTempNavigationButtonClicked();
     void onSettingsButtonClicked();
     void onParticlesEnabledChanged(int state);
-
-    // Slots para gerenciamento de jogos
+    void onSaveReportsChanged(int state);
     void onGameSessionStarted(const QString& exeName, uint32_t processId);
     void onGameSessionEnded(uint32_t processId, const QString& exeName, double averageFps);
     void onActiveGameFpsUpdate(uint32_t processId, int currentFps);
     void onApiSearchFinished(const ApiGameResult& result);
     void onImageDownloaded(const QString& localPath, const QUrl& originalUrl);
+    void updateSessionDisplay();
+    void openReportsFolder(); // Novo slot
 
 private:
     Ui::MainWindow *ui;
@@ -64,13 +72,11 @@ private:
     FpsMonitor *m_fpsMonitor;
     ApiManager *m_apiManager;
 
-    // --- Estrutura da UI Principal ---
     QStackedWidget *m_mainStackedWidget;
     QList<QPushButton*> m_navButtons;
     QPushButton *m_settingsButton;
     ParticlesWidget *m_particlesWidget;
 
-    // --- Widgets da Página "Visão Geral" (Nova UI) ---
     QWidget* m_activeGameWidget;
     QLabel* m_activeGameCoverLabel;
     QLabel* m_activeGameNameLabel;
@@ -80,26 +86,36 @@ private:
     QWidget* m_recentGamesContainer;
     QHBoxLayout* m_recentGamesLayout;
 
-    // --- Widgets da Página "Temperaturas" ---
     QStackedWidget *m_tempStackedWidget;
     QList<QPushButton*> m_tempNavButtons;
-    QLabel *m_cpuTitleLabel, *m_cpuTempValueLabel;
-    QLabel *m_gpuTitleLabel, *m_gpuTempValueLabel;
-    QLabel *m_mbTitleLabel, *m_mbTempValueLabel;
+
+    QMap<QString, QLabel*> m_tempTitleLabels;
+    QMap<QString, QLabel*> m_tempValueLabels;
+    QMap<QString, QLabel*> m_tempFpsValueLabels;
+
+    // Widgets para a aba de armazenamento
+    QScrollArea* m_storageScrollArea;
+    QWidget* m_storageContainer;
+    QVBoxLayout *m_storagePageLayout;
     QMap<QString, QLabel*> m_storageTitleLabels;
     QMap<QString, QLabel*> m_storageValueLabels;
-    QVBoxLayout *m_storagePageLayout;
+    QMap<QString, PerformanceChartWidget*> m_storageCharts; // Novo
 
-    // --- Widgets da Página "Configurações" ---
+    QMap<QString, PerformanceChartWidget*> m_charts;
+    QMap<QString, QWidget*> m_gameInfoWidgets;
+    QMap<QString, QLabel*> m_sessionTimeLabels;
+
     QCheckBox *m_enableParticlesCheckBox;
+    QCheckBox *m_saveReportsCheckBox;
 
-    // --- Widgets de Alerta ---
     QFrame *m_rtssStatusCard;
     QLabel *m_rtssStatusIcon;
     QLabel *m_rtssTitleLabel;
     QPushButton *m_downloadRtssButton;
 
-    // --- Funções Auxiliares ---
+    CurrentSession m_currentSession;
+    QTimer* m_sessionTimer;
+
     void setupUi();
     void setupConnections();
     void setupOverviewPage();
@@ -110,5 +126,7 @@ private:
     QWidget* createDataRow(const QString &iconPath, const QString &title, QLabel* &titleLabel, QLabel* &valueLabel);
     void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);
     void updateSettingsButtonIcon(bool selected);
+    void updateTempGameInfo(bool isGameRunning);
+    void saveSessionReport();
 };
 #endif // MAINWINDOW_H

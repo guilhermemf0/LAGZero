@@ -144,6 +144,14 @@ build CMakeFiles/App.dir/gamecoverwidget.cpp.obj: CXX_COMPILER__App_unscanned_De
   OBJECT_DIR = CMakeFiles\App.dir
   OBJECT_FILE_DIR = CMakeFiles\App.dir
 
+build CMakeFiles/App.dir/performancechartwidget.cpp.obj: CXX_COMPILER__App_unscanned_Debug C$:/Projetos/LAGZero/App/performancechartwidget.cpp || cmake_object_order_depends_target_App
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_SVG_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEP_FILE = CMakeFiles\App.dir\performancechartwidget.cpp.obj.d
+  FLAGS = -DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always
+  INCLUDES = -IC:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/include -isystem C:/Qt/6.9.1/mingw_64/include/QtWidgets -isystem C:/Qt/6.9.1/mingw_64/include -isystem C:/Qt/6.9.1/mingw_64/include/QtCore -isystem C:/Qt/6.9.1/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.9.1/mingw_64/include/QtGui -isystem C:/Qt/6.9.1/mingw_64/include/QtSvg -isystem C:/Qt/6.9.1/mingw_64/include/QtNetwork -isystem C:/Qt/6.9.1/mingw_64/include/QtSql
+  OBJECT_DIR = CMakeFiles\App.dir
+  OBJECT_FILE_DIR = CMakeFiles\App.dir
+
 build CMakeFiles/App.dir/App_autogen/EWIEGA46WW/qrc_resources.cpp.obj: CXX_COMPILER__App_unscanned_Debug C$:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EWIEGA46WW/qrc_resources.cpp || cmake_object_order_depends_target_App
   DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_SVG_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
   DEP_FILE = CMakeFiles\App.dir\App_autogen\EWIEGA46WW\qrc_resources.cpp.obj.d
@@ -160,7 +168,7 @@ build CMakeFiles/App.dir/App_autogen/EWIEGA46WW/qrc_resources.cpp.obj: CXX_COMPI
 #############################################
 # Link the executable App.exe
 
-build App.exe: CXX_EXECUTABLE_LINKER__App_Debug CMakeFiles/App.dir/App_autogen/mocs_compilation.cpp.obj CMakeFiles/App.dir/main.cpp.obj CMakeFiles/App.dir/mainwindow.cpp.obj CMakeFiles/App.dir/hardwaremonitor.cpp.obj CMakeFiles/App.dir/fpsmonitor.cpp.obj CMakeFiles/App.dir/splashscreen.cpp.obj CMakeFiles/App.dir/strokedlabel.cpp.obj CMakeFiles/App.dir/app.rc.obj CMakeFiles/App.dir/particleswidget.cpp.obj CMakeFiles/App.dir/databasemanager.cpp.obj CMakeFiles/App.dir/apimanager.cpp.obj CMakeFiles/App.dir/gamecoverwidget.cpp.obj CMakeFiles/App.dir/App_autogen/EWIEGA46WW/qrc_resources.cpp.obj | C$:/Qt/6.9.1/mingw_64/lib/libQt6Widgets.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Svg.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Network.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Sql.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Gui.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Core.a C$:/Qt/6.9.1/mingw_64/lib/libQt6EntryPoint.a || App_autogen App_autogen_timestamp_deps
+build App.exe: CXX_EXECUTABLE_LINKER__App_Debug CMakeFiles/App.dir/App_autogen/mocs_compilation.cpp.obj CMakeFiles/App.dir/main.cpp.obj CMakeFiles/App.dir/mainwindow.cpp.obj CMakeFiles/App.dir/hardwaremonitor.cpp.obj CMakeFiles/App.dir/fpsmonitor.cpp.obj CMakeFiles/App.dir/splashscreen.cpp.obj CMakeFiles/App.dir/strokedlabel.cpp.obj CMakeFiles/App.dir/app.rc.obj CMakeFiles/App.dir/particleswidget.cpp.obj CMakeFiles/App.dir/databasemanager.cpp.obj CMakeFiles/App.dir/apimanager.cpp.obj CMakeFiles/App.dir/gamecoverwidget.cpp.obj CMakeFiles/App.dir/performancechartwidget.cpp.obj CMakeFiles/App.dir/App_autogen/EWIEGA46WW/qrc_resources.cpp.obj | C$:/Qt/6.9.1/mingw_64/lib/libQt6Widgets.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Svg.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Network.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Sql.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Gui.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Core.a C$:/Qt/6.9.1/mingw_64/lib/libQt6EntryPoint.a || App_autogen App_autogen_timestamp_deps
   FLAGS = -DQT_QML_DEBUG -g
   LINK_FLAGS = -mwindows
   LINK_LIBRARIES = C:/Qt/6.9.1/mingw_64/lib/libQt6Widgets.a  C:/Qt/6.9.1/mingw_64/lib/libQt6Svg.a  C:/Qt/6.9.1/mingw_64/lib/libQt6Network.a  C:/Qt/6.9.1/mingw_64/lib/libQt6Sql.a  -lole32  -loleaut32  -lwbemuuid  -luser32  C:/Qt/6.9.1/mingw_64/lib/libQt6Gui.a  -ld3d11  -ldxgi  -ldxguid  -ld3d12  -lws2_32  C:/Qt/6.9.1/mingw_64/lib/libQt6Core.a  -lmpr  -luserenv  -lmingw32  C:/Qt/6.9.1/mingw_64/lib/libQt6EntryPoint.a  -lshell32  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
