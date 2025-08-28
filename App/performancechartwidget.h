@@ -3,40 +3,50 @@
 
 #include <QWidget>
 #include <QList>
-#include <QPointF>
-#include <QElapsedTimer>
+#include <QColor>
 
-// Widget customizado para desenhar um gráfico de performance (Temp vs FPS)
+// Widget de gráfico completamente redesenhado para uma visualização de dados superior.
+// Agora apresenta dois gráficos empilhados (FPS e Temp) e um marcador interativo que segue o mouse.
 class PerformanceChartWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit PerformanceChartWidget(QWidget *parent = nullptr);
 
-    // Adiciona um novo ponto de dados ao gráfico
     void addDataPoint(double temperature, double fps);
-    // Limpa todos os dados do gráfico
     void clearData();
-
-    // --- NOVO: Funções para acessar os dados com segurança ---
     QList<double> getTempData() const;
     QList<double> getFpsData() const;
 
+    void setColors(const QColor& tempColor, const QColor& fpsColor);
+    void setLabels(const QString& tempLabel, const QString& fpsLabel);
 
 protected:
-    // Evento de pintura onde o gráfico é desenhado
     void paintEvent(QPaintEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 private:
+    // Dados
     QList<double> m_tempData;
     QList<double> m_fpsData;
-    int m_maxDataPoints = 120; // Armazena os últimos 2 minutos de dados (120 segundos)
+    int m_maxDataPoints = 120; // 2 minutos de dados
 
-    // Funções auxiliares para o desenho
+    // Estilo
+    QColor m_tempColor;
+    QColor m_fpsColor;
+    QString m_tempLabel;
+    QString m_fpsLabel;
+
+    // Interatividade
+    bool m_mouseInside = false;
+    QPointF m_mousePos;
+
+    // Funções auxiliares de desenho
     void drawBackground(QPainter &painter);
-    void drawGrid(QPainter &painter);
-    void drawAxes(QPainter &painter, double maxTemp, double maxFps);
-    void drawDataLine(QPainter &painter, const QList<double>& data, const QColor& color, double maxValue, const QRectF& plotArea);
+    void drawSingleChart(QPainter &painter, const QRectF& area, const QList<double>& data, const QColor& color, const QString& label);
+    void drawTracker(QPainter &painter);
+    QPainterPath createSmoothPath(const QList<double>& data, const QRectF& area);
 };
 
 #endif // PERFORMANCECHARTWIDGET_H

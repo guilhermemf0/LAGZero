@@ -69,8 +69,8 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "onImageDownloaded",
         "localPath",
         "originalUrl",
-        "updateSessionDisplay",
-        "openReportsFolder"
+        "openReportsFolder",
+        "updateSessionInfo"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -118,9 +118,9 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void(const QString &, const QUrl &)>(26, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 27 }, { QMetaType::QUrl, 28 },
         }}),
-        // Slot 'updateSessionDisplay'
-        QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'openReportsFolder'
+        QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'updateSessionInfo'
         QtMocHelpers::SlotData<void()>(30, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
@@ -158,8 +158,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 10: _t->onActiveGameFpsUpdate((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         case 11: _t->onApiSearchFinished((*reinterpret_cast< std::add_pointer_t<ApiGameResult>>(_a[1]))); break;
         case 12: _t->onImageDownloaded((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QUrl>>(_a[2]))); break;
-        case 13: _t->updateSessionDisplay(); break;
-        case 14: _t->openReportsFolder(); break;
+        case 13: _t->openReportsFolder(); break;
+        case 14: _t->updateSessionInfo(); break;
         default: ;
         }
     }

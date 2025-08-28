@@ -12,6 +12,7 @@ struct Particle {
     QPointF position;
     QPointF velocity;
     qreal opacity;
+    qreal size; // Adicionado tamanho individual
 };
 
 class ParticlesWidget : public QWidget
@@ -27,6 +28,9 @@ public:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    // Adicionado para interatividade com o mouse
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 private slots:
     void updateParticles();
@@ -35,8 +39,11 @@ private:
     QTimer *m_animationTimer;
     QVector<Particle> m_particles;
     int m_particleCount;
-    qreal m_particleSize;
     QColor m_particleColor;
+
+    // Variáveis para interatividade
+    QPointF m_mousePos;
+    bool m_mouseInside = false;
 
     void initializeParticles();
 };

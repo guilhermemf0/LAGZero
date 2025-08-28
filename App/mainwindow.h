@@ -7,8 +7,6 @@
 #include <QStackedWidget>
 #include <QLabel>
 #include <QPushButton>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QCheckBox>
 #include <QScrollArea>
 #include <QFrame>
@@ -16,6 +14,9 @@
 #include <QList>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
 
 #include "hardwaremonitor.h"
 #include "particleswidget.h"
@@ -63,70 +64,66 @@ private slots:
     void onActiveGameFpsUpdate(uint32_t processId, int currentFps);
     void onApiSearchFinished(const ApiGameResult& result);
     void onImageDownloaded(const QString& localPath, const QUrl& originalUrl);
-    void updateSessionDisplay();
-    void openReportsFolder(); // Novo slot
+    void openReportsFolder();
+    void updateSessionInfo();
 
 private:
     Ui::MainWindow *ui;
     HardwareMonitor *m_hardwareMonitor;
     FpsMonitor *m_fpsMonitor;
     ApiManager *m_apiManager;
+    ParticlesWidget *m_particlesWidget;
 
+    // Estrutura principal da UI
     QStackedWidget *m_mainStackedWidget;
     QList<QPushButton*> m_navButtons;
     QPushButton *m_settingsButton;
-    ParticlesWidget *m_particlesWidget;
 
+    // Widgets da tela "Visão Geral"
     QWidget* m_activeGameWidget;
     QLabel* m_activeGameCoverLabel;
     QLabel* m_activeGameNameLabel;
-    QLabel* m_activeGameFpsLabel;
+    QLabel* m_activeGameInfoLabel;
     QLabel* m_waitingForGameLabel;
     QScrollArea* m_recentGamesScrollArea;
     QWidget* m_recentGamesContainer;
     QHBoxLayout* m_recentGamesLayout;
+    QMap<QString, QLabel*> m_sessionMetricValues;
 
+    // Widgets da tela "Temperaturas"
     QStackedWidget *m_tempStackedWidget;
     QList<QPushButton*> m_tempNavButtons;
-
-    QMap<QString, QLabel*> m_tempTitleLabels;
-    QMap<QString, QLabel*> m_tempValueLabels;
-    QMap<QString, QLabel*> m_tempFpsValueLabels;
-
-    // Widgets para a aba de armazenamento
+    QMap<QString, PerformanceChartWidget*> m_charts;
+    QMap<QString, QWidget*> m_tempInfoCards;
     QScrollArea* m_storageScrollArea;
     QWidget* m_storageContainer;
     QVBoxLayout *m_storagePageLayout;
-    QMap<QString, QLabel*> m_storageTitleLabels;
-    QMap<QString, QLabel*> m_storageValueLabels;
-    QMap<QString, PerformanceChartWidget*> m_storageCharts; // Novo
 
-    QMap<QString, PerformanceChartWidget*> m_charts;
-    QMap<QString, QWidget*> m_gameInfoWidgets;
-    QMap<QString, QLabel*> m_sessionTimeLabels;
-
+    // Widgets da tela "Configurações"
     QCheckBox *m_enableParticlesCheckBox;
     QCheckBox *m_saveReportsCheckBox;
 
+    // Widget de status do RTSS
     QFrame *m_rtssStatusCard;
-    QLabel *m_rtssStatusIcon;
-    QLabel *m_rtssTitleLabel;
-    QPushButton *m_downloadRtssButton;
 
+    // Gerenciamento da sessão
     CurrentSession m_currentSession;
     QTimer* m_sessionTimer;
 
+    // Funções de setup
     void setupUi();
     void setupConnections();
     void setupOverviewPage();
     void setupTempPage();
     void setupSettingsPage();
+    QWidget* createInfoCard(const QString& key, const QString& iconSvg, const QString& title);
+    QWidget* createMetricCard(const QString& title, const QString& key);
+
+    // Funções de atualização da UI
     void populateRecentGames();
     void setActiveGameView(bool active);
-    QWidget* createDataRow(const QString &iconPath, const QString &title, QLabel* &titleLabel, QLabel* &valueLabel);
     void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);
     void updateSettingsButtonIcon(bool selected);
-    void updateTempGameInfo(bool isGameRunning);
     void saveSessionReport();
 };
 #endif // MAINWINDOW_H

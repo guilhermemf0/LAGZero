@@ -503,6 +503,12 @@
 			null
 		],
 		[
+			"C:/Projetos/LAGZero/App/infocardwidget.h",
+			"MU",
+			"EWIEGA46WW/moc_infocardwidget.cpp",
+			null
+		],
+		[
 			"C:/Projetos/LAGZero/App/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
@@ -530,6 +536,12 @@
 			"C:/Projetos/LAGZero/App/strokedlabel.h",
 			"MU",
 			"EWIEGA46WW/moc_strokedlabel.cpp",
+			null
+		],
+		[
+			"C:/Projetos/LAGZero/App/summarycardwidget.h",
+			"MU",
+			"EWIEGA46WW/moc_summarycardwidget.cpp",
 			null
 		]
 	],
@@ -615,12 +627,14 @@
 		[ "C:/Projetos/LAGZero/App/fpsmonitor.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/gamecoverwidget.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/hardwaremonitor.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/infocardwidget.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/main.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/mainwindow.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/particleswidget.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/performancechartwidget.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/splashscreen.cpp", "MU", null ],
-		[ "C:/Projetos/LAGZero/App/strokedlabel.cpp", "MU", null ]
+		[ "C:/Projetos/LAGZero/App/strokedlabel.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/summarycardwidget.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],
 	"UIC_SEARCH_PATHS" : [],

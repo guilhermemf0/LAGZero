@@ -38,7 +38,11 @@ set(PROJECT_SOURCES
     gamecoverwidget.h
     performancechartwidget.cpp
     performancechartwidget.h
-    appconstants.h # NOVO ARQUIVO ADICIONADO
+    appconstants.h
+    infocardwidget.h
+    infocardwidget.cpp
+    summarycardwidget.h
+    summarycardwidget.cpp
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)

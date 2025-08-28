@@ -241,6 +241,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.1/mingw_64/include/QtSql/qtsqlglobal.h \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QCheckBox \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QFrame \
+  C:/Qt/6.9.1/mingw_64/include/QtWidgets/QGridLayout \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QHBoxLayout \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QLabel \
   C:/Qt/6.9.1/mingw_64/include/QtWidgets/QMainWindow \

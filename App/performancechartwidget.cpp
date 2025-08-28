@@ -4,13 +4,20 @@
 #include <QPen>
 #include <QFontMetrics>
 #include <QLinearGradient>
+#include <QMouseEvent>
 #include <algorithm>
 
+// NOTA: O include <numeric> foi removido pois não era utilizado, corrigindo o aviso de compilação.
+
 PerformanceChartWidget::PerformanceChartWidget(QWidget *parent)
-    : QWidget{parent}
+    : QWidget{parent},
+    m_tempColor("#FF7043"),
+    m_fpsColor("#00D1FF"),
+    m_tempLabel("Temperatura (°C)"),
+    m_fpsLabel("FPS")
 {
-    // Aumenta a altura mínima para o gráfico ser maior
-    setMinimumHeight(250);
+    setMinimumHeight(280);
+    setMouseTracking(true);
 }
 
 void PerformanceChartWidget::addDataPoint(double temperature, double fps)
@@ -18,12 +25,8 @@ void PerformanceChartWidget::addDataPoint(double temperature, double fps)
     m_tempData.append(temperature);
     m_fpsData.append(fps);
 
-    while (m_tempData.size() > m_maxDataPoints) {
-        m_tempData.removeFirst();
-    }
-    while (m_fpsData.size() > m_maxDataPoints) {
-        m_fpsData.removeFirst();
-    }
+    while (m_tempData.size() > m_maxDataPoints) m_tempData.removeFirst();
+    while (m_fpsData.size() > m_maxDataPoints) m_fpsData.removeFirst();
 
     update();
 }
@@ -35,16 +38,20 @@ void PerformanceChartWidget::clearData()
     update();
 }
 
-QList<double> PerformanceChartWidget::getTempData() const
+void PerformanceChartWidget::setColors(const QColor& tempColor, const QColor& fpsColor)
 {
-    return m_tempData;
+    m_tempColor = tempColor;
+    m_fpsColor = fpsColor;
 }
 
-QList<double> PerformanceChartWidget::getFpsData() const
+void PerformanceChartWidget::setLabels(const QString& tempLabel, const QString& fpsLabel)
 {
-    return m_fpsData;
+    m_tempLabel = tempLabel;
+    m_fpsLabel = fpsLabel;
 }
 
+QList<double> PerformanceChartWidget::getTempData() const { return m_tempData; }
+QList<double> PerformanceChartWidget::getFpsData() const { return m_fpsData; }
 
 void PerformanceChartWidget::paintEvent(QPaintEvent *event)
 {
@@ -54,108 +61,167 @@ void PerformanceChartWidget::paintEvent(QPaintEvent *event)
 
     drawBackground(painter);
 
-    if (m_tempData.isEmpty() || m_fpsData.isEmpty()) {
+    if (m_tempData.size() < 2) {
         painter.setPen(QColor("#aeb9d6"));
-        painter.drawText(rect(), Qt::AlignCenter, "Aguardando dados do jogo...");
+        painter.drawText(rect(), Qt::AlignCenter, "Aguardando dados da sessão...");
         return;
     }
 
-    double maxTemp = m_tempData.isEmpty() ? 100.0 : *std::max_element(m_tempData.begin(), m_tempData.end());
-    double maxFps = m_fpsData.isEmpty() ? 60.0 : *std::max_element(m_fpsData.begin(), m_fpsData.end());
-    maxTemp = std::max(100.0, maxTemp);
-    maxFps = std::max(60.0, maxFps);
+    // Dividir a área de desenho em duas para os gráficos
+    QRectF totalArea = rect().adjusted(10, 10, -10, -10);
+    QRectF fpsArea(totalArea.left(), totalArea.top(), totalArea.width(), totalArea.height() / 2 - 5);
+    QRectF tempArea(totalArea.left(), totalArea.top() + totalArea.height() / 2 + 5, totalArea.width(), totalArea.height() / 2 - 5);
 
-    drawGrid(painter);
-    drawAxes(painter, maxTemp, maxFps);
+    drawSingleChart(painter, fpsArea, m_fpsData, m_fpsColor, m_fpsLabel);
+    drawSingleChart(painter, tempArea, m_tempData, m_tempColor, m_tempLabel);
 
-    QRectF plotArea = rect().adjusted(50, 20, -20, -30);
+    if (m_mouseInside) {
+        drawTracker(painter);
+    }
+}
 
-    // Desenha as linhas de dados com preenchimento
-    drawDataLine(painter, m_fpsData, QColor(0, 209, 255), maxFps, plotArea);
-    drawDataLine(painter, m_tempData, QColor(255, 112, 67), maxTemp, plotArea);
+void PerformanceChartWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    m_mousePos = event->pos();
+    m_mouseInside = true;
+    update();
+    QWidget::mouseMoveEvent(event);
+}
+
+void PerformanceChartWidget::leaveEvent(QEvent *event)
+{
+    m_mouseInside = false;
+    update();
+    QWidget::leaveEvent(event);
 }
 
 void PerformanceChartWidget::drawBackground(QPainter &painter)
 {
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(16, 18, 26, 180));
-    painter.drawRoundedRect(rect(), 8, 8);
+    // Efeito "Glassmorphism"
+    QColor bgColor(16, 18, 26, 220);
+    QColor borderColor(255, 255, 255, 15);
+    painter.setPen(QPen(borderColor, 1.5));
+    painter.setBrush(bgColor);
+    painter.drawRoundedRect(this->rect(), 12, 12);
 }
 
-void PerformanceChartWidget::drawGrid(QPainter &painter)
-{
-    QPen gridPen(QColor(255, 255, 255, 20), 1, Qt::DotLine);
-    painter.setPen(gridPen);
-
-    for (int i = 1; i < 5; ++i) {
-        int x = rect().left() + 50 + i * (rect().width() - 70) / 5;
-        painter.drawLine(x, rect().top() + 20, x, rect().bottom() - 30);
-    }
-    for (int i = 1; i < 4; ++i) {
-        int y = rect().top() + 20 + i * (rect().height() - 50) / 4;
-        painter.drawLine(rect().left() + 50, y, rect().right() - 20, y);
-    }
-}
-
-void PerformanceChartWidget::drawAxes(QPainter &painter, double maxTemp, double maxFps)
-{
-    painter.setPen(QColor("#aeb9d6"));
-    QFont font = painter.font();
-    font.setPointSize(8);
-    painter.setFont(font);
-
-    painter.drawText(QRect(0, 15, 45, 15), Qt::AlignRight, "°C");
-    for (int i = 0; i <= 4; ++i) {
-        int y = rect().bottom() - 30 - i * (rect().height() - 50) / 4;
-        double tempLabel = (maxTemp / 4.0) * i;
-        painter.drawText(QRect(0, y - 10, 45, 20), Qt::AlignRight, QString::number(tempLabel, 'f', 0));
-    }
-
-    painter.drawText(QRect(rect().width() - 25, 15, 20, 15), Qt::AlignRight, "FPS");
-    for (int i = 0; i <= 4; ++i) {
-        int y = rect().bottom() - 30 - i * (rect().height() - 50) / 4;
-        double fpsLabel = (maxFps / 4.0) * i;
-        painter.drawText(QRect(rect().width() - 25, y - 10, 20, 20), Qt::AlignRight, QString::number(fpsLabel, 'f', 0));
-    }
-
-    painter.drawText(QRect(50, rect().bottom() - 20, 100, 20), Qt::AlignLeft, "Tempo (Últimos 2 min)");
-}
-
-void PerformanceChartWidget::drawDataLine(QPainter &painter, const QList<double>& data, const QColor& color, double maxValue, const QRectF& plotArea)
+void PerformanceChartWidget::drawSingleChart(QPainter &painter, const QRectF& area, const QList<double>& data, const QColor& color, const QString& label)
 {
     if (data.size() < 2) return;
 
-    QPainterPath path;
-    QPainterPath fillPath;
-    double xStep = plotArea.width() / (m_maxDataPoints - 1);
+    painter.save();
 
-    double startX = plotArea.left() + (m_maxDataPoints - data.size()) * xStep;
-    fillPath.moveTo(startX, plotArea.bottom());
-
-    for (int i = 0; i < data.size(); ++i) {
-        double x = startX + i * xStep;
-        double y = plotArea.bottom() - (data[i] / maxValue) * plotArea.height();
-        if (i == 0) {
-            path.moveTo(x, y);
-        } else {
-            path.lineTo(x, y);
-        }
-        fillPath.lineTo(x, y);
+    // Desenha a grade de fundo
+    QPen gridPen(QColor(255, 255, 255, 8), 1, Qt::DotLine);
+    painter.setPen(gridPen);
+    for (int i = 1; i < 4; ++i) {
+        qreal y = area.top() + i * area.height() / 4;
+        painter.drawLine(area.left() + 30, y, area.right() - 30, y);
     }
-    fillPath.lineTo(plotArea.right(), plotArea.bottom());
-    fillPath.closeSubpath();
 
-    // Desenha o preenchimento com gradiente
-    QLinearGradient gradient(plotArea.topLeft(), plotArea.bottomLeft());
-    gradient.setColorAt(0, color.lighter(110));
+    // Cria o caminho suavizado
+    QPainterPath path = createSmoothPath(data, area);
+
+    // Preenchimento com gradiente
+    QPainterPath fillPath = path;
+    fillPath.lineTo(area.bottomRight());
+    fillPath.lineTo(area.bottomLeft());
+    fillPath.closeSubpath();
+    QLinearGradient gradient(area.topLeft(), area.bottomLeft());
+    gradient.setColorAt(0, QColor(color.red(), color.green(), color.blue(), 60));
     gradient.setColorAt(1, QColor(color.red(), color.green(), color.blue(), 0));
     painter.setBrush(gradient);
     painter.setPen(Qt::NoPen);
     painter.drawPath(fillPath);
 
-    // Desenha a linha principal
-    QPen linePen(color, 2.0);
+    // Linha principal
+    QPen linePen(color, 2.5);
     painter.setPen(linePen);
     painter.setBrush(Qt::NoBrush);
     painter.drawPath(path);
+
+    // Desenha as legendas e valores
+    double minValue = *std::min_element(data.begin(), data.end());
+    double maxValue = *std::max_element(data.begin(), data.end());
+    double currentValue = data.last();
+
+    QFont labelFont("Inter", 9, QFont::Medium);
+    QFont valueFont("Inter", 16, QFont::Bold);
+    QFont minMaxFont("Inter", 8, QFont::Normal);
+
+    painter.setPen(QColor("#aeb9d6"));
+    painter.setFont(labelFont);
+    painter.drawText(area.adjusted(15, 8, 0, 0), Qt::AlignLeft | Qt::AlignTop, label);
+
+    painter.setFont(minMaxFont);
+    painter.drawText(area.adjusted(0, 0, -15, -5), Qt::AlignRight | Qt::AlignBottom, QString("Min %1 / Máx %2").arg(minValue, 0, 'f', 0).arg(maxValue, 0, 'f', 0));
+
+    painter.setPen(color);
+    painter.setFont(valueFont);
+    painter.drawText(area.adjusted(0, 8, -15, 0), Qt::AlignRight | Qt::AlignTop, QString::number(currentValue, 'f', 0));
+
+    painter.restore();
+}
+
+void PerformanceChartWidget::drawTracker(QPainter &painter)
+{
+    QRectF totalArea = rect().adjusted(10, 10, -10, -10);
+    if (!totalArea.contains(m_mousePos)) return;
+
+    // Linha vertical do marcador
+    painter.setPen(QPen(QColor(255, 255, 255, 50), 1.5, Qt::DashLine));
+    painter.drawLine(m_mousePos.x(), totalArea.top(), m_mousePos.x(), totalArea.bottom());
+
+    // Calcula o índice dos dados correspondente à posição do mouse
+    int index = static_cast<int>(((m_mousePos.x() - totalArea.left()) / totalArea.width()) * m_tempData.size());
+    index = std::clamp(index, 0, static_cast<int>(m_tempData.size() - 1));
+
+    double tempValue = m_tempData.at(index);
+    double fpsValue = m_fpsData.at(index);
+
+    // Desenha os valores do marcador
+    QFont font("Inter", 9, QFont::Bold);
+    painter.setFont(font);
+    QFontMetrics fm(font);
+
+    auto drawValueBox = [&](const QString& text, const QColor& color, qreal yPos) {
+        QRectF box = fm.boundingRect(text).adjusted(-5, -3, 5, 3);
+        box.moveCenter(QPointF(m_mousePos.x(), yPos));
+        if (box.left() < totalArea.left()) box.moveLeft(totalArea.left());
+        if (box.right() > totalArea.right()) box.moveRight(totalArea.right());
+        painter.setBrush(QColor("#0c0a15"));
+        painter.setPen(color);
+        painter.drawRoundedRect(box, 4, 4);
+        painter.drawText(box, Qt::AlignCenter, text);
+    };
+
+    drawValueBox(QString::number(fpsValue, 'f', 0) + " FPS", m_fpsColor, totalArea.top() + totalArea.height() / 4);
+    drawValueBox(QString::number(tempValue, 'f', 1) + " °C", m_tempColor, totalArea.bottom() - totalArea.height() / 4);
+}
+
+QPainterPath PerformanceChartWidget::createSmoothPath(const QList<double>& data, const QRectF& area)
+{
+    double minValue = *std::min_element(data.begin(), data.end());
+    double maxValue = *std::max_element(data.begin(), data.end());
+    double range = maxValue - minValue;
+    if (range < 1) range = 1;
+
+    QPainterPath path;
+    QVector<QPointF> points(data.size());
+    double xStep = area.width() / (data.size() - 1);
+
+    for (int i = 0; i < data.size(); ++i) {
+        double y = area.bottom() - ((data[i] - minValue) / range) * area.height();
+        points[i] = QPointF(area.left() + i * xStep, y);
+    }
+
+    path.moveTo(points[0]);
+    for (int i = 0; i < points.size() - 1; ++i) {
+        QPointF p1 = points[i];
+        QPointF p2 = points[i+1];
+        QPointF ctrl1((p1.x() + p2.x()) / 2, p1.y());
+        QPointF ctrl2((p1.x() + p2.x()) / 2, p2.y());
+        path.cubicTo(ctrl1, ctrl2, p2);
+    }
+    return path;
 }

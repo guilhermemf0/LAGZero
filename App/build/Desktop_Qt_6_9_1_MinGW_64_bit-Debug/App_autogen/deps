@@ -19,6 +19,8 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/gamecoverwidget.h \
 	C:/Projetos/LAGZero/App/hardwaremonitor.cpp \
 	C:/Projetos/LAGZero/App/hardwaremonitor.h \
+	C:/Projetos/LAGZero/App/infocardwidget.cpp \
+	C:/Projetos/LAGZero/App/infocardwidget.h \
 	C:/Projetos/LAGZero/App/main.cpp \
 	C:/Projetos/LAGZero/App/mainwindow.cpp \
 	C:/Projetos/LAGZero/App/mainwindow.h \
@@ -31,6 +33,8 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/splashscreen.h \
 	C:/Projetos/LAGZero/App/strokedlabel.cpp \
 	C:/Projetos/LAGZero/App/strokedlabel.h \
+	C:/Projetos/LAGZero/App/summarycardwidget.cpp \
+	C:/Projetos/LAGZero/App/summarycardwidget.h \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QDateTime \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QElapsedTimer \
 	C:/Qt/6.9.1/mingw_64/include/QtCore/QFlags \
@@ -276,6 +280,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.1/mingw_64/include/QtSql/qtsqlglobal.h \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QCheckBox \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QFrame \
+	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QGridLayout \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QHBoxLayout \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QLabel \
 	C:/Qt/6.9.1/mingw_64/include/QtWidgets/QMainWindow \
