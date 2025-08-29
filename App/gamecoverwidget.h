@@ -15,9 +15,9 @@ public:
     ~GameCoverWidget();
 
 signals:
-    // NOVO: Sinais para o menu de contexto
     void editGameRequested(const QString& executableName);
     void removeGameRequested(const QString& executableName);
+    void changeCoverRequested(const QString& executableName);
 
 protected:
     void enterEvent(QEnterEvent *event) override;

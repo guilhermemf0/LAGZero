@@ -511,6 +511,18 @@
 			null
 		],
 		[
+			"C:/Projetos/LAGZero/App/clickablelabel.h",
+			"MU",
+			"EWIEGA46WW/moc_clickablelabel.cpp",
+			null
+		],
+		[
+			"C:/Projetos/LAGZero/App/coverselectiondialog.h",
+			"MU",
+			"EWIEGA46WW/moc_coverselectiondialog.cpp",
+			null
+		],
+		[
 			"C:/Projetos/LAGZero/App/databasemanager.h",
 			"MU",
 			"EWIEGA46WW/moc_databasemanager.cpp",
@@ -538,6 +550,12 @@
 			"C:/Projetos/LAGZero/App/infocardwidget.h",
 			"MU",
 			"EWIEGA46WW/moc_infocardwidget.cpp",
+			null
+		],
+		[
+			"C:/Projetos/LAGZero/App/launchermanager.h",
+			"MU",
+			"EWIEGA46WW/moc_launchermanager.cpp",
 			null
 		],
 		[
@@ -661,11 +679,14 @@
 	"SOURCES" : 
 	[
 		[ "C:/Projetos/LAGZero/App/apimanager.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/clickablelabel.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/coverselectiondialog.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/databasemanager.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/fpsmonitor.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/gamecoverwidget.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/hardwaremonitor.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/infocardwidget.cpp", "MU", null ],
+		[ "C:/Projetos/LAGZero/App/launchermanager.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/main.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/mainwindow.cpp", "MU", null ],
 		[ "C:/Projetos/LAGZero/App/particleswidget.cpp", "MU", null ],

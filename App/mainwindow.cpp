@@ -2,9 +2,15 @@
 #include "ui_mainwindow.h"
 #include "fpsmonitor.h"
 #include "gamecoverwidget.h"
+#include "launchermanager.h"
+#include "databasemanager.h"
+#include "appconstants.h"
+#include "steamappcache.h"
+#include "coverselectiondialog.h"
 #include <QFontDatabase>
 #include <QIcon>
 #include <QStyle>
+#include <QCryptographicHash>
 #include <QDesktopServices>
 #include <QSettings>
 #include <QtSvg/QSvgRenderer>
@@ -21,8 +27,39 @@
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QDebug>
+#include <QDirIterator>
+#include <QJsonDocument>
+#include <QJsonObject>
 
-// --- FUNÇÃO DE COR UNIFICADA ---
+QString cleanEmulatorWindowTitle(QString windowTitle) {
+    if (windowTitle.contains('|')) {
+        windowTitle = windowTitle.section('|', 1).trimmed();
+    }
+
+    return windowTitle;
+}
+
+QString MainWindow::findEpicGameDisplayName(const QString& executablePath)
+{
+    QDir manifestDir("C:/ProgramData/Epic/EpicGamesLauncher/Data/Manifests");
+    if (!manifestDir.exists()) return QString();
+
+    QDirIterator it(manifestDir.absolutePath(), {"*.item"}, QDir::Files);
+    while (it.hasNext()) {
+        QFile file(it.next());
+        if (file.open(QIODevice::ReadOnly)) {
+            QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+            QString displayName = doc.object()["DisplayName"].toString();
+            QString installLocation = doc.object()["InstallLocation"].toString();
+
+            if (executablePath.startsWith(installLocation, Qt::CaseInsensitive)) {
+                return displayName;
+            }
+        }
+    }
+    return QString();
+}
+
 static QString getTempColor(double temp, const QString& type)
 {
     if (temp < 0) return "#aeb9d6";
@@ -136,6 +173,7 @@ void MainWindow::setupConnections() {
     connect(m_enableParticlesCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onParticlesEnabledChanged);
     connect(m_saveReportsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onSaveReportsChanged);
     connect(m_chartDurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::onChartDurationChanged);
+    connect(m_apiManager, &ApiManager::gridListAvailable, this, &MainWindow::onGridListReady);
 }
 
 void MainWindow::setupOverviewPage() {
@@ -301,30 +339,47 @@ void MainWindow::setupSettingsPage() {
 
 void MainWindow::onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId)
 {
-    qDebug() << "[SESSION START] Executable:" << exeName << "| Window Title:" << windowTitle;
+    qDebug() << "[SESSION START] Executable:" << exeName << "| PID:" << processId << "| Window Title:" << windowTitle;
+
+    QString searchName;
+    const QStringList emulatorExes = {"dolphin.exe", "cemu.exe", "yuzu.exe", "ryujinx.exe", "pcsx2.exe", "rpcs3.exe"};
+    QString currentExeFile = QFileInfo(exeName).fileName().toLower();
+
+    GameData dataFromDb = DatabaseManager::instance().getGameData(exeName);
+    if (dataFromDb.id != -1 && !dataFromDb.user_display_name.isEmpty()) {
+        searchName = dataFromDb.user_display_name;
+        qDebug() << "[SESSION START] Associação manual encontrada no DB:" << searchName;
+    } else if (emulatorExes.contains(currentExeFile)) {
+        searchName = cleanEmulatorWindowTitle(windowTitle);
+        qDebug() << "[SESSION START] Emulador detectado. Usando título da janela como nome:" << searchName;
+    } else {
+        QString accurateGameName = LauncherManager::instance().findGameDisplayName(exeName, processId);
+        if (!accurateGameName.isEmpty()) {
+            searchName = accurateGameName;
+        } else {
+            searchName = windowTitle.isEmpty() ? currentExeFile : windowTitle;
+        }
+    }
+
     setActiveGameView(true);
     m_currentSession = CurrentSession();
     m_currentSession.processId = processId;
     m_currentSession.exeName = exeName;
 
-    GameData data = DatabaseManager::instance().getGameData(exeName);
+     GameData existingData = DatabaseManager::instance().getGameData(exeName);
 
-    // Se o jogo já existe no DB E TEM UMA CAPA, usa as informações dele
-    if (data.id != -1 && !data.displayName.isEmpty() && !data.coverPath.isEmpty()) {
-        m_currentSession.displayName = data.displayName;
-        m_currentSession.coverPath = data.coverPath;
-        m_activeGameNameLabel->setText(data.displayName);
-        m_activeGameCoverLabel->setPixmap(QPixmap(data.coverPath));
-        qDebug() << "[SESSION START] Jogo completo encontrado no DB:" << data.displayName;
-    }
-    // Se é um jogo novo OU um jogo que está no DB mas sem capa, inicia a busca online
-    else {
-        QString bestNameGuess = windowTitle.isEmpty() ? QFileInfo(exeName).baseName() : windowTitle;
-        m_currentSession.displayName = bestNameGuess;
-        m_activeGameNameLabel->setText(bestNameGuess);
+    if (existingData.id != -1 && !existingData.displayName.isEmpty() && !existingData.coverPath.isEmpty()) {
+        m_currentSession.displayName = existingData.displayName;
+        m_currentSession.coverPath = existingData.coverPath;
+        m_activeGameNameLabel->setText(existingData.displayName);
+        m_activeGameCoverLabel->setPixmap(QPixmap(existingData.coverPath));
+        qDebug() << "[SESSION START] Jogo completo encontrado no DB:" << existingData.displayName;
+    } else {
+        m_currentSession.displayName = searchName;
+        m_activeGameNameLabel->setText(searchName);
         m_activeGameCoverLabel->clear();
-        qDebug() << "[SESSION START] Jogo novo ou incompleto. Buscando online com o nome:" << bestNameGuess;
-        m_apiManager->findGameInfo(exeName, bestNameGuess);
+        qDebug() << "[SESSION START] Jogo novo ou incompleto. Buscando online com o nome:" << searchName;
+        m_apiManager->findGameInfo(exeName, searchName);
     }
 
     for(auto* chart : m_charts) if(chart) chart->clearData();
@@ -343,7 +398,6 @@ void MainWindow::onApiSearchFinished(const ApiGameResult& result)
     QString finalDisplayName = result.name.isEmpty() ? m_currentSession.displayName : result.name;
     qDebug() << "[API FINISHED] Nome final determinado:" << finalDisplayName;
 
-    // Atualiza a UI e a sessão atual com o nome definitivo, caso a API tenha retornado um melhor
     m_activeGameNameLabel->setText(finalDisplayName);
     m_currentSession.displayName = finalDisplayName;
 
@@ -351,15 +405,23 @@ void MainWindow::onApiSearchFinished(const ApiGameResult& result)
         qDebug() << "[API FINISHED] Busca bem-sucedida. URL da capa:" << result.coverUrl;
         QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
         if (!QDir(coverDir).exists()) QDir().mkpath(coverDir);
-        QString coverPath = coverDir + "/" + QFileInfo(result.executableName).baseName() + ".png";
 
-        // Adiciona/atualiza o jogo no DB com o nome correto, mas deixa a capa vazia por enquanto
+        // --- MUDANÇA FINAL PARA NOMES DE ARQUIVO ÚNICOS ---
+        // Criamos um hash MD5 do caminho completo do executável.
+        // Isso gera um nome de arquivo curto e 100% único para cada jogo,
+        // resolvendo todas as colisões de uma vez por todas.
+        QByteArray exePathBytes = result.executableName.toUtf8();
+        QString uniqueId = QCryptographicHash::hash(exePathBytes, QCryptographicHash::Md5).toHex();
+
+        QString coverFileName = uniqueId + ".png";
+        QString coverPath = coverDir + "/" + coverFileName;
+
+        qDebug() << "[DEBUG] Executável:" << result.executableName << "-> ID Único:" << uniqueId;
+
         DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
-        // Inicia o download da imagem
         m_apiManager->downloadImage(QUrl(result.coverUrl), coverPath);
     } else {
         qDebug() << "[API FINISHED] Busca falhou. Salvando jogo com o melhor nome que temos, mas sem capa.";
-        // Salva o jogo com o nome que temos para não buscar novamente na próxima vez
         DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
     }
 }
@@ -367,9 +429,14 @@ void MainWindow::onApiSearchFinished(const ApiGameResult& result)
 void MainWindow::onImageDownloaded(const QString& localPath, const QUrl&)
 {
     qDebug() << "[IMAGE DOWNLOADED] Caminho:" << localPath;
-    QString exeBaseName = QFileInfo(localPath).baseName();
-    if (exeBaseName + ".exe" != QFileInfo(m_currentSession.exeName).fileName()) {
-        qDebug() << "[IMAGE DOWNLOADED] Imagem é de uma sessão antiga. Ignorando.";
+
+    QString coverFileId = QFileInfo(localPath).baseName();
+
+    QByteArray currentSessionExePathBytes = m_currentSession.exeName.toUtf8();
+    QString currentSessionId = QCryptographicHash::hash(currentSessionExePathBytes, QCryptographicHash::Md5).toHex();
+
+    if (coverFileId != currentSessionId) {
+        qDebug() << "[IMAGE DOWNLOADED] Imagem é de uma sessão antiga. Ignorando. (ID da Capa:" << coverFileId << "| ID da Sessão:" << currentSessionId << ")";
         return;
     }
 
@@ -545,12 +612,42 @@ void MainWindow::populateRecentGames() {
     for (const auto& gameData : recentGames) {
         QPixmap cover(gameData.coverPath);
         auto* coverWidget = new GameCoverWidget(gameData.displayName, gameData.executableName, cover);
-        connect(coverWidget, &GameCoverWidget::editGameRequested, this, &MainWindow::onEditGameRequested);
+        connect(coverWidget, &GameCoverWidget::editGameRequested, this, &MainWindow::onManualEditRequested);
         connect(coverWidget, &GameCoverWidget::removeGameRequested, this, &MainWindow::onRemoveGameRequested);
+        connect(coverWidget, &GameCoverWidget::changeCoverRequested, this, &MainWindow::triggerCoverChange);
         m_recentGamesLayout->insertWidget(m_recentGamesLayout->count() - 1, coverWidget);
     }
     m_recentGamesLayout->addStretch();
 }
+
+void MainWindow::triggerCoverChange(const QString& executableName)
+{
+    GameData gameData = DatabaseManager::instance().getGameData(executableName);
+    if (gameData.id == -1) return;
+
+    m_apiManager->findGameInfo(executableName, gameData.displayName);
+}
+
+void MainWindow::onGridListReady(const QString& executableName, const QList<QJsonObject>& gridList)
+{
+    if (m_currentSession.exeName != executableName && !m_currentSession.exeName.isEmpty()) {
+        return;
+    }
+
+    CoverSelectionDialog dialog(gridList, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        QString selectedUrl = dialog.getSelectedUrl();
+        if (!selectedUrl.isEmpty()) {
+            QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
+            QByteArray exePathBytes = executableName.toUtf8();
+            QString uniqueId = QCryptographicHash::hash(exePathBytes, QCryptographicHash::Md5).toHex();
+            QString coverPath = coverDir + "/" + uniqueId + ".png";
+
+            m_apiManager->downloadImage(QUrl(selectedUrl), coverPath);
+        }
+    }
+}
+
 void MainWindow::setActiveGameView(bool active) {
     m_activeGameWidget->setVisible(active);
     m_waitingForGameLabel->setVisible(!active);
@@ -725,6 +822,30 @@ void MainWindow::onRemoveGameRequested(const QString& executableName)
             populateRecentGames();
         } else {
             QMessageBox::critical(this, "Erro", "Não foi possível remover o jogo do banco de dados.");
+        }
+    }
+}
+
+void MainWindow::onManualEditRequested(const QString& executableName)
+{
+    GameData gameData = DatabaseManager::instance().getGameData(executableName);
+    if (gameData.id == -1) return;
+
+    bool ok;
+    QString newName = QInputDialog::getText(this, "Corrigir Identificação do Jogo",
+                                            "Nome correto do Jogo:", QLineEdit::Normal,
+                                            gameData.displayName, &ok);
+
+    if (ok && !newName.isEmpty()) {
+        if (DatabaseManager::instance().setManualGameName(executableName, newName)) {
+            // Sucesso! Limpamos a lista de jogos recentes e a populamos novamente
+            // para forçar a atualização da UI e uma nova busca de capa.
+            populateRecentGames();
+
+            // Se o jogo que editamos é o que está ativo, reinicia a busca
+            if (m_currentSession.exeName == executableName) {
+                m_apiManager->findGameInfo(executableName, newName);
+            }
         }
     }
 }

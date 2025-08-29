@@ -20,6 +20,7 @@ public:
 
     int findAppId(const QString& gameName) const;
     bool isCacheReady() const;
+    const QList<SteamApp>& getAppList() const;
 
 signals:
     void cacheReady();

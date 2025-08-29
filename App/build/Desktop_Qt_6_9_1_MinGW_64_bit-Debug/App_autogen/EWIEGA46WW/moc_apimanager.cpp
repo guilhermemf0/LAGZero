@@ -9,6 +9,7 @@
 #include "../../../../apimanager.h"
 #include <QtNetwork/QSslError>
 #include <QtCore/qmetatype.h>
+#include <QtCore/QList>
 
 #include <QtCore/qtmochelpers.h>
 
@@ -47,6 +48,10 @@ template <> constexpr inline auto ApiManager::qt_create_metaobjectdata<qt_meta_t
         "imageDownloaded",
         "localPath",
         "originalUrl",
+        "gridListAvailable",
+        "executableName",
+        "QList<QJsonObject>",
+        "gridList",
         "onNameSearchReply",
         "QNetworkReply*",
         "reply",
@@ -63,17 +68,21 @@ template <> constexpr inline auto ApiManager::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SignalData<void(const QString &, const QUrl &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 6 }, { QMetaType::QUrl, 7 },
         }}),
+        // Signal 'gridListAvailable'
+        QtMocHelpers::SignalData<void(const QString &, const QList<QJsonObject> &)>(8, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 9 }, { 0x80000000 | 10, 11 },
+        }}),
         // Slot 'onNameSearchReply'
-        QtMocHelpers::SlotData<void(QNetworkReply *)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 9, 10 },
+        QtMocHelpers::SlotData<void(QNetworkReply *)>(12, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 13, 14 },
         }}),
         // Slot 'onGridSearchReply'
-        QtMocHelpers::SlotData<void(QNetworkReply *)>(11, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 9, 10 },
+        QtMocHelpers::SlotData<void(QNetworkReply *)>(15, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 13, 14 },
         }}),
         // Slot 'onImageReply'
-        QtMocHelpers::SlotData<void(QNetworkReply *)>(12, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 9, 10 },
+        QtMocHelpers::SlotData<void(QNetworkReply *)>(16, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 13, 14 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -100,9 +109,10 @@ void ApiManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->searchFinished((*reinterpret_cast< std::add_pointer_t<ApiGameResult>>(_a[1]))); break;
         case 1: _t->imageDownloaded((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QUrl>>(_a[2]))); break;
-        case 2: _t->onNameSearchReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
-        case 3: _t->onGridSearchReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
-        case 4: _t->onImageReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
+        case 2: _t->gridListAvailable((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QList<QJsonObject>>>(_a[2]))); break;
+        case 3: _t->onNameSearchReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
+        case 4: _t->onGridSearchReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
+        case 5: _t->onImageReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
         default: ;
         }
     }
@@ -112,8 +122,8 @@ void ApiManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 2:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
-            case 0:
-                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< QNetworkReply* >(); break;
+            case 1:
+                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< QList<QJsonObject> >(); break;
             }
             break;
         case 3:
@@ -130,12 +140,21 @@ void ApiManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
                 *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< QNetworkReply* >(); break;
             }
             break;
+        case 5:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
+            case 0:
+                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< QNetworkReply* >(); break;
+            }
+            break;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (ApiManager::*)(const ApiGameResult & )>(_a, &ApiManager::searchFinished, 0))
             return;
         if (QtMocHelpers::indexOfMethod<void (ApiManager::*)(const QString & , const QUrl & )>(_a, &ApiManager::imageDownloaded, 1))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (ApiManager::*)(const QString & , const QList<QJsonObject> & )>(_a, &ApiManager::gridListAvailable, 2))
             return;
     }
 }
@@ -159,14 +178,14 @@ int ApiManager::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 6;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 6;
     }
     return _id;
 }
@@ -181,5 +200,11 @@ void ApiManager::searchFinished(const ApiGameResult & _t1)
 void ApiManager::imageDownloaded(const QString & _t1, const QUrl & _t2)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
+}
+
+// SIGNAL 2
+void ApiManager::gridListAvailable(const QString & _t1, const QList<QJsonObject> & _t2)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 2, nullptr, _t1, _t2);
 }
 QT_WARNING_POP

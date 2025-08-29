@@ -55,6 +55,8 @@ void DatabaseManager::initDatabase()
                     "FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE)")) {
         qWarning() << "Failed to create table 'game_sessions':" << query.lastError();
     }
+
+    query.exec("ALTER TABLE games ADD COLUMN user_display_name TEXT");
 }
 
 // NOVO: Implementação da função "INSERT OR UPDATE"
@@ -101,7 +103,7 @@ GameData DatabaseManager::getGameData(const QString& executableName)
     data.executableName = executableName;
 
     QSqlQuery query(m_db);
-    query.prepare("SELECT id, display_name, cover_path FROM games WHERE executable_name = :exe");
+    query.prepare("SELECT id, COALESCE(user_display_name, display_name), cover_path FROM games WHERE executable_name = :exe");
     query.bindValue(":exe", executableName);
 
     if (query.exec() && query.next()) {
@@ -182,5 +184,22 @@ bool DatabaseManager::addGameSession(int gameId, qint64 startTime, qint64 endTim
         qWarning() << "Failed to add game session:" << query.lastError();
         return false;
     }
+    return true;
+}
+
+bool DatabaseManager::setManualGameName(const QString& executableName, const QString& newName)
+{
+    // Garante que o jogo exista na tabela antes de atualizar
+    addOrUpdateGame(executableName, newName, "");
+
+    QSqlQuery query(m_db);
+    query.prepare("UPDATE games SET user_display_name = :name, display_name = :name, cover_path = '' WHERE executable_name = :exe");
+    query.bindValue(":name", newName);
+    query.bindValue(":exe", executableName);
+    if (!query.exec()) {
+        qWarning() << "Failed to set manual game name:" << query.lastError();
+        return false;
+    }
+    // Limpar o cover_path força uma nova busca na API com o nome correto
     return true;
 }

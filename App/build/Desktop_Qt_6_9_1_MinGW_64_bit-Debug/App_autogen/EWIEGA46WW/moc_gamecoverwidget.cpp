@@ -43,7 +43,8 @@ template <> constexpr inline auto GameCoverWidget::qt_create_metaobjectdata<qt_m
         "editGameRequested",
         "",
         "executableName",
-        "removeGameRequested"
+        "removeGameRequested",
+        "changeCoverRequested"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -53,6 +54,10 @@ template <> constexpr inline auto GameCoverWidget::qt_create_metaobjectdata<qt_m
         }}),
         // Signal 'removeGameRequested'
         QtMocHelpers::SignalData<void(const QString &)>(4, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 3 },
+        }}),
+        // Signal 'changeCoverRequested'
+        QtMocHelpers::SignalData<void(const QString &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 3 },
         }}),
     };
@@ -80,6 +85,7 @@ void GameCoverWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         switch (_id) {
         case 0: _t->editGameRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 1: _t->removeGameRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 2: _t->changeCoverRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         default: ;
         }
     }
@@ -87,6 +93,8 @@ void GameCoverWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         if (QtMocHelpers::indexOfMethod<void (GameCoverWidget::*)(const QString & )>(_a, &GameCoverWidget::editGameRequested, 0))
             return;
         if (QtMocHelpers::indexOfMethod<void (GameCoverWidget::*)(const QString & )>(_a, &GameCoverWidget::removeGameRequested, 1))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (GameCoverWidget::*)(const QString & )>(_a, &GameCoverWidget::changeCoverRequested, 2))
             return;
     }
 }
@@ -110,14 +118,14 @@ int GameCoverWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 3;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 3)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 2;
+        _id -= 3;
     }
     return _id;
 }
@@ -132,5 +140,11 @@ void GameCoverWidget::editGameRequested(const QString & _t1)
 void GameCoverWidget::removeGameRequested(const QString & _t1)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1);
+}
+
+// SIGNAL 2
+void GameCoverWidget::changeCoverRequested(const QString & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 2, nullptr, _t1);
 }
 QT_WARNING_POP

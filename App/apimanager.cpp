@@ -13,32 +13,19 @@
 #include <vector>
 #include <QRegularExpression>
 
-// --- NOVA FUNÇÃO DE LIMPEZA AGRESSIVA ---
-// Esta função prepara os nomes para uma comparação justa.
 QString cleanStringForComparison(QString name) {
     name = name.toLower();
-
-    // Remove qualquer coisa em parênteses ou após uma barra
     name = name.split('(').first().trimmed();
     name = name.split('/').first().trimmed();
-
-    // Remove palavras e símbolos comuns que causam ambiguidade
     name.remove(QRegularExpression(":|hd remaster|biohazard|®|™|goty|edition|remake"));
-
-    // Remove qualquer caractere que não seja letra, número ou espaço
     name.remove(QRegularExpression("[^a-z0-9\\s]"));
-
-    // Remove espaços duplicados que possam ter sido criados
     return name.trimmed().replace(QRegularExpression("\\s+"), " ");
 }
 
 int levenshteinDistance(const QString &s1, const QString &s2) {
     const int len1 = s1.size(), len2 = s2.size();
     std::vector<int> col(len2 + 1), prevCol(len2 + 1);
-
-    for (int i = 0; i < prevCol.size(); i++)
-        prevCol[i] = i;
-
+    for (int i = 0; i < prevCol.size(); i++) prevCol[i] = i;
     for (int i = 0; i < len1; i++) {
         col[0] = i + 1;
         for (int j = 0; j < len2; j++)
@@ -57,13 +44,28 @@ ApiManager::ApiManager(QObject *parent) : QObject(parent)
 void ApiManager::findGameInfo(const QString& executableName, const QString& displayName)
 {
     int appId = SteamAppCache::instance().findAppId(displayName);
+
     if (appId > 0) {
-        qDebug() << "Jogo encontrado no cache da Steam:" << displayName << "-> AppID:" << appId;
-        searchById(executableName, appId, displayName);
-        return;
+        QString steamName;
+        for (const auto& app : SteamAppCache::instance().getAppList()) {
+            if (app.appId == appId) {
+                steamName = app.name;
+                break;
+            }
+        }
+
+        int distance = levenshteinDistance(cleanStringForComparison(steamName), cleanStringForComparison(displayName));
+
+        if (distance < (displayName.length() / 3)) {
+            qDebug() << "[ApiManager] Jogo encontrado no cache da Steam e validado:" << displayName << "->" << steamName << "AppID:" << appId;
+            searchById(executableName, appId, displayName);
+            return;
+        } else {
+            qDebug() << "[ApiManager] Jogo encontrado no cache da Steam, mas rejeitado por baixa similaridade. Distancia:" << distance;
+        }
     }
 
-    qDebug() << "Jogo não encontrado no cache. Buscando por nome na API:" << displayName;
+    qDebug() << "[ApiManager] Jogo não encontrado/validado no cache. Buscando por nome na API:" << displayName;
     searchByName(executableName, displayName);
 }
 
@@ -194,16 +196,40 @@ void ApiManager::onGridSearchReply(QNetworkReply *reply)
         QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
         if (doc.object()["success"].toBool() && !doc.object()["data"].toArray().isEmpty()) {
             result.success = true;
-            QJsonArray grids = doc.object()["data"].toArray();
-            QString bestUrl = grids[0].toObject()["url"].toString();
+            QJsonArray allGrids = doc.object()["data"].toArray();
 
-            for(const QJsonValue &val : grids) {
-                if(val.toObject()["language"].toString() == "pt") {
-                    bestUrl = val.toObject()["url"].toString();
-                    break;
+            QString bestUrl;
+            int maxVotes = -1;
+
+            QString fallbackUrl = allGrids[0].toObject()["url"].toString();
+
+
+            for (const QJsonValue &val : allGrids) {
+                QJsonObject gridObj = val.toObject();
+                int height = gridObj["height"].toInt();
+                int width = gridObj["width"].toInt();
+
+                if (height > width) {
+                    int upvotes = gridObj["upvotes"].toInt();
+                    if (upvotes > maxVotes) {
+                        maxVotes = upvotes;
+                        bestUrl = gridObj["url"].toString();
+                    }
                 }
             }
-            result.coverUrl = bestUrl;
+
+            result.coverUrl = bestUrl.isEmpty() ? fallbackUrl : bestUrl;
+
+            QList<QJsonObject> portraitGrids;
+            for (const QJsonValue &val : allGrids) {
+                QJsonObject gridObj = val.toObject();
+                if (gridObj["height"].toInt() > gridObj["width"].toInt()) {
+                    portraitGrids.append(gridObj);
+                }
+            }
+            if(!portraitGrids.isEmpty()){
+                emit gridListAvailable(result.executableName, portraitGrids);
+            }
         }
     } else {
         qWarning() << "API grid search error:" << reply->errorString();

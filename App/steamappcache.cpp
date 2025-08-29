@@ -9,6 +9,7 @@
 #include <QNetworkRequest>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QFileInfo>
 
 SteamAppCache& SteamAppCache::instance()
 {
@@ -105,6 +106,11 @@ void SteamAppCache::saveCache(const QByteArray& data)
     }
 }
 
+const QList<SteamApp>& SteamAppCache::getAppList() const
+{
+    return m_appList;
+}
+
 int SteamAppCache::findAppId(const QString& gameName) const
 {
     if (!m_isReady) return 0;
@@ -121,7 +127,6 @@ int SteamAppCache::findAppId(const QString& gameName) const
     for (const auto& app : m_appList) {
         QString cleanAppName = app.name.toLower();
         cleanAppName.remove(QRegularExpression("[^a-z0-9]"));
-        // --- CORREÇÃO AQUI ---
         if (!cleanGameName.isEmpty() && cleanAppName.contains(cleanGameName)) {
             return app.appId;
         }

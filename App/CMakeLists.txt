@@ -42,9 +42,14 @@ set(PROJECT_SOURCES
     infocardwidget.cpp
     summarycardwidget.h
     summarycardwidget.cpp
-    # NOVO: Adiciona os novos arquivos do cache da Steam
     steamappcache.h
     steamappcache.cpp
+    launchermanager.h
+    launchermanager.cpp
+    clickablelabel.h
+    clickablelabel.cpp
+    coverselectiondialog.h
+    coverselectiondialog.cpp
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)

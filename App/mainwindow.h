@@ -21,11 +21,8 @@
 
 #include "hardwaremonitor.h"
 #include "particleswidget.h"
-#include "databasemanager.h"
 #include "apimanager.h"
 #include "performancechartwidget.h"
-#include "appconstants.h"
-#include "steamappcache.h"
 
 class FpsMonitor;
 class GameCoverWidget;
@@ -61,7 +58,6 @@ private slots:
     void onSettingsButtonClicked();
     void onParticlesEnabledChanged(int state);
     void onSaveReportsChanged(int state);
-    // ALTERADO: Assinatura do slot para receber o título da janela
     void onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId);
     void onGameSessionEnded(uint32_t processId, const QString& exeName, double averageFps);
     void onActiveGameFpsUpdate(uint32_t processId, int currentFps);
@@ -73,6 +69,8 @@ private slots:
     void onChartDurationChanged(int index);
     void onEditGameRequested(const QString& executableName);
     void onRemoveGameRequested(const QString& executableName);
+    void onManualEditRequested(const QString& executableName);
+    void onGridListReady(const QString& executableName, const QList<QJsonObject>& gridList);
 
 private:
     Ui::MainWindow *ui;
@@ -127,5 +125,7 @@ private:
     void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);
     void updateSettingsButtonIcon(bool selected);
     void saveSessionReport();
+    QString findEpicGameDisplayName(const QString& executablePath);
+    void triggerCoverChange(const QString& executableName);
 };
 #endif // MAINWINDOW_H

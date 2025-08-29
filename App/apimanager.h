@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QUrl>
+#include <QJsonObject>
 #include <QNetworkReply>
 
 struct ApiGameResult {
@@ -25,6 +26,7 @@ public:
 signals:
     void searchFinished(const ApiGameResult& result);
     void imageDownloaded(const QString& localPath, const QUrl& originalUrl);
+    void gridListAvailable(const QString& executableName, const QList<QJsonObject>& gridList);
 
 private slots:
     void onNameSearchReply(QNetworkReply *reply);

@@ -1,16 +1,13 @@
 C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Projetos/LAGZero/App/mainwindow.h \
   C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/moc_predefs.h \
   C:/Projetos/LAGZero/App/apimanager.h \
-  C:/Projetos/LAGZero/App/appconstants.h \
-  C:/Projetos/LAGZero/App/databasemanager.h \
   C:/Projetos/LAGZero/App/hardwaremonitor.h \
   C:/Projetos/LAGZero/App/particleswidget.h \
   C:/Projetos/LAGZero/App/performancechartwidget.h \
-  C:/Projetos/LAGZero/App/steamappcache.h \
-  C:/Qt/6.9.2/mingw_64/include/QtCore/QDateTime \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QElapsedTimer \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QFlags \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QIODevice \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/QJsonObject \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QList \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QMetaType \
@@ -53,6 +50,8 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qbytearraylist.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qbytearrayview.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qcalendar.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qcborcommon.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qcborvalue.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qchar.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qcompare.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qcompare_impl.h \
@@ -91,6 +90,10 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qiodevicebase.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qiterable.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qiterator.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qjsondocument.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qjsonobject.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qjsonparseerror.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qjsonvalue.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qlatin1stringview.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qline.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qlist.h \
@@ -101,7 +104,6 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qmargins.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qmath.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qmetacontainer.h \
-  C:/Qt/6.9.2/mingw_64/include/QtCore/qmetaobject.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qmetatype.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qminmax.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qnamespace.h \
@@ -169,6 +171,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qtypes.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qurl.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qutf8stringview.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/quuid.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qvariant.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qvarlengtharray.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qvector.h \
@@ -239,11 +242,6 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtNetwork/qtnetwork-config.h \
   C:/Qt/6.9.2/mingw_64/include/QtNetwork/qtnetworkexports.h \
   C:/Qt/6.9.2/mingw_64/include/QtNetwork/qtnetworkglobal.h \
-  C:/Qt/6.9.2/mingw_64/include/QtSql/QSqlDatabase \
-  C:/Qt/6.9.2/mingw_64/include/QtSql/qsqldatabase.h \
-  C:/Qt/6.9.2/mingw_64/include/QtSql/qtsql-config.h \
-  C:/Qt/6.9.2/mingw_64/include/QtSql/qtsqlexports.h \
-  C:/Qt/6.9.2/mingw_64/include/QtSql/qtsqlglobal.h \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QCheckBox \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QComboBox \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QFrame \

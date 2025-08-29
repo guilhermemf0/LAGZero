@@ -11,6 +11,10 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeCXXCompiler.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeRCCompiler.cmake \
 	C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeSystem.cmake \
+	C:/Projetos/LAGZero/App/clickablelabel.cpp \
+	C:/Projetos/LAGZero/App/clickablelabel.h \
+	C:/Projetos/LAGZero/App/coverselectiondialog.cpp \
+	C:/Projetos/LAGZero/App/coverselectiondialog.h \
 	C:/Projetos/LAGZero/App/databasemanager.cpp \
 	C:/Projetos/LAGZero/App/databasemanager.h \
 	C:/Projetos/LAGZero/App/fpsmonitor.cpp \
@@ -21,6 +25,8 @@ App_autogen/timestamp: \
 	C:/Projetos/LAGZero/App/hardwaremonitor.h \
 	C:/Projetos/LAGZero/App/infocardwidget.cpp \
 	C:/Projetos/LAGZero/App/infocardwidget.h \
+	C:/Projetos/LAGZero/App/launchermanager.cpp \
+	C:/Projetos/LAGZero/App/launchermanager.h \
 	C:/Projetos/LAGZero/App/main.cpp \
 	C:/Projetos/LAGZero/App/mainwindow.cpp \
 	C:/Projetos/LAGZero/App/mainwindow.h \
@@ -41,6 +47,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QElapsedTimer \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QFlags \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QIODevice \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/QJsonObject \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QList \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QMetaType \
@@ -58,6 +65,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QUrl \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QVariant \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QVector \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/Qt \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/q17memory.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/q20functional.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/q20iterator.h \
@@ -85,6 +93,8 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qbytearraylist.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qbytearrayview.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qcalendar.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qcborcommon.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qcborvalue.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qchar.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qcompare.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qcompare_impl.h \
@@ -124,6 +134,10 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qiodevicebase.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qiterable.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qiterator.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qjsondocument.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qjsonobject.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qjsonparseerror.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qjsonvalue.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qlatin1stringview.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qline.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qlist.h \
@@ -203,6 +217,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qtypes.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qurl.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qutf8stringview.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/quuid.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qvariant.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qvariantanimation.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qvarlengtharray.h \
@@ -286,6 +301,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtSql/qtsqlglobal.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QCheckBox \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QComboBox \
+	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QDialog \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QFrame \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGridLayout \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QHBoxLayout \
@@ -304,6 +320,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qboxlayout.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qcheckbox.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qcombobox.h \
+	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qframe.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgridlayout.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlabel.h \

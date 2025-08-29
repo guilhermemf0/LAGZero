@@ -1063,7 +1063,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64"
+			"value" : "C:/Qt/6.9.2/mingw_64;C:/Qt/6.9.1/mingw_64"
 		},
 		{
 			"name" : "CMAKE_PROJECT_DESCRIPTION",
@@ -1672,6 +1672,18 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "ON"
+		},
+		{
+			"name" : "QT_FEATURE_accept4",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Qt feature: accept4 (from target Qt6::Core)"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "OFF"
 		},
 		{
 			"name" : "QT_FEATURE_accessibility",
@@ -2334,6 +2346,18 @@
 			"value" : "OFF"
 		},
 		{
+			"name" : "QT_FEATURE_cxx2c",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Qt feature: cxx2c (from target Qt6::Core)"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "OFF"
+		},
+		{
 			"name" : "QT_FEATURE_datawidgetmapper",
 			"properties" : 
 			[
@@ -2668,6 +2692,18 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "ON"
+		},
+		{
+			"name" : "QT_FEATURE_dup3",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Qt feature: dup3 (from target Qt6::Core)"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "OFF"
 		},
 		{
 			"name" : "QT_FEATURE_dynamicgl",
@@ -4986,6 +5022,18 @@
 			"value" : "ON"
 		},
 		{
+			"name" : "QT_FEATURE_run_opengl_tests",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Qt feature: run_opengl_tests (from target Qt6::Gui)"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "ON"
+		},
+		{
 			"name" : "QT_FEATURE_schannel",
 			"properties" : 
 			[
@@ -6366,6 +6414,18 @@
 			"value" : "ON"
 		},
 		{
+			"name" : "QT_FEATURE_vxpipedrv",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Qt feature: vxpipedrv (from target Qt6::Core)"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "OFF"
+		},
+		{
 			"name" : "QT_FEATURE_vxworksevdev",
 			"properties" : 
 			[
@@ -6711,7 +6771,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/bin/qmake.exe"
+			"value" : "C:/Qt/6.9.2/mingw_64/bin/qmake.exe"
 		},
 		{
 			"name" : "Qt6CorePrivate_DIR",
@@ -6723,7 +6783,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6CorePrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6CorePrivate"
 		},
 		{
 			"name" : "Qt6CoreTools_DIR",
@@ -6735,7 +6795,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6CoreTools"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6CoreTools"
 		},
 		{
 			"name" : "Qt6Core_DIR",
@@ -6747,7 +6807,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Core"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Core"
 		},
 		{
 			"name" : "Qt6EntryPointPrivate_DIR",
@@ -6759,7 +6819,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6EntryPointPrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6EntryPointPrivate"
 		},
 		{
 			"name" : "Qt6GuiPrivate_DIR",
@@ -6771,7 +6831,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6GuiPrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6GuiPrivate"
 		},
 		{
 			"name" : "Qt6GuiTools_DIR",
@@ -6783,7 +6843,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6GuiTools"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6GuiTools"
 		},
 		{
 			"name" : "Qt6Gui_DIR",
@@ -6795,7 +6855,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Gui"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Gui"
 		},
 		{
 			"name" : "Qt6NetworkPrivate_DIR",
@@ -6807,7 +6867,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6NetworkPrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6NetworkPrivate"
 		},
 		{
 			"name" : "Qt6Network_DIR",
@@ -6819,7 +6879,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Network"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Network"
 		},
 		{
 			"name" : "Qt6SqlPrivate_DIR",
@@ -6831,7 +6891,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SqlPrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6SqlPrivate"
 		},
 		{
 			"name" : "Qt6Sql_DIR",
@@ -6843,7 +6903,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Sql"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Sql"
 		},
 		{
 			"name" : "Qt6SvgPrivate_DIR",
@@ -6855,7 +6915,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6SvgPrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6SvgPrivate"
 		},
 		{
 			"name" : "Qt6Svg_DIR",
@@ -6867,7 +6927,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Svg"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Svg"
 		},
 		{
 			"name" : "Qt6WidgetsPrivate_DIR",
@@ -6879,7 +6939,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6WidgetsPrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6WidgetsPrivate"
 		},
 		{
 			"name" : "Qt6WidgetsTools_DIR",
@@ -6891,7 +6951,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6WidgetsTools"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6WidgetsTools"
 		},
 		{
 			"name" : "Qt6Widgets_DIR",
@@ -6903,7 +6963,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6Widgets"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Widgets"
 		},
 		{
 			"name" : "Qt6ZlibPrivate_DIR",
@@ -6915,7 +6975,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6ZlibPrivate"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ZlibPrivate"
 		},
 		{
 			"name" : "Qt6_DIR",
@@ -6927,7 +6987,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Qt/6.9.1/mingw_64/lib/cmake/Qt6"
+			"value" : "C:/Qt/6.9.2/mingw_64/lib/cmake/Qt6"
 		},
 		{
 			"name" : "Vulkan_GLSLANG_VALIDATOR_EXECUTABLE",

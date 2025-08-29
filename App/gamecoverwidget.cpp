@@ -2,9 +2,8 @@
 #include <QVBoxLayout>
 #include <QGraphicsDropShadowEffect>
 #include <QDebug>
-#include <QMenu> // NOVO
+#include <QMenu>
 
-// ALTERADO: Construtor agora aceita e armazena o executableName
 GameCoverWidget::GameCoverWidget(const QString& gameName, const QString& executableName, const QPixmap& cover, QWidget *parent)
     : QWidget{parent},
     m_executableName(executableName)
@@ -56,13 +55,17 @@ GameCoverWidget::~GameCoverWidget() {}
 void GameCoverWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu contextMenu(this);
-    QAction *editAction = contextMenu.addAction("Editar Informações");
+    QAction *editAction = contextMenu.addAction("Corrigir Identificação");
+    QAction *changeCoverAction = contextMenu.addAction("Trocar Capa");
+    contextMenu.addSeparator();
     QAction *removeAction = contextMenu.addAction("Remover Jogo");
 
     QAction *selectedAction = contextMenu.exec(event->globalPos());
 
     if (selectedAction == editAction) {
         emit editGameRequested(m_executableName);
+    } else if (selectedAction == changeCoverAction) {
+        emit changeCoverRequested(m_executableName);
     } else if (selectedAction == removeAction) {
         emit removeGameRequested(m_executableName);
     }
