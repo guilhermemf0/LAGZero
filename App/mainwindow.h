@@ -111,6 +111,7 @@ private:
 
     CurrentSession m_currentSession;
     QTimer* m_sessionTimer;
+    QString m_coverChangeTargetExe;
 
     void setupUi();
     void setupConnections();

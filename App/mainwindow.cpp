@@ -430,24 +430,33 @@ void MainWindow::onImageDownloaded(const QString& localPath, const QUrl&)
 {
     qDebug() << "[IMAGE DOWNLOADED] Caminho:" << localPath;
 
-    QString coverFileId = QFileInfo(localPath).baseName();
-
-    QByteArray currentSessionExePathBytes = m_currentSession.exeName.toUtf8();
-    QString currentSessionId = QCryptographicHash::hash(currentSessionExePathBytes, QCryptographicHash::Md5).toHex();
-
-    if (coverFileId != currentSessionId) {
-        qDebug() << "[IMAGE DOWNLOADED] Imagem é de uma sessão antiga. Ignorando. (ID da Capa:" << coverFileId << "| ID da Sessão:" << currentSessionId << ")";
+    if (m_coverChangeTargetExe.isEmpty()) {
         return;
     }
 
-    m_currentSession.coverPath = localPath;
-    m_activeGameCoverLabel->setPixmap(QPixmap(localPath));
+    QString coverFileId = QFileInfo(localPath).baseName();
 
-    int gameId = DatabaseManager::instance().getGameId(m_currentSession.exeName);
-    if (gameId != -1) {
-        qDebug() << "[IMAGE DOWNLOADED] Atualizando caminho da capa no DB.";
-        DatabaseManager::instance().updateGameCover(gameId, localPath);
+    QByteArray targetExePathBytes = m_coverChangeTargetExe.toUtf8();
+    QString targetId = QCryptographicHash::hash(targetExePathBytes, QCryptographicHash::Md5).toHex();
+
+    if (coverFileId != targetId) {
+        qDebug() << "[IMAGE DOWNLOADED] Imagem não corresponde ao alvo. Ignorando.";
+        return;
     }
+
+    int gameId = DatabaseManager::instance().getGameId(m_coverChangeTargetExe);
+    if (gameId != -1) {
+        qDebug() << "[IMAGE DOWNLOADED] Atualizando caminho da capa no DB para o jogo alvo.";
+        DatabaseManager::instance().updateGameCover(gameId, localPath);
+
+        if (m_currentSession.exeName == m_coverChangeTargetExe) {
+            m_currentSession.coverPath = localPath;
+            m_activeGameCoverLabel->setPixmap(QPixmap(localPath));
+        }
+    }
+    populateRecentGames();
+
+    m_coverChangeTargetExe.clear();
 }
 
 void MainWindow::onEditGameRequested(const QString& executableName)
@@ -622,6 +631,7 @@ void MainWindow::populateRecentGames() {
 
 void MainWindow::triggerCoverChange(const QString& executableName)
 {
+    m_coverChangeTargetExe = executableName;
     GameData gameData = DatabaseManager::instance().getGameData(executableName);
     if (gameData.id == -1) return;
 
@@ -630,7 +640,7 @@ void MainWindow::triggerCoverChange(const QString& executableName)
 
 void MainWindow::onGridListReady(const QString& executableName, const QList<QJsonObject>& gridList)
 {
-    if (m_currentSession.exeName != executableName && !m_currentSession.exeName.isEmpty()) {
+    if (m_coverChangeTargetExe != executableName) {
         return;
     }
 
