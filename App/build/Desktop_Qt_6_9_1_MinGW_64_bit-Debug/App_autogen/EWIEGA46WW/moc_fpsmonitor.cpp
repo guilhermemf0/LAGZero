@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'fpsmonitor.h'
 **
-** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.1)
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -18,7 +18,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'fpsmonitor.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 69
-#error "This file was generated using the moc from 6.9.1. It"
+#error "This file was generated using the moc from 6.9.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -45,6 +45,7 @@ template <> constexpr inline auto FpsWorker::qt_create_metaobjectdata<qt_meta_ta
         "installPath",
         "gameSessionStarted",
         "exeName",
+        "windowTitle",
         "uint32_t",
         "processId",
         "gameSessionEnded",
@@ -61,21 +62,21 @@ template <> constexpr inline auto FpsWorker::qt_create_metaobjectdata<qt_meta_ta
             { QMetaType::Bool, 3 }, { QMetaType::QString, 4 },
         }}),
         // Signal 'gameSessionStarted'
-        QtMocHelpers::SignalData<void(const QString &, uint32_t)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QString, 6 }, { 0x80000000 | 7, 8 },
+        QtMocHelpers::SignalData<void(const QString &, const QString &, uint32_t)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 6 }, { QMetaType::QString, 7 }, { 0x80000000 | 8, 9 },
         }}),
         // Signal 'gameSessionEnded'
-        QtMocHelpers::SignalData<void(uint32_t, const QString &, double)>(9, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 7, 8 }, { QMetaType::QString, 6 }, { QMetaType::Double, 10 },
+        QtMocHelpers::SignalData<void(uint32_t, const QString &, double)>(10, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 8, 9 }, { QMetaType::QString, 6 }, { QMetaType::Double, 11 },
         }}),
         // Signal 'activeGameFpsUpdate'
-        QtMocHelpers::SignalData<void(uint32_t, int)>(11, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 7, 8 }, { QMetaType::Int, 12 },
+        QtMocHelpers::SignalData<void(uint32_t, int)>(12, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 8, 9 }, { QMetaType::Int, 13 },
         }}),
         // Slot 'process'
-        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'readFps'
-        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -100,7 +101,7 @@ void FpsWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->rtssStatusUpdated((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 1: _t->gameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[2]))); break;
+        case 1: _t->gameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[3]))); break;
         case 2: _t->gameSessionEnded((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
         case 3: _t->activeGameFpsUpdate((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         case 4: _t->process(); break;
@@ -111,7 +112,7 @@ void FpsWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (FpsWorker::*)(bool , const QString & )>(_a, &FpsWorker::rtssStatusUpdated, 0))
             return;
-        if (QtMocHelpers::indexOfMethod<void (FpsWorker::*)(const QString & , uint32_t )>(_a, &FpsWorker::gameSessionStarted, 1))
+        if (QtMocHelpers::indexOfMethod<void (FpsWorker::*)(const QString & , const QString & , uint32_t )>(_a, &FpsWorker::gameSessionStarted, 1))
             return;
         if (QtMocHelpers::indexOfMethod<void (FpsWorker::*)(uint32_t , const QString & , double )>(_a, &FpsWorker::gameSessionEnded, 2))
             return;
@@ -158,9 +159,9 @@ void FpsWorker::rtssStatusUpdated(bool _t1, const QString & _t2)
 }
 
 // SIGNAL 1
-void FpsWorker::gameSessionStarted(const QString & _t1, uint32_t _t2)
+void FpsWorker::gameSessionStarted(const QString & _t1, const QString & _t2, uint32_t _t3)
 {
-    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2, _t3);
 }
 
 // SIGNAL 2
@@ -189,6 +190,7 @@ template <> constexpr inline auto FpsMonitor::qt_create_metaobjectdata<qt_meta_t
         "installPath",
         "gameSessionStarted",
         "exeName",
+        "windowTitle",
         "uint32_t",
         "processId",
         "gameSessionEnded",
@@ -203,16 +205,16 @@ template <> constexpr inline auto FpsMonitor::qt_create_metaobjectdata<qt_meta_t
             { QMetaType::Bool, 3 }, { QMetaType::QString, 4 },
         }}),
         // Signal 'gameSessionStarted'
-        QtMocHelpers::SignalData<void(const QString &, uint32_t)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QString, 6 }, { 0x80000000 | 7, 8 },
+        QtMocHelpers::SignalData<void(const QString &, const QString &, uint32_t)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 6 }, { QMetaType::QString, 7 }, { 0x80000000 | 8, 9 },
         }}),
         // Signal 'gameSessionEnded'
-        QtMocHelpers::SignalData<void(uint32_t, const QString &, double)>(9, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 7, 8 }, { QMetaType::QString, 6 }, { QMetaType::Double, 10 },
+        QtMocHelpers::SignalData<void(uint32_t, const QString &, double)>(10, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 8, 9 }, { QMetaType::QString, 6 }, { QMetaType::Double, 11 },
         }}),
         // Signal 'activeGameFpsUpdate'
-        QtMocHelpers::SignalData<void(uint32_t, int)>(11, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { 0x80000000 | 7, 8 }, { QMetaType::Int, 12 },
+        QtMocHelpers::SignalData<void(uint32_t, int)>(12, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { 0x80000000 | 8, 9 }, { QMetaType::Int, 13 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -238,7 +240,7 @@ void FpsMonitor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->rtssStatusUpdated((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
-        case 1: _t->gameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[2]))); break;
+        case 1: _t->gameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[3]))); break;
         case 2: _t->gameSessionEnded((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
         case 3: _t->activeGameFpsUpdate((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         default: ;
@@ -247,7 +249,7 @@ void FpsMonitor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (FpsMonitor::*)(bool , const QString & )>(_a, &FpsMonitor::rtssStatusUpdated, 0))
             return;
-        if (QtMocHelpers::indexOfMethod<void (FpsMonitor::*)(const QString & , uint32_t )>(_a, &FpsMonitor::gameSessionStarted, 1))
+        if (QtMocHelpers::indexOfMethod<void (FpsMonitor::*)(const QString & , const QString & , uint32_t )>(_a, &FpsMonitor::gameSessionStarted, 1))
             return;
         if (QtMocHelpers::indexOfMethod<void (FpsMonitor::*)(uint32_t , const QString & , double )>(_a, &FpsMonitor::gameSessionEnded, 2))
             return;
@@ -294,9 +296,9 @@ void FpsMonitor::rtssStatusUpdated(bool _t1, const QString & _t2)
 }
 
 // SIGNAL 1
-void FpsMonitor::gameSessionStarted(const QString & _t1, uint32_t _t2)
+void FpsMonitor::gameSessionStarted(const QString & _t1, const QString & _t2, uint32_t _t3)
 {
-    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2);
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1, _t2, _t3);
 }
 
 // SIGNAL 2

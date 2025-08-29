@@ -17,6 +17,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QComboBox>
 
 #include "hardwaremonitor.h"
 #include "particleswidget.h"
@@ -24,6 +25,7 @@
 #include "apimanager.h"
 #include "performancechartwidget.h"
 #include "appconstants.h"
+#include "steamappcache.h"
 
 class FpsMonitor;
 class GameCoverWidget;
@@ -59,13 +61,18 @@ private slots:
     void onSettingsButtonClicked();
     void onParticlesEnabledChanged(int state);
     void onSaveReportsChanged(int state);
-    void onGameSessionStarted(const QString& exeName, uint32_t processId);
+    // ALTERADO: Assinatura do slot para receber o título da janela
+    void onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId);
     void onGameSessionEnded(uint32_t processId, const QString& exeName, double averageFps);
     void onActiveGameFpsUpdate(uint32_t processId, int currentFps);
     void onApiSearchFinished(const ApiGameResult& result);
     void onImageDownloaded(const QString& localPath, const QUrl& originalUrl);
     void openReportsFolder();
     void updateSessionInfo();
+    void onHelperMissing();
+    void onChartDurationChanged(int index);
+    void onEditGameRequested(const QString& executableName);
+    void onRemoveGameRequested(const QString& executableName);
 
 private:
     Ui::MainWindow *ui;
@@ -74,12 +81,10 @@ private:
     ApiManager *m_apiManager;
     ParticlesWidget *m_particlesWidget;
 
-    // Estrutura principal da UI
     QStackedWidget *m_mainStackedWidget;
     QList<QPushButton*> m_navButtons;
     QPushButton *m_settingsButton;
 
-    // Widgets da tela "Visão Geral"
     QWidget* m_activeGameWidget;
     QLabel* m_activeGameCoverLabel;
     QLabel* m_activeGameNameLabel;
@@ -90,7 +95,6 @@ private:
     QHBoxLayout* m_recentGamesLayout;
     QMap<QString, QLabel*> m_sessionMetricValues;
 
-    // Widgets da tela "Temperaturas"
     QStackedWidget *m_tempStackedWidget;
     QList<QPushButton*> m_tempNavButtons;
     QMap<QString, PerformanceChartWidget*> m_charts;
@@ -99,18 +103,17 @@ private:
     QWidget* m_storageContainer;
     QVBoxLayout *m_storagePageLayout;
 
-    // Widgets da tela "Configurações"
     QCheckBox *m_enableParticlesCheckBox;
     QCheckBox *m_saveReportsCheckBox;
+    QComboBox *m_reportFormatComboBox;
+    QComboBox *m_chartDurationComboBox;
 
-    // Widget de status do RTSS
     QFrame *m_rtssStatusCard;
+    QFrame *m_hardwareStatusCard;
 
-    // Gerenciamento da sessão
     CurrentSession m_currentSession;
     QTimer* m_sessionTimer;
 
-    // Funções de setup
     void setupUi();
     void setupConnections();
     void setupOverviewPage();
@@ -119,7 +122,6 @@ private:
     QWidget* createInfoCard(const QString& key, const QString& iconSvg, const QString& title);
     QWidget* createMetricCard(const QString& title, const QString& key);
 
-    // Funções de atualização da UI
     void populateRecentGames();
     void setActiveGameView(bool active);
     void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);

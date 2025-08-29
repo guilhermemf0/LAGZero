@@ -5,8 +5,6 @@
 #include <QList>
 #include <QColor>
 
-// Widget de gráfico completamente redesenhado para uma visualização de dados superior.
-// Agora apresenta dois gráficos empilhados (FPS e Temp) e um marcador interativo que segue o mouse.
 class PerformanceChartWidget : public QWidget
 {
     Q_OBJECT
@@ -20,6 +18,8 @@ public:
 
     void setColors(const QColor& tempColor, const QColor& fpsColor);
     void setLabels(const QString& tempLabel, const QString& fpsLabel);
+    // NOVO: Permite alterar o período do gráfico dinamicamente
+    void setMaxDataPoints(int points);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -30,7 +30,8 @@ private:
     // Dados
     QList<double> m_tempData;
     QList<double> m_fpsData;
-    int m_maxDataPoints = 120; // 2 minutos de dados
+    // ALTERADO: Valor padrão inicial
+    int m_maxDataPoints = 120;
 
     // Estilo
     QColor m_tempColor;

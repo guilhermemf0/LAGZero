@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.1)
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -20,7 +20,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'mainwindow.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 69
-#error "This file was generated using the moc from 6.9.1. It"
+#error "This file was generated using the moc from 6.9.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -57,6 +57,7 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "onSaveReportsChanged",
         "onGameSessionStarted",
         "exeName",
+        "windowTitle",
         "uint32_t",
         "processId",
         "onGameSessionEnded",
@@ -70,7 +71,13 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "localPath",
         "originalUrl",
         "openReportsFolder",
-        "updateSessionInfo"
+        "updateSessionInfo",
+        "onHelperMissing",
+        "onChartDurationChanged",
+        "index",
+        "onEditGameRequested",
+        "executableName",
+        "onRemoveGameRequested"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -99,29 +106,43 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
             { QMetaType::Int, 13 },
         }}),
         // Slot 'onGameSessionStarted'
-        QtMocHelpers::SlotData<void(const QString &, uint32_t)>(15, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 16 }, { 0x80000000 | 17, 18 },
+        QtMocHelpers::SlotData<void(const QString &, const QString &, uint32_t)>(15, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 16 }, { QMetaType::QString, 17 }, { 0x80000000 | 18, 19 },
         }}),
         // Slot 'onGameSessionEnded'
-        QtMocHelpers::SlotData<void(uint32_t, const QString &, double)>(19, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 17, 18 }, { QMetaType::QString, 16 }, { QMetaType::Double, 20 },
+        QtMocHelpers::SlotData<void(uint32_t, const QString &, double)>(20, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 18, 19 }, { QMetaType::QString, 16 }, { QMetaType::Double, 21 },
         }}),
         // Slot 'onActiveGameFpsUpdate'
-        QtMocHelpers::SlotData<void(uint32_t, int)>(21, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 17, 18 }, { QMetaType::Int, 22 },
+        QtMocHelpers::SlotData<void(uint32_t, int)>(22, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 18, 19 }, { QMetaType::Int, 23 },
         }}),
         // Slot 'onApiSearchFinished'
-        QtMocHelpers::SlotData<void(const ApiGameResult &)>(23, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 24, 25 },
+        QtMocHelpers::SlotData<void(const ApiGameResult &)>(24, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 25, 26 },
         }}),
         // Slot 'onImageDownloaded'
-        QtMocHelpers::SlotData<void(const QString &, const QUrl &)>(26, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 27 }, { QMetaType::QUrl, 28 },
+        QtMocHelpers::SlotData<void(const QString &, const QUrl &)>(27, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 28 }, { QMetaType::QUrl, 29 },
         }}),
         // Slot 'openReportsFolder'
-        QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'updateSessionInfo'
         QtMocHelpers::SlotData<void()>(30, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'updateSessionInfo'
+        QtMocHelpers::SlotData<void()>(31, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onHelperMissing'
+        QtMocHelpers::SlotData<void()>(32, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onChartDurationChanged'
+        QtMocHelpers::SlotData<void(int)>(33, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 34 },
+        }}),
+        // Slot 'onEditGameRequested'
+        QtMocHelpers::SlotData<void(const QString &)>(35, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 36 },
+        }}),
+        // Slot 'onRemoveGameRequested'
+        QtMocHelpers::SlotData<void(const QString &)>(37, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 36 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -153,13 +174,17 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 5: _t->onSettingsButtonClicked(); break;
         case 6: _t->onParticlesEnabledChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 7: _t->onSaveReportsChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 8: _t->onGameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[2]))); break;
+        case 8: _t->onGameSessionStarted((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[3]))); break;
         case 9: _t->onGameSessionEnded((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<double>>(_a[3]))); break;
         case 10: _t->onActiveGameFpsUpdate((*reinterpret_cast< std::add_pointer_t<uint32_t>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<int>>(_a[2]))); break;
         case 11: _t->onApiSearchFinished((*reinterpret_cast< std::add_pointer_t<ApiGameResult>>(_a[1]))); break;
         case 12: _t->onImageDownloaded((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QUrl>>(_a[2]))); break;
         case 13: _t->openReportsFolder(); break;
         case 14: _t->updateSessionInfo(); break;
+        case 15: _t->onHelperMissing(); break;
+        case 16: _t->onChartDurationChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 17: _t->onEditGameRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 18: _t->onRemoveGameRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         default: ;
         }
     }
@@ -184,14 +209,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 15)
+        if (_id < 19)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 19;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 15)
+        if (_id < 19)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 15;
+        _id -= 19;
     }
     return _id;
 }

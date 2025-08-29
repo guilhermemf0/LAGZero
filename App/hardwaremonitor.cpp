@@ -1,31 +1,56 @@
-#include "hardwaremonitor.h" // Atualizado
+#include "hardwaremonitor.h"
 #include <QDebug>
 #include <QCoreApplication>
+#include <QFile>
 
-// --- RENOMEADO ---
+// --- HardwareMonitor (Classe Principal) ---
 HardwareMonitor::HardwareMonitor(QObject *parent) : QObject(parent)
 {
-    HardwareWorker *worker = new HardwareWorker(); // Atualizado
+    HardwareWorker *worker = new HardwareWorker();
     worker->moveToThread(&workerThread);
     connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
-    connect(&workerThread, &QThread::started, worker, &HardwareWorker::process); // Atualizado
-    connect(worker, &HardwareWorker::hardwareUpdated, this, &HardwareMonitor::hardwareUpdated); // Atualizado
+    connect(&workerThread, &QThread::started, worker, &HardwareWorker::process);
+    connect(worker, &HardwareWorker::hardwareUpdated, this, &HardwareMonitor::hardwareUpdated);
+    connect(worker, &HardwareWorker::helperMissing, this, &HardwareMonitor::helperMissing);
     workerThread.start();
 }
-HardwareMonitor::~HardwareMonitor() { if(workerThread.isRunning()){ workerThread.quit(); workerThread.wait(); } }
 
-// --- RENOMEADO ---
-HardwareWorker::HardwareWorker() {}
-void HardwareWorker::process() {
-    m_process = new QProcess(this);
-    connect(m_process, &QProcess::finished, this, &HardwareWorker::onProcessFinished); // Atualizado
-    m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, this, &HardwareWorker::readHardwareData); // Atualizado
-    m_timer->start(1000); // Roda a cada segundo
-    readHardwareData(); // Roda imediatamente na primeira vez
+HardwareMonitor::~HardwareMonitor() {
+    if(workerThread.isRunning()){
+        workerThread.quit();
+        workerThread.wait();
+    }
 }
-void HardwareWorker::readHardwareData() { // RENOMEADO
-    if (m_process->state() == QProcess::NotRunning) {
+
+
+// --- HardwareWorker (Lógica em Thread Separada) ---
+HardwareWorker::HardwareWorker() : m_process(nullptr), m_timer(nullptr) {}
+
+// CORREÇÃO FINAL: Garante que o processo seja encerrado de forma limpa
+HardwareWorker::~HardwareWorker()
+{
+    if (m_process && m_process->state() != QProcess::NotRunning) {
+        m_process->kill();
+        m_process->waitForFinished(1000);
+    }
+}
+
+void HardwareWorker::process() {
+    QString programPath = QCoreApplication::applicationDirPath() + "/TempReader.exe";
+    if (!QFile::exists(programPath)) {
+        emit helperMissing();
+        return;
+    }
+
+    m_process = new QProcess(this);
+    connect(m_process, &QProcess::finished, this, &HardwareWorker::onProcessFinished);
+    m_timer = new QTimer(this);
+    connect(m_timer, &QTimer::timeout, this, &HardwareWorker::readHardwareData);
+    m_timer->start(2000); // Aumentado para 2 segundos para dar tempo de resposta
+    readHardwareData();
+}
+void HardwareWorker::readHardwareData() {
+    if (m_process && m_process->state() == QProcess::NotRunning) {
         QString appDir = QCoreApplication::applicationDirPath();
         QString program = appDir + "/TempReader.exe";
         m_process->setWorkingDirectory(appDir);
@@ -62,5 +87,5 @@ void HardwareWorker::onProcessFinished(int exitCode, QProcess::ExitStatus exitSt
             }
         }
     }
-    emit hardwareUpdated(deviceInfos); // RENOMEADO
+    emit hardwareUpdated(deviceInfos);
 }

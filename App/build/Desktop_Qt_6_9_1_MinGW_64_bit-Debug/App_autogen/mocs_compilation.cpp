@@ -9,5 +9,6 @@
 #include "EWIEGA46WW/moc_particleswidget.cpp"
 #include "EWIEGA46WW/moc_performancechartwidget.cpp"
 #include "EWIEGA46WW/moc_splashscreen.cpp"
+#include "EWIEGA46WW/moc_steamappcache.cpp"
 #include "EWIEGA46WW/moc_strokedlabel.cpp"
 #include "EWIEGA46WW/moc_summarycardwidget.cpp"

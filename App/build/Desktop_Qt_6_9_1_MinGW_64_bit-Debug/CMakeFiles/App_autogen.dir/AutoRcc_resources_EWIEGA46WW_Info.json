@@ -9,6 +9,7 @@
 	"INCLUDE_DIR" : "C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/include",
 	"INPUTS" : 
 	[
+		"C:/Projetos/LAGZero/App/style.qss",
 		"C:/Projetos/LAGZero/App/images/logo.png",
 		"C:/Projetos/LAGZero/App/fonts/Inter-VariableFont_opsz,wght.ttf",
 		"C:/Projetos/LAGZero/App/fonts/Audiowide-Regular.ttf"
@@ -18,7 +19,7 @@
 	"OPTIONS" : [ "--no-zstd", "-name", "resources" ],
 	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
 	"OUTPUT_NAME" : "qrc_resources.cpp",
-	"RCC_EXECUTABLE" : "C:/Qt/6.9.1/mingw_64/bin/rcc.exe",
+	"RCC_EXECUTABLE" : "C:/Qt/6.9.2/mingw_64/bin/rcc.exe",
 	"RCC_LIST_OPTIONS" : [ "--list" ],
 	"SETTINGS_FILE" : "C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/App_autogen.dir/AutoRcc_resources_EWIEGA46WW_Used.txt",
 	"SOURCE" : "C:/Projetos/LAGZero/App/resources.qrc",

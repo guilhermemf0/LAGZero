@@ -52,21 +52,28 @@ void DatabaseManager::initDatabase()
                     "start_time INTEGER, "
                     "end_time INTEGER, "
                     "average_fps REAL, "
-                    "FOREIGN KEY(game_id) REFERENCES games(id))")) {
+                    "FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE)")) {
         qWarning() << "Failed to create table 'game_sessions':" << query.lastError();
     }
 }
 
-bool DatabaseManager::addGame(const QString& executableName, const QString& displayName, const QString& coverPath)
+// NOVO: Implementação da função "INSERT OR UPDATE"
+bool DatabaseManager::addOrUpdateGame(const QString& executableName, const QString& displayName, const QString& coverPath)
 {
     QSqlQuery query(m_db);
+    // Esta sintaxe do SQLite insere uma nova linha. Se a chave 'executable_name' já existir,
+    // ela executa a ação de UPDATE.
     query.prepare("INSERT INTO games (executable_name, display_name, cover_path) "
-                  "VALUES (:exe, :display, :cover)");
+                  "VALUES (:exe, :display, :cover) "
+                  "ON CONFLICT(executable_name) DO UPDATE SET "
+                  "display_name = excluded.display_name, "
+                  "cover_path = IIF(excluded.cover_path = '', games.cover_path, excluded.cover_path)");
     query.bindValue(":exe", executableName);
     query.bindValue(":display", displayName);
     query.bindValue(":cover", coverPath);
+
     if (!query.exec()) {
-        qWarning() << "Failed to add game:" << query.lastError();
+        qWarning() << "Failed to add or update game:" << query.lastError();
         return false;
     }
     return true;
@@ -116,7 +123,6 @@ QList<GameData> DatabaseManager::getGamesByMostRecent()
 {
     QList<GameData> games;
     QSqlQuery query(m_db);
-    // CORREÇÃO: Query aprimorada para ordenar corretamente, colocando jogos nunca jogados no final
     query.prepare("SELECT g.executable_name FROM games g "
                   "LEFT JOIN (SELECT game_id, MAX(end_time) as max_end_time FROM game_sessions GROUP BY game_id) s "
                   "ON g.id = s.game_id "
@@ -132,19 +138,36 @@ QList<GameData> DatabaseManager::getGamesByMostRecent()
     return games;
 }
 
-bool DatabaseManager::updateGame(int gameId, const QString& displayName, const QString& coverPath)
+// ALTERADO: Renomeado para clareza
+bool DatabaseManager::updateGameCover(int gameId, const QString& coverPath)
 {
     QSqlQuery query(m_db);
-    query.prepare("UPDATE games SET display_name = :display, cover_path = :cover WHERE id = :id");
-    query.bindValue(":display", displayName);
+    query.prepare("UPDATE games SET cover_path = :cover WHERE id = :id");
     query.bindValue(":cover", coverPath);
     query.bindValue(":id", gameId);
     if (!query.exec()) {
-        qWarning() << "Failed to update game:" << query.lastError();
+        qWarning() << "Failed to update game cover:" << query.lastError();
         return false;
     }
     return true;
 }
+
+bool DatabaseManager::removeGame(const QString& executableName)
+{
+    int gameId = getGameId(executableName);
+    if (gameId == -1) return false;
+
+    QSqlQuery query(m_db);
+    query.prepare("DELETE FROM games WHERE id = :id");
+    query.bindValue(":id", gameId);
+
+    if (!query.exec()) {
+        qWarning() << "Failed to remove game:" << query.lastError();
+        return false;
+    }
+    return true;
+}
+
 
 bool DatabaseManager::addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps)
 {

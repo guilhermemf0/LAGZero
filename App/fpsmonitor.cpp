@@ -3,10 +3,13 @@
 #include <QFileInfo>
 #include <QSettings>
 #include <numeric>
+#include <QThread>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
 #include "RTSSSharedMemory.h"
+#include <TlHelp32.h>
+#include <psapi.h>
 #endif
 
 // --- FpsMonitor (Classe Principal) ---
@@ -63,6 +66,54 @@ QString FpsWorker::getRtssInstallPath()
     return settings.value("InstallPath").toString();
 }
 
+struct EnumData {
+    DWORD processId;
+    HWND bestHwnd;
+    int bestTitleLength;
+};
+
+BOOL CALLBACK EnumWindowsCallback(HWND hwnd, LPARAM lParam)
+{
+    EnumData* data = (EnumData*)lParam;
+    DWORD processId = 0;
+    GetWindowThreadProcessId(hwnd, &processId);
+
+    if (data->processId == processId && IsWindowVisible(hwnd)) {
+        int length = GetWindowTextLength(hwnd);
+        if (length > data->bestTitleLength) {
+            wchar_t title[256];
+            GetWindowTextW(hwnd, title, 256);
+            QString qTitle = QString::fromWCharArray(title);
+            if (qTitle != "D3DProxyWindow" && !qTitle.contains("NVIDIA") && !qTitle.contains("AMD") && qTitle.length() > 3) {
+                data->bestHwnd = hwnd;
+                data->bestTitleLength = length;
+            }
+        }
+    }
+    return TRUE;
+}
+
+QString FpsWorker::getWindowTitleByProcessId(DWORD processId)
+{
+    EnumData data = { processId, nullptr, 0 };
+    for (int i = 0; i < 10; ++i) {
+        EnumWindows(EnumWindowsCallback, (LPARAM)&data);
+        if (data.bestHwnd) {
+            QThread::msleep(500);
+        } else {
+            QThread::msleep(500);
+        }
+    }
+
+    if (data.bestHwnd) {
+        wchar_t title[256];
+        GetWindowTextW(data.bestHwnd, title, 256);
+        return QString::fromWCharArray(title);
+    }
+    return QString();
+}
+
+
 void FpsWorker::readFps()
 {
 #ifdef Q_OS_WIN
@@ -97,9 +148,9 @@ void FpsWorker::readFps()
     if ((pMem->dwSignature == 0x52545353) && (pMem->dwVersion >= 0x00020000))
     {
         QSet<uint32_t> currentPids;
+        const QList<QString> blacklist = {"App.exe", "TempReader.exe", "devenv.exe", "msedgewebview2.exe", "TabTip.exe"};
 
-        // CORREÇÃO: Lista de processos a serem ignorados para evitar falsos positivos
-        const QList<QString> blacklist = {"App.exe", "TempReader.exe", "devenv.exe", "msedgewebview2.exe"};
+        DWORD currentTime = GetTickCount();
 
         for (DWORD i = 0; i < pMem->dwAppArrSize; ++i)
         {
@@ -109,7 +160,6 @@ void FpsWorker::readFps()
 
             QString exeName = QString::fromLocal8Bit(pAppEntry->szName);
 
-            // Verifica se o processo está na blacklist ou se não tem dados válidos
             if (exeName.isEmpty() || blacklist.contains(exeName, Qt::CaseInsensitive) || pAppEntry->dwTime1 <= pAppEntry->dwTime0)
             {
                 continue;
@@ -122,11 +172,18 @@ void FpsWorker::readFps()
             currentPids.insert(pid);
 
             if (!m_activeSessions.contains(pid)) {
+                if (currentTime > pAppEntry->dwTime1 && (currentTime - pAppEntry->dwTime1) > 2000) {
+                    continue;
+                }
+
+                QString windowTitle = getWindowTitleByProcessId(pid);
+                qDebug() << "Novo jogo detectado:" << exeName << "PID:" << pid << "Título:" << windowTitle;
+
                 GameSessionInfo newSession;
                 newSession.exeName = exeName;
                 newSession.startTime = QDateTime::currentSecsSinceEpoch();
                 m_activeSessions.insert(pid, newSession);
-                emit gameSessionStarted(newSession.exeName, pid);
+                emit gameSessionStarted(newSession.exeName, windowTitle, pid);
             }
 
             m_activeSessions[pid].fpsSamples.append(qRound(currentFps));

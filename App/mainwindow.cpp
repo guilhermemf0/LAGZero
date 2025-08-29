@@ -17,6 +17,10 @@
 #include <QRegularExpression>
 #include <numeric>
 #include <algorithm>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QFileDialog>
+#include <QDebug>
 
 // --- FUNÇÃO DE COR UNIFICADA ---
 static QString getTempColor(double temp, const QString& type)
@@ -31,7 +35,6 @@ static QString getTempColor(double temp, const QString& type)
     if (type == AppConfig::MB_KEY) {
         if (temp < 55) return "#81C784"; if (temp < 65) return "#FFD54F"; return "#D32F2F";
     }
-    // Default para Armazenamento
     if (temp < 50) return "#81C784"; if (temp < 60) return "#FFD54F"; return "#D32F2F";
 }
 
@@ -43,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_fpsMonitor = new FpsMonitor(this);
     m_apiManager = new ApiManager(this);
     m_sessionTimer = new QTimer(this);
+
+    SteamAppCache::instance();
 
     setupUi();
     setupConnections();
@@ -56,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_enableParticlesCheckBox->setChecked(particlesEnabled);
     onParticlesEnabledChanged(particlesEnabled ? Qt::Checked : Qt::Unchecked);
     m_saveReportsCheckBox->setChecked(settings.value(AppConfig::SETTING_REPORTS_ENABLED, true).toBool());
+    m_chartDurationComboBox->setCurrentIndex(settings.value("chart/durationIndex", 1).toInt());
+    m_reportFormatComboBox->setCurrentIndex(settings.value("reports/formatIndex", 0).toInt());
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -70,51 +77,11 @@ void MainWindow::setupUi()
     QFontDatabase::addApplicationFont(":/fonts/Audiowide-Regular.ttf");
     QFontDatabase::addApplicationFont(":/fonts/Inter-VariableFont_opsz,wght.ttf");
 
-    // --- STYLESHEET RENOVADO: Inspirado no site, com a cor azul ---
-    QString styleSheet = R"(
-        #centralContainer { background-color: #05070d; }
-        #mainUiContainer, #navPanel, #contentPanel { font-family: 'Inter'; background: transparent; }
-        #navPanel { border-right: 1px solid rgba(255, 255, 255, 0.07); }
-        #navPanel QPushButton {
-            background-color: transparent; color: #94a3b8; border: none; border-radius: 8px;
-            padding: 12px; text-align: left; font-size: 14px; font-weight: 600; margin: 2px 10px;
-        }
-        #navPanel QPushButton:hover { background-color: rgba(0, 133, 255, 0.1); color: #e2e8f0; }
-        #navPanel QPushButton[selected="true"] { color: #ffffff; background-color: #0085ff; }
-        #settingsButton {
-            border-radius: 22px; /* CORREÇÃO: Para um botão de 44px ser um círculo perfeito */
-            min-height: 44px; max-height: 44px; min-width: 44px; max-width: 44px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        #settingsButton:hover { background-color: rgba(0, 133, 255, 0.1); }
-        #settingsButton[selected="true"] { border-color: #00d1ff; }
-
-        #contentPanel { padding: 10px 25px 25px 25px; }
-        QLabel, QCheckBox { color: #cbd5e1; font-size: 14px; background: transparent; }
-        QCheckBox::indicator { width: 18px; height: 18px; border: 2px solid #334155; border-radius: 5px; }
-        QCheckBox::indicator:checked { background-color: #0085ff; border-color: #0085ff; }
-        QScrollArea { border: none; }
-        #rtssStatusCard { background-color: rgba(211, 47, 47, 0.1); border: 1px solid #d32f2f; border-radius: 12px; max-height: 50px; }
-        #rtssStatusCard QLabel { font-weight: 500; }
-        #downloadRtssButton { background-color: #d32f2f; color: white; font-weight: bold; padding: 8px 18px; border-radius: 16px; }
-        #activeGameCoverLabel { border-radius: 16px; background-color: #1e293b; }
-        #activeGameNameLabel { font-family: 'Audiowide'; font-size: 38px; color: #ffffff; }
-        #activeGameInfoLabel { font-size: 18px; color: #94a3b8; }
-        #waitingForGameLabel { font-size: 28px; color: #94a3b8; font-family: 'Audiowide'; }
-        .TitleLabel { font-size: 22px; font-weight: bold; color: #ffffff; margin-top: 15px; margin-bottom: 5px; }
-        .MetricCard { background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(15, 23, 42, 0.7), stop:1 rgba(20, 30, 55, 0.7));
-                       border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; }
-        .MetricCard .TitleLabel { color: #94a3b8; font-size: 13px; margin: 0; }
-        .MetricCard .ValueLabel { color: #ffffff; font-size: 22px; font-weight: 700; }
-        #tempNavPanel QPushButton { padding: 10px 18px; font-size: 14px; font-weight: 600; border-bottom: 3px solid transparent; color: #94a3b8; }
-        #tempNavPanel QPushButton:hover { color: #e2e8f0; }
-        #tempNavPanel QPushButton[selected="true"] { color: #ffffff; border-bottom-color: #0085ff; }
-        .InfoCard { background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(15, 23, 42, 0.7), stop:1 rgba(20, 30, 55, 0.7));
-                    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; }
-        .InfoCard .Title { color: #e2e8f0; font-size: 15px; font-weight: 600; }
-        .InfoCard .Value { font-size: 26px; font-weight: 700; }
-    )";
+    QFile file(":/style.qss");
+    file.open(QFile::ReadOnly | QFile::Text);
+    QString styleSheet = QLatin1String(file.readAll());
     this->setStyleSheet(styleSheet);
+    file.close();
 
     auto* centralContainer = new QWidget(this);
     centralContainer->setObjectName("centralContainer");
@@ -165,6 +132,10 @@ void MainWindow::setupConnections() {
     for (auto btn : m_tempNavButtons) connect(btn, &QPushButton::clicked, this, &MainWindow::onTempNavigationButtonClicked);
     connect(m_settingsButton, &QPushButton::clicked, this, &MainWindow::onSettingsButtonClicked);
     connect(m_sessionTimer, &QTimer::timeout, this, &MainWindow::updateSessionInfo);
+    connect(m_hardwareMonitor, &HardwareMonitor::helperMissing, this, &MainWindow::onHelperMissing);
+    connect(m_enableParticlesCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onParticlesEnabledChanged);
+    connect(m_saveReportsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onSaveReportsChanged);
+    connect(m_chartDurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::onChartDurationChanged);
 }
 
 void MainWindow::setupOverviewPage() {
@@ -172,8 +143,17 @@ void MainWindow::setupOverviewPage() {
     auto* layout = new QVBoxLayout(page);
     layout->setSpacing(20);
 
+    m_hardwareStatusCard = new QFrame();
+    m_hardwareStatusCard->setObjectName("hardwareStatusCard");
+    m_hardwareStatusCard->setProperty("class", "StatusCard");
+    auto* hardwareLayout = new QHBoxLayout(m_hardwareStatusCard);
+    hardwareLayout->addWidget(new QLabel("O monitoramento de hardware está desativado. O arquivo TempReader.exe não foi encontrado."));
+    m_hardwareStatusCard->setVisible(false);
+    layout->addWidget(m_hardwareStatusCard);
+
     m_rtssStatusCard = new QFrame();
     m_rtssStatusCard->setObjectName("rtssStatusCard");
+    m_rtssStatusCard->setProperty("class", "StatusCard");
     auto* rtssLayout = new QHBoxLayout(m_rtssStatusCard);
     rtssLayout->addWidget(new QLabel("RTSS não detectado. O monitoramento de FPS está desativado."));
     auto* rtssBtn = new QPushButton("Download"); rtssBtn->setObjectName("downloadRtssButton");
@@ -280,18 +260,147 @@ void MainWindow::setupSettingsPage() {
     auto* layout = new QVBoxLayout(page);
     layout->setSpacing(15); layout->setAlignment(Qt::AlignTop);
     auto* title = new QLabel("Configurações"); title->setProperty("class", "TitleLabel");
+    layout->addWidget(title);
+
+    auto* appearanceTitle = new QLabel("Aparência"); appearanceTitle->setProperty("class", "SubtitleLabel");
+    layout->addWidget(appearanceTitle);
     m_enableParticlesCheckBox = new QCheckBox("Ativar efeito de partículas no fundo");
+    layout->addWidget(m_enableParticlesCheckBox);
+
+    m_chartDurationComboBox = new QComboBox();
+    m_chartDurationComboBox->addItem("Últimos 60 segundos", 60);
+    m_chartDurationComboBox->addItem("Últimos 2 minutos", 120);
+    m_chartDurationComboBox->addItem("Últimos 5 minutos", 300);
+    auto* chartLayout = new QHBoxLayout();
+    chartLayout->addWidget(new QLabel("Período de tempo do gráfico:"));
+    chartLayout->addWidget(m_chartDurationComboBox);
+    layout->addLayout(chartLayout);
+
+    auto* reportsTitle = new QLabel("Relatórios"); reportsTitle->setProperty("class", "SubtitleLabel");
+    layout->addWidget(reportsTitle);
     m_saveReportsCheckBox = new QCheckBox("Salvar relatórios de performance da sessão");
+    layout->addWidget(m_saveReportsCheckBox);
+
+    m_reportFormatComboBox = new QComboBox();
+    m_reportFormatComboBox->addItem("Texto (.txt)");
+    m_reportFormatComboBox->addItem("CSV (.csv)");
+    auto* reportFormatLayout = new QHBoxLayout();
+    reportFormatLayout->addWidget(new QLabel("Formato do relatório:"));
+    reportFormatLayout->addWidget(m_reportFormatComboBox);
+    layout->addLayout(reportFormatLayout);
+
     auto* reportsBtn = new QPushButton("Abrir pasta de relatórios");
     reportsBtn->setCursor(Qt::PointingHandCursor);
     reportsBtn->setStyleSheet("background:transparent; color:#0085ff; text-decoration:underline; font-weight: 600;");
     connect(reportsBtn, &QPushButton::clicked, this, &MainWindow::openReportsFolder);
-    layout->addWidget(title);
-    layout->addWidget(m_enableParticlesCheckBox);
-    layout->addWidget(m_saveReportsCheckBox);
     layout->addWidget(reportsBtn, 0, Qt::AlignLeft);
+
     layout->addStretch();
     m_mainStackedWidget->addWidget(page);
+}
+
+void MainWindow::onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId)
+{
+    qDebug() << "[SESSION START] Executable:" << exeName << "| Window Title:" << windowTitle;
+    setActiveGameView(true);
+    m_currentSession = CurrentSession();
+    m_currentSession.processId = processId;
+    m_currentSession.exeName = exeName;
+
+    GameData data = DatabaseManager::instance().getGameData(exeName);
+
+    // Se o jogo já existe no DB E TEM UMA CAPA, usa as informações dele
+    if (data.id != -1 && !data.displayName.isEmpty() && !data.coverPath.isEmpty()) {
+        m_currentSession.displayName = data.displayName;
+        m_currentSession.coverPath = data.coverPath;
+        m_activeGameNameLabel->setText(data.displayName);
+        m_activeGameCoverLabel->setPixmap(QPixmap(data.coverPath));
+        qDebug() << "[SESSION START] Jogo completo encontrado no DB:" << data.displayName;
+    }
+    // Se é um jogo novo OU um jogo que está no DB mas sem capa, inicia a busca online
+    else {
+        QString bestNameGuess = windowTitle.isEmpty() ? QFileInfo(exeName).baseName() : windowTitle;
+        m_currentSession.displayName = bestNameGuess;
+        m_activeGameNameLabel->setText(bestNameGuess);
+        m_activeGameCoverLabel->clear();
+        qDebug() << "[SESSION START] Jogo novo ou incompleto. Buscando online com o nome:" << bestNameGuess;
+        m_apiManager->findGameInfo(exeName, bestNameGuess);
+    }
+
+    for(auto* chart : m_charts) if(chart) chart->clearData();
+    m_sessionTimer->start(1000);
+    m_currentSession.timer.start();
+}
+
+void MainWindow::onApiSearchFinished(const ApiGameResult& result)
+{
+    qDebug() << "[API FINISHED] Para o executável:" << result.executableName;
+    if (result.executableName != m_currentSession.exeName) {
+        qDebug() << "[API FINISHED] Resultado é de uma sessão antiga. Ignorando.";
+        return;
+    }
+
+    QString finalDisplayName = result.name.isEmpty() ? m_currentSession.displayName : result.name;
+    qDebug() << "[API FINISHED] Nome final determinado:" << finalDisplayName;
+
+    // Atualiza a UI e a sessão atual com o nome definitivo, caso a API tenha retornado um melhor
+    m_activeGameNameLabel->setText(finalDisplayName);
+    m_currentSession.displayName = finalDisplayName;
+
+    if (result.success) {
+        qDebug() << "[API FINISHED] Busca bem-sucedida. URL da capa:" << result.coverUrl;
+        QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
+        if (!QDir(coverDir).exists()) QDir().mkpath(coverDir);
+        QString coverPath = coverDir + "/" + QFileInfo(result.executableName).baseName() + ".png";
+
+        // Adiciona/atualiza o jogo no DB com o nome correto, mas deixa a capa vazia por enquanto
+        DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
+        // Inicia o download da imagem
+        m_apiManager->downloadImage(QUrl(result.coverUrl), coverPath);
+    } else {
+        qDebug() << "[API FINISHED] Busca falhou. Salvando jogo com o melhor nome que temos, mas sem capa.";
+        // Salva o jogo com o nome que temos para não buscar novamente na próxima vez
+        DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
+    }
+}
+
+void MainWindow::onImageDownloaded(const QString& localPath, const QUrl&)
+{
+    qDebug() << "[IMAGE DOWNLOADED] Caminho:" << localPath;
+    QString exeBaseName = QFileInfo(localPath).baseName();
+    if (exeBaseName + ".exe" != QFileInfo(m_currentSession.exeName).fileName()) {
+        qDebug() << "[IMAGE DOWNLOADED] Imagem é de uma sessão antiga. Ignorando.";
+        return;
+    }
+
+    m_currentSession.coverPath = localPath;
+    m_activeGameCoverLabel->setPixmap(QPixmap(localPath));
+
+    int gameId = DatabaseManager::instance().getGameId(m_currentSession.exeName);
+    if (gameId != -1) {
+        qDebug() << "[IMAGE DOWNLOADED] Atualizando caminho da capa no DB.";
+        DatabaseManager::instance().updateGameCover(gameId, localPath);
+    }
+}
+
+void MainWindow::onEditGameRequested(const QString& executableName)
+{
+    GameData gameData = DatabaseManager::instance().getGameData(executableName);
+    if (gameData.id == -1) return;
+
+    bool ok;
+    QString newName = QInputDialog::getText(this, "Editar Jogo", "Nome de Exibição:", QLineEdit::Normal, gameData.displayName, &ok);
+
+    if (ok && !newName.isEmpty()) {
+        QString newCoverPath = QFileDialog::getOpenFileName(this, "Selecionar Nova Capa", "", "Imagens (*.png *.jpg *.jpeg)");
+
+        if (!newCoverPath.isEmpty()) {
+            DatabaseManager::instance().addOrUpdateGame(gameData.executableName, newName, newCoverPath);
+        } else {
+            DatabaseManager::instance().addOrUpdateGame(gameData.executableName, newName, gameData.coverPath);
+        }
+        populateRecentGames();
+    }
 }
 
 void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
@@ -324,31 +433,6 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
             }
         }
     }
-}
-
-void MainWindow::onGameSessionStarted(const QString& exeName, uint32_t processId)
-{
-    setActiveGameView(true);
-    m_currentSession = CurrentSession();
-    m_currentSession.processId = processId;
-    m_currentSession.exeName = exeName;
-
-    GameData data = DatabaseManager::instance().getGameData(exeName);
-    if (data.id != -1 && !data.displayName.isEmpty()) {
-        m_currentSession.displayName = data.displayName;
-        m_currentSession.coverPath = data.coverPath;
-        m_activeGameNameLabel->setText(data.displayName);
-        m_activeGameCoverLabel->setPixmap(QPixmap(data.coverPath));
-    } else {
-        m_currentSession.displayName = QFileInfo(exeName).baseName();
-        m_activeGameNameLabel->setText(m_currentSession.displayName);
-        m_activeGameCoverLabel->clear();
-        m_apiManager->searchGame(exeName);
-    }
-
-    for(auto* chart : m_charts) if(chart) chart->clearData();
-    m_sessionTimer->start(1000);
-    m_currentSession.timer.start();
 }
 
 void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double averageFps)
@@ -451,37 +535,6 @@ QWidget* MainWindow::createMetricCard(const QString& title, const QString& key) 
     return card;
 }
 
-void MainWindow::onApiSearchFinished(const ApiGameResult& result) {
-    if (result.success) {
-        QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
-        if(!QDir(coverDir).exists()) QDir().mkpath(coverDir);
-        QString coverPath = coverDir + "/" + QFileInfo(result.executableName).baseName() + ".png";
-
-        int gameId = DatabaseManager::instance().getGameId(result.executableName);
-        if (gameId == -1) {
-            DatabaseManager::instance().addGame(result.executableName, result.name, coverPath);
-        } else {
-            DatabaseManager::instance().updateGame(gameId, result.name, coverPath);
-        }
-        m_apiManager->downloadImage(QUrl(result.coverUrl), coverPath);
-    } else {
-        if (!DatabaseManager::instance().isGameKnown(result.executableName)) {
-            DatabaseManager::instance().addGame(result.executableName, QFileInfo(result.executableName).baseName(), "");
-            populateRecentGames();
-        }
-    }
-}
-void MainWindow::onImageDownloaded(const QString& localPath, const QUrl&) {
-    if(m_activeGameWidget->isVisible()) {
-        QString baseName = QFileInfo(localPath).baseName();
-        GameData data = DatabaseManager::instance().getGameData(baseName + ".exe");
-        if(data.id != -1 && m_activeGameNameLabel->text() == baseName) {
-            m_activeGameNameLabel->setText(data.displayName);
-            m_activeGameCoverLabel->setPixmap(QPixmap(data.coverPath));
-        }
-    }
-    populateRecentGames();
-}
 void MainWindow::populateRecentGames() {
     QLayoutItem* item;
     while ((item = m_recentGamesLayout->takeAt(0)) != nullptr) {
@@ -491,7 +544,9 @@ void MainWindow::populateRecentGames() {
     QList<GameData> recentGames = DatabaseManager::instance().getGamesByMostRecent();
     for (const auto& gameData : recentGames) {
         QPixmap cover(gameData.coverPath);
-        auto* coverWidget = new GameCoverWidget(gameData.displayName, cover);
+        auto* coverWidget = new GameCoverWidget(gameData.displayName, gameData.executableName, cover);
+        connect(coverWidget, &GameCoverWidget::editGameRequested, this, &MainWindow::onEditGameRequested);
+        connect(coverWidget, &GameCoverWidget::removeGameRequested, this, &MainWindow::onRemoveGameRequested);
         m_recentGamesLayout->insertWidget(m_recentGamesLayout->count() - 1, coverWidget);
     }
     m_recentGamesLayout->addStretch();
@@ -554,6 +609,7 @@ void MainWindow::onRtssStatusUpdated(bool found, const QString&) {
     m_rtssStatusCard->setVisible(!found);
 }
 void MainWindow::onDownloadRtssClicked() { QDesktopServices::openUrl(QUrl("https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/")); }
+
 void MainWindow::saveSessionReport() {
     if (m_currentSession.processId == 0) return;
 
@@ -564,7 +620,10 @@ void MainWindow::saveSessionReport() {
     QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
     QString safeGameName = m_currentSession.displayName;
     safeGameName.remove(QRegularExpression(QStringLiteral("[\\/:*?\"<>|]")));
-    QString filePath = reportsPath + "/" + safeGameName + "_" + timestamp + ".txt";
+
+    bool isCsv = (m_reportFormatComboBox->currentIndex() == 1);
+    QString extension = isCsv ? ".csv" : ".txt";
+    QString filePath = reportsPath + "/" + safeGameName + "_" + timestamp + extension;
 
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -573,47 +632,99 @@ void MainWindow::saveSessionReport() {
     }
 
     QTextStream out(&file);
-    out << "=============== Relatório de Sessão - LAG Zero ===============\n\n";
-    out << "Jogo: " << m_currentSession.displayName << " (" << m_currentSession.exeName << ")\n";
-    out << "Data: " << QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm:ss") << "\n";
-    qint64 elapsed = m_currentSession.timer.elapsed() / 1000;
-    QString timeString = QString("%1:%2:%3")
-                             .arg(elapsed / 3600, 2, 10, QChar('0'))
-                             .arg((elapsed % 3600) / 60, 2, 10, QChar('0'))
-                             .arg(elapsed % 60, 2, 10, QChar('0'));
-    out << "Duração da Sessão: " << timeString << "\n";
-    out << "\n--- Resumo da Performance ---\n";
 
-    auto calculateStats = [&](const QList<double>& data) {
-        if (data.isEmpty()) return QString("N/D");
+    if (isCsv) {
+        out << "Métrica,Média,Máximo,Mínimo,Unidade\n";
+    } else {
+        out << "=============== Relatório de Sessão - LAG Zero ===============\n\n";
+        out << "Jogo: " << m_currentSession.displayName << " (" << m_currentSession.exeName << ")\n";
+        out << "Data: " << QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm:ss") << "\n";
+        qint64 elapsed = m_currentSession.timer.elapsed() / 1000;
+        QString timeString = QString("%1:%2:%3")
+                                 .arg(elapsed / 3600, 2, 10, QChar('0'))
+                                 .arg((elapsed % 3600) / 60, 2, 10, QChar('0'))
+                                 .arg(elapsed % 60, 2, 10, QChar('0'));
+        out << "Duração da Sessão: " << timeString << "\n";
+        out << "\n--- Resumo da Performance ---\n";
+    }
+
+    auto writeStats = [&](const QString& name, const QList<double>& data, const QString& unit) {
+        if (data.isEmpty()) return;
         double sum = std::accumulate(data.begin(), data.end(), 0.0);
         double avg = sum / data.size();
         double min = *std::min_element(data.begin(), data.end());
         double max = *std::max_element(data.begin(), data.end());
-        return QString("Méd: %1 / Máx: %2 / Mín: %3")
-            .arg(avg, 0, 'f', 1)
-            .arg(max, 0, 'f', 1)
-            .arg(min, 0, 'f', 1);
+
+        if (isCsv) {
+            out << QString("%1,%2,%3,%4,%5\n").arg(name).arg(avg, 0, 'f', 1).arg(max, 0, 'f', 1).arg(min, 0, 'f', 1).arg(unit);
+        } else {
+            QString line = QString("%1:").arg(name).leftJustified(15, ' ');
+            line += QString("Méd: %1 / Máx: %2 / Mín: %3 %4\n")
+                        .arg(avg, 0, 'f', 1)
+                        .arg(max, 0, 'f', 1)
+                        .arg(min, 0, 'f', 1)
+                        .arg(unit);
+            out << line;
+        }
     };
 
     if (m_charts.contains(AppConfig::CPU_KEY)) {
-        out << QString("FPS:").leftJustified(13, ' ') << calculateStats(m_charts.value(AppConfig::CPU_KEY)->getFpsData()) << "\n";
+        writeStats("FPS", m_charts.value(AppConfig::CPU_KEY)->getFpsData(), "");
         for (auto it = m_charts.constBegin(); it != m_charts.constEnd(); ++it) {
             QString key = it.key();
             PerformanceChartWidget* chart = it.value();
             QString formattedKey;
-            if (key == AppConfig::CPU_KEY) formattedKey = "CPU";
-            else if (key == AppConfig::GPU_KEY) formattedKey = "GPU";
-            else if (key == AppConfig::MB_KEY) formattedKey = "Placa-mãe";
-            else if (key.startsWith(AppConfig::STORAGE_KEY_PREFIX)) formattedKey = "Drive";
+            if (key == AppConfig::CPU_KEY) formattedKey = "Temp. CPU";
+            else if (key == AppConfig::GPU_KEY) formattedKey = "Temp. GPU";
+            else if (key == AppConfig::MB_KEY) formattedKey = "Temp. Placa-mãe";
+            else if (key.startsWith(AppConfig::STORAGE_KEY_PREFIX)) formattedKey = "Temp. Drive";
 
             if(!formattedKey.isEmpty()){
-                QString statLine = QString("Temp. %1:").arg(formattedKey).leftJustified(13, ' ');
-                out << statLine << calculateStats(chart->getTempData()) << " C\n";
+                writeStats(formattedKey, chart->getTempData(), "C");
             }
         }
     }
 
-    out << "\n============================================================\n";
+    if (!isCsv) {
+        out << "\n============================================================\n";
+    }
     file.close();
+}
+
+void MainWindow::onHelperMissing()
+{
+    m_hardwareStatusCard->setVisible(true);
+}
+
+void MainWindow::onChartDurationChanged(int index)
+{
+    int duration = m_chartDurationComboBox->itemData(index).toInt();
+    for (auto* chart : m_charts) {
+        if (chart) {
+            chart->setMaxDataPoints(duration);
+        }
+    }
+    QSettings settings("LAGZero", "MonitorApp");
+    settings.setValue("chart/durationIndex", index);
+}
+
+void MainWindow::onRemoveGameRequested(const QString& executableName)
+{
+    GameData gameData = DatabaseManager::instance().getGameData(executableName);
+    if (gameData.id == -1) return;
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Remover Jogo",
+                                  QString("Tem certeza que deseja remover '%1' e todo o seu histórico de sessões? Esta ação não pode ser desfeita.").arg(gameData.displayName),
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        if (DatabaseManager::instance().removeGame(executableName)) {
+            if (!gameData.coverPath.isEmpty()) {
+                QFile::remove(gameData.coverPath);
+            }
+            populateRecentGames();
+        } else {
+            QMessageBox::critical(this, "Erro", "Não foi possível remover o jogo do banco de dados.");
+        }
+    }
 }

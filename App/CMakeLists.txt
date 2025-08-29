@@ -9,7 +9,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Adicionado Network e Sql
 find_package(Qt6 REQUIRED COMPONENTS Widgets Core Svg Network Sql)
 
 set(PROJECT_SOURCES
@@ -43,6 +42,9 @@ set(PROJECT_SOURCES
     infocardwidget.cpp
     summarycardwidget.h
     summarycardwidget.cpp
+    # NOVO: Adiciona os novos arquivos do cache da Steam
+    steamappcache.h
+    steamappcache.cpp
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)
@@ -55,7 +57,6 @@ else()
     add_executable(App WIN32 ${PROJECT_SOURCES})
 endif()
 
-# Adicionado Qt6::Network e Qt6::Sql
 target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core Qt6::Svg Qt6::Network Qt6::Sql)
 
 set(HELPER_FILES

@@ -6,12 +6,11 @@
 #include <QUrl>
 #include <QNetworkReply>
 
-// Estrutura para o resultado da busca na API
 struct ApiGameResult {
     bool success = false;
     QString name;
     QString coverUrl;
-    QString executableName; // Para manter o contexto
+    QString executableName;
 };
 
 class ApiManager : public QObject
@@ -19,7 +18,8 @@ class ApiManager : public QObject
     Q_OBJECT
 public:
     explicit ApiManager(QObject *parent = nullptr);
-    void searchGame(const QString& executableName);
+
+    void findGameInfo(const QString& executableName, const QString& displayName);
     void downloadImage(const QUrl& url, const QString& savePath);
 
 signals:
@@ -27,13 +27,16 @@ signals:
     void imageDownloaded(const QString& localPath, const QUrl& originalUrl);
 
 private slots:
-    void onSearchReply(QNetworkReply *reply);
+    void onNameSearchReply(QNetworkReply *reply);
+    void onGridSearchReply(QNetworkReply *reply);
     void onImageReply(QNetworkReply *reply);
 
 private:
+    void searchByName(const QString& executableName, const QString& gameName);
+    void searchById(const QString& executableName, int steamAppId, const QString& gameName);
+
     QNetworkAccessManager *m_netManager;
-    // IMPORTANTE: Substitua pela sua chave de API da SteamGridDB
-    QString m_apiKey = "3fe08a2d9e17d31f5fa710961754f938";
+    QString m_apiKey = "93b1c0bae25de75ec9029f18314ddea2";
     QString m_currentImagePath;
 };
 

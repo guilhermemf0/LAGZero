@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'hardwaremonitor.h'
 **
-** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.1)
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -18,7 +18,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'hardwaremonitor.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 69
-#error "This file was generated using the moc from 6.9.1. It"
+#error "This file was generated using the moc from 6.9.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -43,6 +43,7 @@ template <> constexpr inline auto HardwareWorker::qt_create_metaobjectdata<qt_me
         "",
         "QMap<QString,HardwareInfo>",
         "deviceInfos",
+        "helperMissing",
         "process",
         "readHardwareData",
         "onProcessFinished",
@@ -56,13 +57,15 @@ template <> constexpr inline auto HardwareWorker::qt_create_metaobjectdata<qt_me
         QtMocHelpers::SignalData<void(const QMap<QString,HardwareInfo> &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 3, 4 },
         }}),
+        // Signal 'helperMissing'
+        QtMocHelpers::SignalData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'process'
-        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'readHardwareData'
-        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onProcessFinished'
-        QtMocHelpers::SlotData<void(int, QProcess::ExitStatus)>(7, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Int, 8 }, { 0x80000000 | 9, 10 },
+        QtMocHelpers::SlotData<void(int, QProcess::ExitStatus)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 9 }, { 0x80000000 | 10, 11 },
         }}),
     };
     QtMocHelpers::UintData qt_properties {
@@ -88,14 +91,17 @@ void HardwareWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->hardwareUpdated((*reinterpret_cast< std::add_pointer_t<QMap<QString,HardwareInfo>>>(_a[1]))); break;
-        case 1: _t->process(); break;
-        case 2: _t->readHardwareData(); break;
-        case 3: _t->onProcessFinished((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QProcess::ExitStatus>>(_a[2]))); break;
+        case 1: _t->helperMissing(); break;
+        case 2: _t->process(); break;
+        case 3: _t->readHardwareData(); break;
+        case 4: _t->onProcessFinished((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QProcess::ExitStatus>>(_a[2]))); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (HardwareWorker::*)(const QMap<QString,HardwareInfo> & )>(_a, &HardwareWorker::hardwareUpdated, 0))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (HardwareWorker::*)()>(_a, &HardwareWorker::helperMissing, 1))
             return;
     }
 }
@@ -119,14 +125,14 @@ int HardwareWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 5;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 5)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 4;
+        _id -= 5;
     }
     return _id;
 }
@@ -135,6 +141,12 @@ int HardwareWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 void HardwareWorker::hardwareUpdated(const QMap<QString,HardwareInfo> & _t1)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1);
+}
+
+// SIGNAL 1
+void HardwareWorker::helperMissing()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
 }
 namespace {
 struct qt_meta_tag_ZN15HardwareMonitorE_t {};
@@ -148,7 +160,8 @@ template <> constexpr inline auto HardwareMonitor::qt_create_metaobjectdata<qt_m
         "hardwareUpdated",
         "",
         "QMap<QString,HardwareInfo>",
-        "deviceInfos"
+        "deviceInfos",
+        "helperMissing"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -156,6 +169,8 @@ template <> constexpr inline auto HardwareMonitor::qt_create_metaobjectdata<qt_m
         QtMocHelpers::SignalData<void(const QMap<QString,HardwareInfo> &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 3, 4 },
         }}),
+        // Signal 'helperMissing'
+        QtMocHelpers::SignalData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -180,11 +195,14 @@ void HardwareMonitor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->hardwareUpdated((*reinterpret_cast< std::add_pointer_t<QMap<QString,HardwareInfo>>>(_a[1]))); break;
+        case 1: _t->helperMissing(); break;
         default: ;
         }
     }
     if (_c == QMetaObject::IndexOfMethod) {
         if (QtMocHelpers::indexOfMethod<void (HardwareMonitor::*)(const QMap<QString,HardwareInfo> & )>(_a, &HardwareMonitor::hardwareUpdated, 0))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (HardwareMonitor::*)()>(_a, &HardwareMonitor::helperMissing, 1))
             return;
     }
 }
@@ -208,14 +226,14 @@ int HardwareMonitor::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 2;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 2)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 1;
+        _id -= 2;
     }
     return _id;
 }
@@ -224,5 +242,11 @@ int HardwareMonitor::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 void HardwareMonitor::hardwareUpdated(const QMap<QString,HardwareInfo> & _t1)
 {
     QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1);
+}
+
+// SIGNAL 1
+void HardwareMonitor::helperMissing()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
 }
 QT_WARNING_POP

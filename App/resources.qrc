@@ -3,5 +3,6 @@
         <file>images/logo.png</file>
         <file>fonts/Audiowide-Regular.ttf</file>
         <file>fonts/Inter-VariableFont_opsz,wght.ttf</file>
+        <file>style.qss</file>
     </qresource>
 </RCC>

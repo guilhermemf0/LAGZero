@@ -11,7 +11,7 @@ struct GameData {
     int id = -1;
     QString executableName;
     QString displayName;
-    QString coverPath; // Caminho para o pôster vertical
+    QString coverPath;
     double allTimeAverageFps = 0.0;
 };
 
@@ -21,14 +21,14 @@ class DatabaseManager : public QObject
 public:
     static DatabaseManager& instance();
 
-    bool addGame(const QString& executableName, const QString& displayName, const QString& coverPath);
+    // ALTERADO: Função mais robusta para adicionar ou atualizar
+    bool addOrUpdateGame(const QString& executableName, const QString& displayName, const QString& coverPath);
     int getGameId(const QString& executableName);
     bool isGameKnown(const QString& executableName);
     GameData getGameData(const QString& executableName);
-    // CORREÇÃO: Nova função para buscar jogos ordenados por data
     QList<GameData> getGamesByMostRecent();
-    bool updateGame(int gameId, const QString& displayName, const QString& coverPath);
-
+    bool updateGameCover(int gameId, const QString& coverPath); // Renomeado para clareza
+    bool removeGame(const QString& executableName);
     bool addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps);
 
 private:

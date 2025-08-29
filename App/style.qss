@@ -1,0 +1,238 @@
+/* NOVO: Folha de estilos externa para facilitar a manutenção e a criação de temas. */
+#centralContainer {
+    background-color: #05070d;
+}
+
+#mainUiContainer, #navPanel, #contentPanel {
+    font-family: 'Inter';
+    background: transparent;
+}
+
+#navPanel {
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+#navPanel QPushButton {
+    background-color: transparent;
+    color: #94a3b8;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 2px 10px;
+}
+
+#navPanel QPushButton:hover {
+    background-color: rgba(0, 133, 255, 0.1);
+    color: #e2e8f0;
+}
+
+#navPanel QPushButton[selected="true"] {
+    color: #ffffff;
+    background-color: #0085ff;
+}
+
+#settingsButton {
+    border-radius: 22px;
+    min-height: 44px;
+    max-height: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#settingsButton:hover {
+    background-color: rgba(0, 133, 255, 0.1);
+}
+
+#settingsButton[selected="true"] {
+    border-color: #00d1ff;
+}
+
+#contentPanel {
+    padding: 10px 25px 25px 25px;
+}
+
+QLabel, QCheckBox, QComboBox {
+    color: #cbd5e1;
+    font-size: 14px;
+    background: transparent;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #334155;
+    border-radius: 5px;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #0085ff;
+    border-color: #0085ff;
+}
+
+QComboBox {
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 5px 10px;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+QComboBox::down-arrow {
+    image: url(none); /* Opcional: remover seta padrão se desejar customizar */
+}
+
+QComboBox QAbstractItemView {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    selection-background-color: #0085ff;
+}
+
+QLineEdit {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 6px;
+    color: #e2e8f0;
+}
+
+QPushButton#saveApiKeyButton {
+    background-color: #0085ff;
+    color: white;
+    font-weight: bold;
+    padding: 8px 18px;
+    border-radius: 16px;
+}
+
+QPushButton#saveApiKeyButton:hover {
+    background-color: #007ae6;
+}
+
+QScrollArea {
+    border: none;
+}
+
+.StatusCard {
+    border: 1px solid;
+    border-radius: 12px;
+    max-height: 50px;
+}
+
+.StatusCard QLabel {
+    font-weight: 500;
+}
+
+#rtssStatusCard {
+    background-color: rgba(211, 47, 47, 0.1);
+    border-color: #d32f2f;
+}
+
+#hardwareStatusCard {
+    background-color: rgba(255, 167, 38, 0.1);
+    border-color: #ffa726;
+}
+
+#downloadRtssButton {
+    background-color: #d32f2f;
+    color: white;
+    font-weight: bold;
+    padding: 8px 18px;
+    border-radius: 16px;
+}
+
+#activeGameCoverLabel {
+    border-radius: 16px;
+    background-color: #1e293b;
+}
+
+#activeGameNameLabel {
+    font-family: 'Audiowide';
+    font-size: 38px;
+    color: #ffffff;
+}
+
+#activeGameInfoLabel {
+    font-size: 18px;
+    color: #94a3b8;
+}
+
+#waitingForGameLabel {
+    font-size: 28px;
+    color: #94a3b8;
+    font-family: 'Audiowide';
+}
+
+.TitleLabel {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.SubtitleLabel {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.MetricCard {
+    background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(15, 23, 42, 0.7), stop:1 rgba(20, 30, 55, 0.7));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.MetricCard .TitleLabel {
+    color: #94a3b8;
+    font-size: 13px;
+    margin: 0;
+}
+
+.MetricCard .ValueLabel {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+#tempNavPanel QPushButton {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    color: #94a3b8;
+    border-radius: 0;
+    margin: 0;
+}
+
+#tempNavPanel QPushButton:hover {
+    color: #e2e8f0;
+}
+
+#tempNavPanel QPushButton[selected="true"] {
+    color: #ffffff;
+    border-bottom-color: #0085ff;
+}
+
+.InfoCard {
+    background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(15, 23, 42, 0.7), stop:1 rgba(20, 30, 55, 0.7));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+.InfoCard .Title {
+    color: #e2e8f0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.InfoCard .Value {
+    font-size: 26px;
+    font-weight: 700;
+}

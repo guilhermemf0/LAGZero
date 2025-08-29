@@ -7,8 +7,6 @@
 #include <QMouseEvent>
 #include <algorithm>
 
-// NOTA: O include <numeric> foi removido pois não era utilizado, corrigindo o aviso de compilação.
-
 PerformanceChartWidget::PerformanceChartWidget(QWidget *parent)
     : QWidget{parent},
     m_tempColor("#FF7043"),
@@ -49,6 +47,15 @@ void PerformanceChartWidget::setLabels(const QString& tempLabel, const QString& 
     m_tempLabel = tempLabel;
     m_fpsLabel = fpsLabel;
 }
+
+// NOVO: Implementação do método para alterar o período do gráfico
+void PerformanceChartWidget::setMaxDataPoints(int points)
+{
+    if (points > 1) {
+        m_maxDataPoints = points;
+    }
+}
+
 
 QList<double> PerformanceChartWidget::getTempData() const { return m_tempData; }
 QList<double> PerformanceChartWidget::getFpsData() const { return m_fpsData; }
@@ -97,7 +104,6 @@ void PerformanceChartWidget::leaveEvent(QEvent *event)
 
 void PerformanceChartWidget::drawBackground(QPainter &painter)
 {
-    // Efeito "Glassmorphism"
     QColor bgColor(16, 18, 26, 220);
     QColor borderColor(255, 255, 255, 15);
     painter.setPen(QPen(borderColor, 1.5));
@@ -111,7 +117,6 @@ void PerformanceChartWidget::drawSingleChart(QPainter &painter, const QRectF& ar
 
     painter.save();
 
-    // Desenha a grade de fundo
     QPen gridPen(QColor(255, 255, 255, 8), 1, Qt::DotLine);
     painter.setPen(gridPen);
     for (int i = 1; i < 4; ++i) {
@@ -119,10 +124,8 @@ void PerformanceChartWidget::drawSingleChart(QPainter &painter, const QRectF& ar
         painter.drawLine(area.left() + 30, y, area.right() - 30, y);
     }
 
-    // Cria o caminho suavizado
     QPainterPath path = createSmoothPath(data, area);
 
-    // Preenchimento com gradiente
     QPainterPath fillPath = path;
     fillPath.lineTo(area.bottomRight());
     fillPath.lineTo(area.bottomLeft());
@@ -134,13 +137,11 @@ void PerformanceChartWidget::drawSingleChart(QPainter &painter, const QRectF& ar
     painter.setPen(Qt::NoPen);
     painter.drawPath(fillPath);
 
-    // Linha principal
     QPen linePen(color, 2.5);
     painter.setPen(linePen);
     painter.setBrush(Qt::NoBrush);
     painter.drawPath(path);
 
-    // Desenha as legendas e valores
     double minValue = *std::min_element(data.begin(), data.end());
     double maxValue = *std::max_element(data.begin(), data.end());
     double currentValue = data.last();
@@ -168,18 +169,15 @@ void PerformanceChartWidget::drawTracker(QPainter &painter)
     QRectF totalArea = rect().adjusted(10, 10, -10, -10);
     if (!totalArea.contains(m_mousePos)) return;
 
-    // Linha vertical do marcador
     painter.setPen(QPen(QColor(255, 255, 255, 50), 1.5, Qt::DashLine));
     painter.drawLine(m_mousePos.x(), totalArea.top(), m_mousePos.x(), totalArea.bottom());
 
-    // Calcula o índice dos dados correspondente à posição do mouse
     int index = static_cast<int>(((m_mousePos.x() - totalArea.left()) / totalArea.width()) * m_tempData.size());
     index = std::clamp(index, 0, static_cast<int>(m_tempData.size() - 1));
 
     double tempValue = m_tempData.at(index);
     double fpsValue = m_fpsData.at(index);
 
-    // Desenha os valores do marcador
     QFont font("Inter", 9, QFont::Bold);
     painter.setFont(font);
     QFontMetrics fm(font);
@@ -201,6 +199,8 @@ void PerformanceChartWidget::drawTracker(QPainter &painter)
 
 QPainterPath PerformanceChartWidget::createSmoothPath(const QList<double>& data, const QRectF& area)
 {
+    if (data.size() < 2) return QPainterPath();
+
     double minValue = *std::min_element(data.begin(), data.end());
     double maxValue = *std::max_element(data.begin(), data.end());
     double range = maxValue - minValue;

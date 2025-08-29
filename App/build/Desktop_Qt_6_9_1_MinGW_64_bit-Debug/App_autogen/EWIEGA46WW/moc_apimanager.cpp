@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'apimanager.h'
 **
-** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.1)
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -19,7 +19,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'apimanager.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 69
-#error "This file was generated using the moc from 6.9.1. It"
+#error "This file was generated using the moc from 6.9.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -47,9 +47,10 @@ template <> constexpr inline auto ApiManager::qt_create_metaobjectdata<qt_meta_t
         "imageDownloaded",
         "localPath",
         "originalUrl",
-        "onSearchReply",
+        "onNameSearchReply",
         "QNetworkReply*",
         "reply",
+        "onGridSearchReply",
         "onImageReply"
     };
 
@@ -62,12 +63,16 @@ template <> constexpr inline auto ApiManager::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SignalData<void(const QString &, const QUrl &)>(5, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 6 }, { QMetaType::QUrl, 7 },
         }}),
-        // Slot 'onSearchReply'
+        // Slot 'onNameSearchReply'
         QtMocHelpers::SlotData<void(QNetworkReply *)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { 0x80000000 | 9, 10 },
         }}),
-        // Slot 'onImageReply'
+        // Slot 'onGridSearchReply'
         QtMocHelpers::SlotData<void(QNetworkReply *)>(11, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 9, 10 },
+        }}),
+        // Slot 'onImageReply'
+        QtMocHelpers::SlotData<void(QNetworkReply *)>(12, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { 0x80000000 | 9, 10 },
         }}),
     };
@@ -95,8 +100,9 @@ void ApiManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->searchFinished((*reinterpret_cast< std::add_pointer_t<ApiGameResult>>(_a[1]))); break;
         case 1: _t->imageDownloaded((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QUrl>>(_a[2]))); break;
-        case 2: _t->onSearchReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
-        case 3: _t->onImageReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
+        case 2: _t->onNameSearchReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
+        case 3: _t->onGridSearchReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
+        case 4: _t->onImageReply((*reinterpret_cast< std::add_pointer_t<QNetworkReply*>>(_a[1]))); break;
         default: ;
         }
     }
@@ -111,6 +117,13 @@ void ApiManager::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
             }
             break;
         case 3:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
+            case 0:
+                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< QNetworkReply* >(); break;
+            }
+            break;
+        case 4:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
             case 0:
@@ -146,14 +159,14 @@ int ApiManager::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 5;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 5;
     }
     return _id;
 }
