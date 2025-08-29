@@ -9,6 +9,45 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QDebug>
+#include <algorithm>
+#include <vector>
+#include <QRegularExpression>
+
+// --- NOVA FUNÇÃO DE LIMPEZA AGRESSIVA ---
+// Esta função prepara os nomes para uma comparação justa.
+QString cleanStringForComparison(QString name) {
+    name = name.toLower();
+
+    // Remove qualquer coisa em parênteses ou após uma barra
+    name = name.split('(').first().trimmed();
+    name = name.split('/').first().trimmed();
+
+    // Remove palavras e símbolos comuns que causam ambiguidade
+    name.remove(QRegularExpression(":|hd remaster|biohazard|®|™|goty|edition|remake"));
+
+    // Remove qualquer caractere que não seja letra, número ou espaço
+    name.remove(QRegularExpression("[^a-z0-9\\s]"));
+
+    // Remove espaços duplicados que possam ter sido criados
+    return name.trimmed().replace(QRegularExpression("\\s+"), " ");
+}
+
+int levenshteinDistance(const QString &s1, const QString &s2) {
+    const int len1 = s1.size(), len2 = s2.size();
+    std::vector<int> col(len2 + 1), prevCol(len2 + 1);
+
+    for (int i = 0; i < prevCol.size(); i++)
+        prevCol[i] = i;
+
+    for (int i = 0; i < len1; i++) {
+        col[0] = i + 1;
+        for (int j = 0; j < len2; j++)
+            col[j + 1] = std::min({ prevCol[j + 1] + 1, col[j] + 1, prevCol[j] + (s1[i] == s2[j] ? 0 : 1) });
+        col.swap(prevCol);
+    }
+    return prevCol[len2];
+}
+
 
 ApiManager::ApiManager(QObject *parent) : QObject(parent)
 {
@@ -44,8 +83,6 @@ void ApiManager::searchById(const QString& executableName, int steamAppId, const
             if (doc.object()["success"].toBool()) {
                 int gameId = doc.object()["data"].toObject()["id"].toInt();
 
-                // --- CORREÇÃO APLICADA AQUI ---
-                // Trocado "posters" por "grids", como você corretamente apontou na documentação.
                 QUrl gridUrl("https://www.steamgriddb.com/api/v2/grids/game/" + QString::number(gameId));
                 QNetworkRequest gridReq(gridUrl);
                 gridReq.setRawHeader("Authorization", ("Bearer " + m_apiKey).toUtf8());
@@ -67,21 +104,22 @@ void ApiManager::searchById(const QString& executableName, int steamAppId, const
 
 void ApiManager::searchByName(const QString& executableName, const QString& gameName)
 {
-    QString searchTerm = gameName;
+    QString searchTerm = gameName.split('/').first().trimmed();
+
     if (searchTerm.isEmpty()) {
         searchTerm = QFileInfo(executableName).baseName();
-        searchTerm.replace('_', ' ');
-        searchTerm.replace('-', ' ');
-        searchTerm = searchTerm.trimmed();
     }
 
-    QUrl url("https://www.steamgriddb.com/api/v2/search/autocomplete/" + searchTerm);
+    QString encodedSearchTerm = QUrl::toPercentEncoding(searchTerm);
+    QUrl url("https://www.steamgriddb.com/api/v2/search/autocomplete/" + encodedSearchTerm);
+
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", ("Bearer " + m_apiKey).toUtf8());
     request.setRawHeader("User-Agent", "LagZeroApp/1.0");
 
     QNetworkReply *reply = m_netManager->get(request);
     reply->setProperty("executableName", executableName);
+    reply->setProperty("originalGameName", gameName);
     connect(reply, &QNetworkReply::finished, this, [this, reply](){
         onNameSearchReply(reply);
     });
@@ -91,16 +129,39 @@ void ApiManager::onNameSearchReply(QNetworkReply *reply)
 {
     ApiGameResult result;
     result.executableName = reply->property("executableName").toString();
+    QString originalGameName = reply->property("originalGameName").toString();
 
     if (reply->error() == QNetworkReply::NoError) {
         QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
         if (doc.object()["success"].toBool() && !doc.object()["data"].toArray().isEmpty()) {
-            QJsonObject game = doc.object()["data"].toArray()[0].toObject();
-            int gameId = game["id"].toInt();
-            result.name = game["name"].toString();
 
-            // --- CORREÇÃO APLICADA AQUI ---
-            // Trocado "posters" por "grids".
+            QJsonArray resultsArray = doc.object()["data"].toArray();
+            QJsonObject bestMatchObject;
+            int lowestDistance = 1000;
+
+            // --- LÓGICA DE COMPARAÇÃO ATUALIZADA ---
+            // 1. Limpamos o nome original da janela para ter uma base de comparação limpa.
+            QString cleanOriginalName = cleanStringForComparison(originalGameName);
+
+            for (const QJsonValue& val : resultsArray) {
+                QJsonObject currentObject = val.toObject();
+                QString currentApiName = currentObject["name"].toString();
+
+                // 2. Limpamos também o nome vindo da API com a MESMA função.
+                QString cleanApiName = cleanStringForComparison(currentApiName);
+
+                // 3. Comparamos as duas strings limpas.
+                int distance = levenshteinDistance(cleanApiName, cleanOriginalName);
+
+                if (distance < lowestDistance) {
+                    lowestDistance = distance;
+                    bestMatchObject = currentObject;
+                }
+            }
+
+            int gameId = bestMatchObject["id"].toInt();
+            result.name = bestMatchObject["name"].toString();
+
             QUrl gridUrl("https://www.steamgriddb.com/api/v2/grids/game/" + QString::number(gameId));
             QNetworkRequest request(gridUrl);
             request.setRawHeader("Authorization", ("Bearer " + m_apiKey).toUtf8());
@@ -136,7 +197,6 @@ void ApiManager::onGridSearchReply(QNetworkReply *reply)
             QJsonArray grids = doc.object()["data"].toArray();
             QString bestUrl = grids[0].toObject()["url"].toString();
 
-            // Lógica para preferir capas em português (se houver)
             for(const QJsonValue &val : grids) {
                 if(val.toObject()["language"].toString() == "pt") {
                     bestUrl = val.toObject()["url"].toString();
@@ -146,7 +206,6 @@ void ApiManager::onGridSearchReply(QNetworkReply *reply)
             result.coverUrl = bestUrl;
         }
     } else {
-        // Log corrigido para clareza
         qWarning() << "API grid search error:" << reply->errorString();
     }
 
