@@ -22,16 +22,17 @@ class DatabaseManager : public QObject
 public:
     static DatabaseManager& instance();
 
-    // ALTERADO: Função mais robusta para adicionar ou atualizar
     bool addOrUpdateGame(const QString& executableName, const QString& displayName, const QString& coverPath);
     int getGameId(const QString& executableName);
     bool isGameKnown(const QString& executableName);
     GameData getGameData(const QString& executableName);
-    QList<GameData> getGamesByMostRecent();
-    bool updateGameCover(int gameId, const QString& coverPath); // Renomeado para clareza
+    QList<GameData> getGamesByMostRecent(int limit = 0); // Adicionado limite opcional
+    QList<GameData> getAllGames(); // Nova função para a biblioteca
+    bool updateGameCover(int gameId, const QString& coverPath);
     bool removeGame(const QString& executableName);
     bool addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps);
     bool setManualGameName(const QString& executableName, const QString& newName);
+    bool clearAllHistory(); // Nova função para limpar o histórico
 
 private:
     explicit DatabaseManager(QObject *parent = nullptr);

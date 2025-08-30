@@ -76,13 +76,14 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "onHelperMissing",
         "onChartDurationChanged",
         "index",
-        "onEditGameRequested",
-        "executableName",
         "onRemoveGameRequested",
+        "executableName",
         "onManualEditRequested",
         "onGridListReady",
         "QList<QJsonObject>",
-        "gridList"
+        "gridList",
+        "onClearHistoryClicked",
+        "onClearReportsClicked"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -140,22 +141,22 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void(int)>(33, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::Int, 34 },
         }}),
-        // Slot 'onEditGameRequested'
+        // Slot 'onRemoveGameRequested'
         QtMocHelpers::SlotData<void(const QString &)>(35, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 36 },
         }}),
-        // Slot 'onRemoveGameRequested'
+        // Slot 'onManualEditRequested'
         QtMocHelpers::SlotData<void(const QString &)>(37, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::QString, 36 },
         }}),
-        // Slot 'onManualEditRequested'
-        QtMocHelpers::SlotData<void(const QString &)>(38, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 36 },
-        }}),
         // Slot 'onGridListReady'
-        QtMocHelpers::SlotData<void(const QString &, const QList<QJsonObject> &)>(39, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 36 }, { 0x80000000 | 40, 41 },
+        QtMocHelpers::SlotData<void(const QString &, const QList<QJsonObject> &)>(38, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 36 }, { 0x80000000 | 39, 40 },
         }}),
+        // Slot 'onClearHistoryClicked'
+        QtMocHelpers::SlotData<void()>(41, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'onClearReportsClicked'
+        QtMocHelpers::SlotData<void()>(42, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -196,17 +197,18 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 14: _t->updateSessionInfo(); break;
         case 15: _t->onHelperMissing(); break;
         case 16: _t->onChartDurationChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 17: _t->onEditGameRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 18: _t->onRemoveGameRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 19: _t->onManualEditRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 20: _t->onGridListReady((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QList<QJsonObject>>>(_a[2]))); break;
+        case 17: _t->onRemoveGameRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 18: _t->onManualEditRequested((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 19: _t->onGridListReady((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QList<QJsonObject>>>(_a[2]))); break;
+        case 20: _t->onClearHistoryClicked(); break;
+        case 21: _t->onClearReportsClicked(); break;
         default: ;
         }
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
         default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
-        case 20:
+        case 19:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
             case 1:
@@ -236,14 +238,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 21)
+        if (_id < 22)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 21;
+        _id -= 22;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 21)
+        if (_id < 22)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 21;
+        _id -= 22;
     }
     return _id;
 }

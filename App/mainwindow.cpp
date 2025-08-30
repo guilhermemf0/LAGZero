@@ -31,11 +31,11 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+// ... (funções auxiliares cleanEmulatorWindowTitle, findEpicGameDisplayName, getTempColor permanecem as mesmas) ...
 QString cleanEmulatorWindowTitle(QString windowTitle) {
     if (windowTitle.contains('|')) {
         windowTitle = windowTitle.section('|', 1).trimmed();
     }
-
     return windowTitle;
 }
 
@@ -75,6 +75,7 @@ static QString getTempColor(double temp, const QString& type)
     if (temp < 50) return "#81C784"; if (temp < 60) return "#FFD54F"; return "#D32F2F";
 }
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -90,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupConnections();
 
     populateRecentGames();
+    populateLibrary(); // Carrega a biblioteca na inicialização
     setActiveGameView(false);
     m_navButtons.first()->click();
 
@@ -138,7 +140,8 @@ void MainWindow::setupUi()
     navPanel->setFixedWidth(220);
     auto* navLayout = new QVBoxLayout(navPanel);
     navLayout->setContentsMargins(0, 15, 0, 15); navLayout->setSpacing(5);
-    m_navButtons << new QPushButton(" Visão Geral") << new QPushButton(" Temperaturas");
+    // Adicionado botão "Biblioteca"
+    m_navButtons << new QPushButton(" Visão Geral") << new QPushButton(" Biblioteca") << new QPushButton(" Temperaturas");
     for(auto btn : m_navButtons) navLayout->addWidget(btn);
     navLayout->addStretch();
     m_settingsButton = new QPushButton(); m_settingsButton->setObjectName("settingsButton");
@@ -153,6 +156,7 @@ void MainWindow::setupUi()
     mainLayout->addWidget(contentPanel, 1);
 
     setupOverviewPage();
+    setupLibraryPage(); // Chama a criação da nova página
     setupTempPage();
     setupSettingsPage();
 }
@@ -235,13 +239,13 @@ void MainWindow::setupOverviewPage() {
     m_waitingForGameLabel->setObjectName("waitingForGameLabel");
     m_waitingForGameLabel->setAlignment(Qt::AlignCenter);
 
-    auto* recentTitle = new QLabel("Jogos Recentes"); recentTitle->setProperty("class", "TitleLabel");
+    auto* recentTitle = new QLabel("Jogados Recentemente"); recentTitle->setProperty("class", "TitleLabel");
     m_recentGamesScrollArea = new QScrollArea();
     m_recentGamesScrollArea->setWidgetResizable(true);
-    m_recentGamesScrollArea->setFixedHeight(240);
+    m_recentGamesScrollArea->setFixedHeight(320); // Aumenta a altura da vitrine
     m_recentGamesContainer = new QWidget();
     m_recentGamesLayout = new QHBoxLayout(m_recentGamesContainer);
-    m_recentGamesLayout->setSpacing(15); m_recentGamesLayout->addStretch();
+    m_recentGamesLayout->setSpacing(20);
     m_recentGamesScrollArea->setWidget(m_recentGamesContainer);
 
     layout->addWidget(m_activeGameWidget);
@@ -251,6 +255,32 @@ void MainWindow::setupOverviewPage() {
     layout->addWidget(m_recentGamesScrollArea);
     m_mainStackedWidget->addWidget(page);
 }
+
+// NOVA FUNÇÃO
+void MainWindow::setupLibraryPage()
+{
+    auto* page = new QWidget();
+    auto* layout = new QVBoxLayout(page);
+    layout->setSpacing(15);
+
+    auto* title = new QLabel("Biblioteca de Jogos");
+    title->setProperty("class", "TitleLabel");
+    layout->addWidget(title);
+
+    m_libraryScrollArea = new QScrollArea();
+    m_libraryScrollArea->setWidgetResizable(true);
+
+    m_libraryContainer = new QWidget();
+    m_libraryLayout = new QGridLayout(m_libraryContainer);
+    m_libraryLayout->setSpacing(25); // Aumenta o espaçamento
+    m_libraryLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+    m_libraryScrollArea->setWidget(m_libraryContainer);
+    layout->addWidget(m_libraryScrollArea);
+
+    m_mainStackedWidget->addWidget(page);
+}
+
 
 void MainWindow::setupTempPage() {
     auto* page = new QWidget();
@@ -314,7 +344,7 @@ void MainWindow::setupSettingsPage() {
     chartLayout->addWidget(m_chartDurationComboBox);
     layout->addLayout(chartLayout);
 
-    auto* reportsTitle = new QLabel("Relatórios"); reportsTitle->setProperty("class", "SubtitleLabel");
+    auto* reportsTitle = new QLabel("Relatórios e Dados"); reportsTitle->setProperty("class", "SubtitleLabel");
     layout->addWidget(reportsTitle);
     m_saveReportsCheckBox = new QCheckBox("Salvar relatórios de performance da sessão");
     layout->addWidget(m_saveReportsCheckBox);
@@ -333,12 +363,29 @@ void MainWindow::setupSettingsPage() {
     connect(reportsBtn, &QPushButton::clicked, this, &MainWindow::openReportsFolder);
     layout->addWidget(reportsBtn, 0, Qt::AlignLeft);
 
+    // Novos botões de limpeza
+    auto* dangerZoneTitle = new QLabel("Zona de Perigo"); dangerZoneTitle->setProperty("class", "SubtitleLabel");
+    dangerZoneTitle->setStyleSheet("color: #f87171;"); // Cor vermelha
+    layout->addWidget(dangerZoneTitle);
+
+    auto* clearHistoryBtn = new QPushButton("Limpar Histórico de Jogos");
+    clearHistoryBtn->setProperty("class", "dangerButton");
+    connect(clearHistoryBtn, &QPushButton::clicked, this, &MainWindow::onClearHistoryClicked);
+    layout->addWidget(clearHistoryBtn, 0, Qt::AlignLeft);
+
+    auto* clearReportsBtn = new QPushButton("Limpar Todos os Relatórios");
+    clearReportsBtn->setProperty("class", "dangerButton");
+    connect(clearReportsBtn, &QPushButton::clicked, this, &MainWindow::onClearReportsClicked);
+    layout->addWidget(clearReportsBtn, 0, Qt::AlignLeft);
+
+
     layout->addStretch();
     m_mainStackedWidget->addWidget(page);
 }
 
 void MainWindow::onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId)
 {
+    // ... (lógica existente)
     qDebug() << "[SESSION START] Executable:" << exeName << "| PID:" << processId << "| Window Title:" << windowTitle;
 
     QString searchName;
@@ -366,7 +413,7 @@ void MainWindow::onGameSessionStarted(const QString& exeName, const QString& win
     m_currentSession.processId = processId;
     m_currentSession.exeName = exeName;
 
-     GameData existingData = DatabaseManager::instance().getGameData(exeName);
+    GameData existingData = DatabaseManager::instance().getGameData(exeName);
 
     if (existingData.id != -1 && !existingData.displayName.isEmpty() && !existingData.coverPath.isEmpty()) {
         m_currentSession.displayName = existingData.displayName;
@@ -387,130 +434,6 @@ void MainWindow::onGameSessionStarted(const QString& exeName, const QString& win
     m_currentSession.timer.start();
 }
 
-void MainWindow::onApiSearchFinished(const ApiGameResult& result)
-{
-    qDebug() << "[API FINISHED] Para o executável:" << result.executableName;
-    if (result.executableName != m_currentSession.exeName) {
-        qDebug() << "[API FINISHED] Resultado é de uma sessão antiga. Ignorando.";
-        return;
-    }
-
-    QString finalDisplayName = result.name.isEmpty() ? m_currentSession.displayName : result.name;
-    qDebug() << "[API FINISHED] Nome final determinado:" << finalDisplayName;
-
-    m_activeGameNameLabel->setText(finalDisplayName);
-    m_currentSession.displayName = finalDisplayName;
-
-    if (result.success) {
-        qDebug() << "[API FINISHED] Busca bem-sucedida. URL da capa:" << result.coverUrl;
-        QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
-        if (!QDir(coverDir).exists()) QDir().mkpath(coverDir);
-
-        // --- MUDANÇA FINAL PARA NOMES DE ARQUIVO ÚNICOS ---
-        // Criamos um hash MD5 do caminho completo do executável.
-        // Isso gera um nome de arquivo curto e 100% único para cada jogo,
-        // resolvendo todas as colisões de uma vez por todas.
-        QByteArray exePathBytes = result.executableName.toUtf8();
-        QString uniqueId = QCryptographicHash::hash(exePathBytes, QCryptographicHash::Md5).toHex();
-
-        QString coverFileName = uniqueId + ".png";
-        QString coverPath = coverDir + "/" + coverFileName;
-
-        qDebug() << "[DEBUG] Executável:" << result.executableName << "-> ID Único:" << uniqueId;
-
-        DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
-        m_apiManager->downloadImage(QUrl(result.coverUrl), coverPath);
-    } else {
-        qDebug() << "[API FINISHED] Busca falhou. Salvando jogo com o melhor nome que temos, mas sem capa.";
-        DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
-    }
-}
-
-void MainWindow::onImageDownloaded(const QString& localPath, const QUrl&)
-{
-    qDebug() << "[IMAGE DOWNLOADED] Caminho:" << localPath;
-
-    if (m_coverChangeTargetExe.isEmpty()) {
-        return;
-    }
-
-    QString coverFileId = QFileInfo(localPath).baseName();
-
-    QByteArray targetExePathBytes = m_coverChangeTargetExe.toUtf8();
-    QString targetId = QCryptographicHash::hash(targetExePathBytes, QCryptographicHash::Md5).toHex();
-
-    if (coverFileId != targetId) {
-        qDebug() << "[IMAGE DOWNLOADED] Imagem não corresponde ao alvo. Ignorando.";
-        return;
-    }
-
-    int gameId = DatabaseManager::instance().getGameId(m_coverChangeTargetExe);
-    if (gameId != -1) {
-        qDebug() << "[IMAGE DOWNLOADED] Atualizando caminho da capa no DB para o jogo alvo.";
-        DatabaseManager::instance().updateGameCover(gameId, localPath);
-
-        if (m_currentSession.exeName == m_coverChangeTargetExe) {
-            m_currentSession.coverPath = localPath;
-            m_activeGameCoverLabel->setPixmap(QPixmap(localPath));
-        }
-    }
-    populateRecentGames();
-
-    m_coverChangeTargetExe.clear();
-}
-
-void MainWindow::onEditGameRequested(const QString& executableName)
-{
-    GameData gameData = DatabaseManager::instance().getGameData(executableName);
-    if (gameData.id == -1) return;
-
-    bool ok;
-    QString newName = QInputDialog::getText(this, "Editar Jogo", "Nome de Exibição:", QLineEdit::Normal, gameData.displayName, &ok);
-
-    if (ok && !newName.isEmpty()) {
-        QString newCoverPath = QFileDialog::getOpenFileName(this, "Selecionar Nova Capa", "", "Imagens (*.png *.jpg *.jpeg)");
-
-        if (!newCoverPath.isEmpty()) {
-            DatabaseManager::instance().addOrUpdateGame(gameData.executableName, newName, newCoverPath);
-        } else {
-            DatabaseManager::instance().addOrUpdateGame(gameData.executableName, newName, gameData.coverPath);
-        }
-        populateRecentGames();
-    }
-}
-
-void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
-{
-    for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
-        m_currentSession.lastTemps[it.key()] = it.value().temperature;
-
-        if (m_tempInfoCards.contains(it.key())) {
-            auto* card = m_tempInfoCards.value(it.key());
-            auto* valueLabel = card->findChild<QLabel*>("Value");
-            auto* titleLabel = card->findChild<QLabel*>("Title");
-            if (valueLabel && it.value().temperature >= 0) {
-                valueLabel->setText(QString::number(it.value().temperature, 'f', 1) + " °C");
-                valueLabel->setStyleSheet("color: " + getTempColor(it.value().temperature, it.key()));
-            }
-            if (titleLabel && !it.value().name.isEmpty() && it.value().name != "N/D") {
-                titleLabel->setText(it.value().name);
-            }
-        } else if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
-            if (!m_tempInfoCards.contains(it.key())) {
-                m_storagePageLayout->addWidget(createInfoCard(it.key(), AppConfig::ICON_STORAGE_SVG, it.value().name));
-            }
-        }
-    }
-
-    if (m_currentSession.processId != 0) {
-        for (auto it = m_charts.constBegin(); it != m_charts.constEnd(); ++it) {
-            if (m_currentSession.lastTemps.contains(it.key())) {
-                it.value()->addDataPoint(m_currentSession.lastTemps.value(it.key()), m_currentSession.lastFps);
-            }
-        }
-    }
-}
-
 void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double averageFps)
 {
     setActiveGameView(false);
@@ -521,95 +444,98 @@ void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double ave
     if (gameId != -1) {
         DatabaseManager::instance().addGameSession(gameId, 0, QDateTime::currentSecsSinceEpoch(), averageFps);
         populateRecentGames();
+        populateLibrary(); // Atualiza a biblioteca também
     }
     m_currentSession = CurrentSession();
 }
 
-void MainWindow::onActiveGameFpsUpdate(uint32_t processId, int currentFps)
+void MainWindow::onApiSearchFinished(const ApiGameResult& result)
 {
-    if (m_currentSession.processId != processId) return;
-    m_currentSession.lastFps = currentFps;
-}
+    qDebug() << "[API FINISHED] Para o executável:" << result.executableName;
 
-void MainWindow::updateSessionInfo()
-{
-    if (m_currentSession.processId == 0) return;
-    qint64 elapsed = m_currentSession.timer.elapsed() / 1000;
-    QString timeString = QString("%1:%2:%3")
-                             .arg(elapsed / 3600, 2, 10, QChar('0'))
-                             .arg((elapsed % 3600) / 60, 2, 10, QChar('0'))
-                             .arg(elapsed % 60, 2, 10, QChar('0'));
+    // Verifica se o resultado corresponde à sessão ativa ou a uma troca de capa manual
+    bool isForCurrentSession = (m_currentSession.exeName == result.executableName);
+    bool isForCoverChange = (m_coverChangeTargetExe == result.executableName);
 
-    m_activeGameInfoLabel->setText(QString("<b>%1</b> FPS  |  %2").arg(m_currentSession.lastFps).arg(timeString));
+    if (!isForCurrentSession && !isForCoverChange) {
+        qDebug() << "[API FINISHED] Resultado não corresponde a nenhuma operação ativa. Ignorando.";
+        return;
+    }
 
-    auto updateMetric = [&](const QString& key, const QList<double>& data, const QString& colorKey = "") {
-        if (m_sessionMetricValues.contains(key) && !data.isEmpty()) {
-            double value = 0;
-            if (key.startsWith("AVG")) value = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
-            else if (key.startsWith("MAX")) value = *std::max_element(data.begin(), data.end());
+    // Usa o nome da API se ele foi encontrado, senão mantém o nome que já tínhamos
+    QString finalDisplayName = result.name.isEmpty() ?
+                                   (isForCurrentSession ? m_currentSession.displayName : DatabaseManager::instance().getGameData(result.executableName).displayName)
+                                                     : result.name;
 
-            m_sessionMetricValues[key]->setText(QString::number(value, 'f', 0));
-            if (!colorKey.isEmpty()) {
-                m_sessionMetricValues[key]->setStyleSheet("color: " + getTempColor(value, colorKey));
-            }
+    qDebug() << "[API FINISHED] Nome final determinado:" << finalDisplayName;
+
+    // Atualiza a UI da sessão ativa se for o caso
+    if (isForCurrentSession) {
+        m_activeGameNameLabel->setText(finalDisplayName);
+        m_currentSession.displayName = finalDisplayName;
+    }
+
+    if (result.success) {
+        qDebug() << "[API FINISHED] Busca bem-sucedida. URL da capa:" << result.coverUrl;
+        QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
+        if (!QDir(coverDir).exists()) QDir().mkpath(coverDir);
+
+        QByteArray exePathBytes = result.executableName.toUtf8();
+        QString uniqueId = QCryptographicHash::hash(exePathBytes, QCryptographicHash::Md5).toHex();
+        QString coverPath = coverDir + "/" + uniqueId + ".png";
+
+        // Sempre atualiza o DB com o nome mais recente, mas espera a imagem baixar para salvar o caminho
+        DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
+        m_apiManager->downloadImage(QUrl(result.coverUrl), coverPath);
+    } else {
+        qDebug() << "[API FINISHED] Busca falhou. Salvando jogo com o melhor nome que temos, mas sem capa.";
+        DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
+        // Se a busca falhou, limpamos o alvo para não ficar "preso" esperando uma imagem que nunca virá
+        if (isForCoverChange) {
+            m_coverChangeTargetExe.clear();
         }
-    };
-
-    if (m_charts.contains(AppConfig::CPU_KEY)) {
-        updateMetric("AVG_FPS", m_charts.value(AppConfig::CPU_KEY)->getFpsData());
-        updateMetric("MAX_CPU", m_charts.value(AppConfig::CPU_KEY)->getTempData(), AppConfig::CPU_KEY);
-    }
-    if (m_charts.contains(AppConfig::GPU_KEY)) {
-        updateMetric("MAX_GPU", m_charts.value(AppConfig::GPU_KEY)->getTempData(), AppConfig::GPU_KEY);
     }
 }
 
-void MainWindow::openReportsFolder()
+
+void MainWindow::onImageDownloaded(const QString& localPath, const QUrl&)
 {
-    QString reportsPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/reports";
-    QDir dir(reportsPath);
-    if (!dir.exists()) dir.mkpath(".");
-    QDesktopServices::openUrl(QUrl::fromLocalFile(reportsPath));
+    qDebug() << "[IMAGE DOWNLOADED] Caminho:" << localPath;
+
+    // CORREÇÃO: Usa a variável alvo (m_coverChangeTargetExe) como prioridade para identificar o jogo.
+    // Se ela estiver vazia, usa a da sessão atual.
+    QString targetExe = m_coverChangeTargetExe.isEmpty() ? m_currentSession.exeName : m_coverChangeTargetExe;
+
+    if (targetExe.isEmpty()) {
+        return;
+    }
+
+    QString coverFileId = QFileInfo(localPath).baseName();
+    QByteArray targetExePathBytes = targetExe.toUtf8();
+    QString targetId = QCryptographicHash::hash(targetExePathBytes, QCryptographicHash::Md5).toHex();
+
+    if (coverFileId != targetId) {
+        qDebug() << "[IMAGE DOWNLOADED] Imagem não corresponde ao alvo. Ignorando.";
+        return;
+    }
+
+    int gameId = DatabaseManager::instance().getGameId(targetExe);
+    if (gameId != -1) {
+        DatabaseManager::instance().updateGameCover(gameId, localPath);
+        if (m_currentSession.exeName == targetExe) {
+            m_currentSession.coverPath = localPath;
+            m_activeGameCoverLabel->setPixmap(QPixmap(localPath));
+        }
+    }
+
+    populateRecentGames();
+    populateLibrary();
+
+    if (!m_coverChangeTargetExe.isEmpty()) {
+        m_coverChangeTargetExe.clear();
+    }
 }
 
-QWidget* MainWindow::createInfoCard(const QString& key, const QString& iconSvg, const QString& title) {
-    auto* card = new QWidget();
-    card->setProperty("class", "InfoCard");
-    card->setFixedHeight(100);
-    auto* layout = new QHBoxLayout(card);
-    auto* icon = new QLabel();
-    icon->setFixedSize(32, 32);
-    QSvgRenderer renderer; renderer.load(iconSvg.toUtf8());
-    QPixmap pixmap(icon->size()); pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap); renderer.render(&painter);
-    icon->setPixmap(pixmap);
-
-    auto* textLayout = new QVBoxLayout();
-    auto* titleLabel = new QLabel(title); titleLabel->setProperty("class", "Title");
-    titleLabel->setObjectName("Title");
-    auto* valueLabel = new QLabel("N/D"); valueLabel->setProperty("class", "Value");
-    valueLabel->setObjectName("Value");
-    textLayout->addWidget(titleLabel);
-    textLayout->addWidget(valueLabel);
-
-    layout->addWidget(icon);
-    layout->addLayout(textLayout);
-    m_tempInfoCards[key] = card;
-    return card;
-}
-
-QWidget* MainWindow::createMetricCard(const QString& title, const QString& key) {
-    auto* card = new QWidget();
-    card->setProperty("class", "MetricCard");
-    auto* layout = new QVBoxLayout(card);
-    layout->setSpacing(2);
-    auto* titleLabel = new QLabel(title); titleLabel->setProperty("class", "TitleLabel");
-    auto* valueLabel = new QLabel("---"); valueLabel->setProperty("class", "ValueLabel");
-    m_sessionMetricValues[key] = valueLabel;
-    layout->addWidget(titleLabel);
-    layout->addWidget(valueLabel);
-    return card;
-}
 
 void MainWindow::populateRecentGames() {
     QLayoutItem* item;
@@ -617,16 +543,46 @@ void MainWindow::populateRecentGames() {
         if (item->widget()) delete item->widget();
         delete item;
     }
-    QList<GameData> recentGames = DatabaseManager::instance().getGamesByMostRecent();
+    // Pega apenas os 10 mais recentes
+    QList<GameData> recentGames = DatabaseManager::instance().getGamesByMostRecent(10);
     for (const auto& gameData : recentGames) {
         QPixmap cover(gameData.coverPath);
         auto* coverWidget = new GameCoverWidget(gameData.displayName, gameData.executableName, cover);
         connect(coverWidget, &GameCoverWidget::editGameRequested, this, &MainWindow::onManualEditRequested);
         connect(coverWidget, &GameCoverWidget::removeGameRequested, this, &MainWindow::onRemoveGameRequested);
         connect(coverWidget, &GameCoverWidget::changeCoverRequested, this, &MainWindow::triggerCoverChange);
-        m_recentGamesLayout->insertWidget(m_recentGamesLayout->count() - 1, coverWidget);
+        m_recentGamesLayout->addWidget(coverWidget);
     }
     m_recentGamesLayout->addStretch();
+}
+
+// NOVA FUNÇÃO
+void MainWindow::populateLibrary()
+{
+    QLayoutItem* item;
+    while ((item = m_libraryLayout->takeAt(0)) != nullptr) {
+        if (item->widget()) delete item->widget();
+        delete item;
+    }
+
+    QList<GameData> allGames = DatabaseManager::instance().getAllGames();
+    int row = 0, col = 0;
+    const int maxCols = 4; // Ajustado para 4 colunas para capas maiores
+
+    for (const auto& gameData : allGames) {
+        QPixmap cover(gameData.coverPath);
+        auto* coverWidget = new GameCoverWidget(gameData.displayName, gameData.executableName, cover);
+        connect(coverWidget, &GameCoverWidget::editGameRequested, this, &MainWindow::onManualEditRequested);
+        connect(coverWidget, &GameCoverWidget::removeGameRequested, this, &MainWindow::onRemoveGameRequested);
+        connect(coverWidget, &GameCoverWidget::changeCoverRequested, this, &MainWindow::triggerCoverChange);
+        m_libraryLayout->addWidget(coverWidget, row, col);
+
+        col++;
+        if (col >= maxCols) {
+            col = 0;
+            row++;
+        }
+    }
 }
 
 void MainWindow::triggerCoverChange(const QString& executableName)
@@ -634,7 +590,6 @@ void MainWindow::triggerCoverChange(const QString& executableName)
     m_coverChangeTargetExe = executableName;
     GameData gameData = DatabaseManager::instance().getGameData(executableName);
     if (gameData.id == -1) return;
-
     m_apiManager->findGameInfo(executableName, gameData.displayName);
 }
 
@@ -643,7 +598,6 @@ void MainWindow::onGridListReady(const QString& executableName, const QList<QJso
     if (m_coverChangeTargetExe != executableName) {
         return;
     }
-
     CoverSelectionDialog dialog(gridList, this);
     if (dialog.exec() == QDialog::Accepted) {
         QString selectedUrl = dialog.getSelectedUrl();
@@ -652,12 +606,55 @@ void MainWindow::onGridListReady(const QString& executableName, const QList<QJso
             QByteArray exePathBytes = executableName.toUtf8();
             QString uniqueId = QCryptographicHash::hash(exePathBytes, QCryptographicHash::Md5).toHex();
             QString coverPath = coverDir + "/" + uniqueId + ".png";
-
             m_apiManager->downloadImage(QUrl(selectedUrl), coverPath);
+        }
+    } else {
+        m_coverChangeTargetExe.clear();
+    }
+}
+
+// NOVA FUNÇÃO
+void MainWindow::onClearHistoryClicked()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Limpar Histórico",
+                                  "Você tem certeza que deseja apagar TODOS os jogos e sessões do seu histórico? Esta ação não pode ser desfeita.",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        if (DatabaseManager::instance().clearAllHistory()) {
+            // Limpa as pastas de capas também
+            QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
+            QDir(coverDir).removeRecursively();
+            // Atualiza as interfaces
+            populateRecentGames();
+            populateLibrary();
+            QMessageBox::information(this, "Sucesso", "Seu histórico de jogos foi limpo.");
+        } else {
+            QMessageBox::critical(this, "Erro", "Ocorreu um erro ao tentar limpar o histórico do banco de dados.");
         }
     }
 }
 
+// NOVA FUNÇÃO
+void MainWindow::onClearReportsClicked()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Limpar Relatórios",
+                                  "Você tem certeza que deseja apagar TODOS os arquivos de relatório salvos?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        QString reportsPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/reports";
+        QDir reportsDir(reportsPath);
+        if (reportsDir.removeRecursively()) {
+            QMessageBox::information(this, "Sucesso", "Todos os relatórios foram apagados.");
+        } else {
+            QMessageBox::critical(this, "Erro", "Não foi possível apagar a pasta de relatórios.");
+        }
+    }
+}
+
+
+// ... (resto do mainwindow.cpp: setActiveGameView, onNavigationButtonClicked, etc., permanecem praticamente os mesmos, com pequenas adaptações para a nova aba) ...
 void MainWindow::setActiveGameView(bool active) {
     m_activeGameWidget->setVisible(active);
     m_waitingForGameLabel->setVisible(!active);
@@ -693,12 +690,11 @@ void MainWindow::updateButtonStyles(QPushButton *activeButton, QList<QPushButton
 }
 void MainWindow::updateSettingsButtonIcon(bool selected) {
     QString color = selected ? "#00d1ff" : "#94a3b8";
-    QString svg = QString(R"(<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>)").arg(color);
+    QString svg = QString(R"(<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>)").arg(color);
     QSvgRenderer renderer; renderer.load(svg.toUtf8());
-    QPixmap pixmap(m_settingsButton->size()); pixmap.fill(Qt::transparent);
+    QPixmap pixmap(m_settingsButton->iconSize()); pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap); renderer.render(&painter);
     m_settingsButton->setIcon(QIcon(pixmap));
-    m_settingsButton->setIconSize(QSize(20,20));
 }
 void MainWindow::onParticlesEnabledChanged(int state) {
     bool enabled = (static_cast<Qt::CheckState>(state) == Qt::Checked);
@@ -830,6 +826,7 @@ void MainWindow::onRemoveGameRequested(const QString& executableName)
                 QFile::remove(gameData.coverPath);
             }
             populateRecentGames();
+            populateLibrary();
         } else {
             QMessageBox::critical(this, "Erro", "Não foi possível remover o jogo do banco de dados.");
         }
@@ -848,14 +845,130 @@ void MainWindow::onManualEditRequested(const QString& executableName)
 
     if (ok && !newName.isEmpty()) {
         if (DatabaseManager::instance().setManualGameName(executableName, newName)) {
-            // Sucesso! Limpamos a lista de jogos recentes e a populamos novamente
-            // para forçar a atualização da UI e uma nova busca de capa.
             populateRecentGames();
-
-            // Se o jogo que editamos é o que está ativo, reinicia a busca
+            populateLibrary();
             if (m_currentSession.exeName == executableName) {
                 m_apiManager->findGameInfo(executableName, newName);
             }
         }
     }
+}
+
+// ... (onHardwareUpdated, updateSessionInfo, openReportsFolder, createInfoCard, createMetricCard) ...
+void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
+{
+    for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
+        m_currentSession.lastTemps[it.key()] = it.value().temperature;
+
+        if (m_tempInfoCards.contains(it.key())) {
+            auto* card = m_tempInfoCards.value(it.key());
+            auto* valueLabel = card->findChild<QLabel*>("Value");
+            auto* titleLabel = card->findChild<QLabel*>("Title");
+            if (valueLabel && it.value().temperature >= 0) {
+                valueLabel->setText(QString::number(it.value().temperature, 'f', 1) + " °C");
+                valueLabel->setStyleSheet("color: " + getTempColor(it.value().temperature, it.key()));
+            }
+            if (titleLabel && !it.value().name.isEmpty() && it.value().name != "N/D") {
+                titleLabel->setText(it.value().name);
+            }
+        } else if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
+            if (!m_tempInfoCards.contains(it.key())) {
+                m_storagePageLayout->addWidget(createInfoCard(it.key(), AppConfig::ICON_STORAGE_SVG, it.value().name));
+            }
+        }
+    }
+
+    if (m_currentSession.processId != 0) {
+        for (auto it = m_charts.constBegin(); it != m_charts.constEnd(); ++it) {
+            if (m_currentSession.lastTemps.contains(it.key())) {
+                it.value()->addDataPoint(m_currentSession.lastTemps.value(it.key()), m_currentSession.lastFps);
+            }
+        }
+    }
+}
+
+void MainWindow::updateSessionInfo()
+{
+    if (m_currentSession.processId == 0) return;
+    qint64 elapsed = m_currentSession.timer.elapsed() / 1000;
+    QString timeString = QString("%1:%2:%3")
+                             .arg(elapsed / 3600, 2, 10, QChar('0'))
+                             .arg((elapsed % 3600) / 60, 2, 10, QChar('0'))
+                             .arg(elapsed % 60, 2, 10, QChar('0'));
+
+    m_activeGameInfoLabel->setText(QString("<b>%1</b> FPS  |  %2").arg(m_currentSession.lastFps).arg(timeString));
+
+    auto updateMetric = [&](const QString& key, const QList<double>& data, const QString& colorKey = "") {
+        if (m_sessionMetricValues.contains(key) && !data.isEmpty()) {
+            double value = 0;
+            if (key.startsWith("AVG")) value = std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+            else if (key.startsWith("MAX")) value = *std::max_element(data.begin(), data.end());
+
+            m_sessionMetricValues[key]->setText(QString::number(value, 'f', 0));
+            if (!colorKey.isEmpty()) {
+                m_sessionMetricValues[key]->setStyleSheet("color: " + getTempColor(value, colorKey));
+            }
+        }
+    };
+
+    if (m_charts.contains(AppConfig::CPU_KEY)) {
+        updateMetric("AVG_FPS", m_charts.value(AppConfig::CPU_KEY)->getFpsData());
+        updateMetric("MAX_CPU", m_charts.value(AppConfig::CPU_KEY)->getTempData(), AppConfig::CPU_KEY);
+    }
+    if (m_charts.contains(AppConfig::GPU_KEY)) {
+        updateMetric("MAX_GPU", m_charts.value(AppConfig::GPU_KEY)->getTempData(), AppConfig::GPU_KEY);
+    }
+}
+
+void MainWindow::openReportsFolder()
+{
+    QString reportsPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/reports";
+    QDir dir(reportsPath);
+    if (!dir.exists()) dir.mkpath(".");
+    QDesktopServices::openUrl(QUrl::fromLocalFile(reportsPath));
+}
+
+QWidget* MainWindow::createInfoCard(const QString& key, const QString& iconSvg, const QString& title) {
+    auto* card = new QWidget();
+    card->setProperty("class", "InfoCard");
+    card->setFixedHeight(100);
+    auto* layout = new QHBoxLayout(card);
+    auto* icon = new QLabel();
+    icon->setFixedSize(32, 32);
+    QSvgRenderer renderer; renderer.load(iconSvg.toUtf8());
+    QPixmap pixmap(icon->size()); pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap); renderer.render(&painter);
+    icon->setPixmap(pixmap);
+
+    auto* textLayout = new QVBoxLayout();
+    auto* titleLabel = new QLabel(title); titleLabel->setProperty("class", "Title");
+    titleLabel->setObjectName("Title");
+    auto* valueLabel = new QLabel("N/D"); valueLabel->setProperty("class", "Value");
+    valueLabel->setObjectName("Value");
+    textLayout->addWidget(titleLabel);
+    textLayout->addWidget(valueLabel);
+
+    layout->addWidget(icon);
+    layout->addLayout(textLayout);
+    m_tempInfoCards[key] = card;
+    return card;
+}
+
+QWidget* MainWindow::createMetricCard(const QString& title, const QString& key) {
+    auto* card = new QWidget();
+    card->setProperty("class", "MetricCard");
+    auto* layout = new QVBoxLayout(card);
+    layout->setSpacing(2);
+    auto* titleLabel = new QLabel(title); titleLabel->setProperty("class", "TitleLabel");
+    auto* valueLabel = new QLabel("---"); valueLabel->setProperty("class", "ValueLabel");
+    m_sessionMetricValues[key] = valueLabel;
+    layout->addWidget(titleLabel);
+    layout->addWidget(valueLabel);
+    return card;
+}
+
+void MainWindow::onActiveGameFpsUpdate(uint32_t processId, int currentFps)
+{
+    if (m_currentSession.processId != processId) return;
+    m_currentSession.lastFps = currentFps;
 }

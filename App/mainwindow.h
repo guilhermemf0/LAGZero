@@ -23,9 +23,10 @@
 #include "particleswidget.h"
 #include "apimanager.h"
 #include "performancechartwidget.h"
+#include "gamecoverwidget.h" // Incluindo o header corrigido
 
 class FpsMonitor;
-class GameCoverWidget;
+// class GameCoverWidget; // Não é mais necessário porque foi incluído acima
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -67,10 +68,12 @@ private slots:
     void updateSessionInfo();
     void onHelperMissing();
     void onChartDurationChanged(int index);
-    void onEditGameRequested(const QString& executableName);
     void onRemoveGameRequested(const QString& executableName);
     void onManualEditRequested(const QString& executableName);
     void onGridListReady(const QString& executableName, const QList<QJsonObject>& gridList);
+    void onClearHistoryClicked();
+    void onClearReportsClicked();
+
 
 private:
     Ui::MainWindow *ui;
@@ -78,11 +81,13 @@ private:
     FpsMonitor *m_fpsMonitor;
     ApiManager *m_apiManager;
     ParticlesWidget *m_particlesWidget;
+    QString m_coverChangeTargetExe;
 
     QStackedWidget *m_mainStackedWidget;
     QList<QPushButton*> m_navButtons;
     QPushButton *m_settingsButton;
 
+    // --- Widgets da Página "Visão Geral" ---
     QWidget* m_activeGameWidget;
     QLabel* m_activeGameCoverLabel;
     QLabel* m_activeGameNameLabel;
@@ -93,6 +98,12 @@ private:
     QHBoxLayout* m_recentGamesLayout;
     QMap<QString, QLabel*> m_sessionMetricValues;
 
+    // --- Widgets da Página "Biblioteca" ---
+    QScrollArea* m_libraryScrollArea;
+    QWidget* m_libraryContainer;
+    QGridLayout* m_libraryLayout;
+
+    // --- Widgets da Página "Temperaturas" ---
     QStackedWidget *m_tempStackedWidget;
     QList<QPushButton*> m_tempNavButtons;
     QMap<QString, PerformanceChartWidget*> m_charts;
@@ -101,27 +112,30 @@ private:
     QWidget* m_storageContainer;
     QVBoxLayout *m_storagePageLayout;
 
+    // --- Widgets da Página "Configurações" ---
     QCheckBox *m_enableParticlesCheckBox;
     QCheckBox *m_saveReportsCheckBox;
     QComboBox *m_reportFormatComboBox;
     QComboBox *m_chartDurationComboBox;
 
+    // --- Cards de Status ---
     QFrame *m_rtssStatusCard;
     QFrame *m_hardwareStatusCard;
 
     CurrentSession m_currentSession;
     QTimer* m_sessionTimer;
-    QString m_coverChangeTargetExe;
 
     void setupUi();
     void setupConnections();
     void setupOverviewPage();
+    void setupLibraryPage();
     void setupTempPage();
     void setupSettingsPage();
     QWidget* createInfoCard(const QString& key, const QString& iconSvg, const QString& title);
     QWidget* createMetricCard(const QString& title, const QString& key);
 
     void populateRecentGames();
+    void populateLibrary();
     void setActiveGameView(bool active);
     void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);
     void updateSettingsButtonIcon(bool selected);

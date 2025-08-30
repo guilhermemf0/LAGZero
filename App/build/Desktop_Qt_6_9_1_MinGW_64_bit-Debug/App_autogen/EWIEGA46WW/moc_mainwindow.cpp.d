@@ -1,6 +1,7 @@
 C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Projetos/LAGZero/App/mainwindow.h \
   C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/moc_predefs.h \
   C:/Projetos/LAGZero/App/apimanager.h \
+  C:/Projetos/LAGZero/App/gamecoverwidget.h \
   C:/Projetos/LAGZero/App/hardwaremonitor.h \
   C:/Projetos/LAGZero/App/particleswidget.h \
   C:/Projetos/LAGZero/App/performancechartwidget.h \
@@ -12,8 +13,10 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QMetaType \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QObject \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/QParallelAnimationGroup \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QPointF \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QProcess \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/QPropertyAnimation \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QRect \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QSharedDataPointer \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QSize \
@@ -23,6 +26,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/QTimer \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QUrl \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QVariant \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/QVariantAnimation \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QVector \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q17memory.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q20functional.h \
@@ -32,9 +36,11 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/q20utility.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q23utility.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q26numeric.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qabstractanimation.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qabstracteventdispatcher.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qabstractitemmodel.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qalgorithms.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qanimationgroup.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qanystringview.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qarraydata.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qarraydataops.h \
@@ -72,6 +78,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qdatetime.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qdeadlinetimer.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qdebug.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qeasingcurve.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qelapsedtimer.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qendian.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qeventloop.h \
@@ -115,9 +122,11 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qobjectdefs_impl.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qoverload.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qpair.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qparallelanimationgroup.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qpoint.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qprocess.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qprocessordetection.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qpropertyanimation.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qrect.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qrefcount.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qregularexpression.h \
@@ -173,12 +182,14 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qutf8stringview.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/quuid.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qvariant.h \
+  C:/Qt/6.9.2/mingw_64/include/QtCore/qvariantanimation.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qvarlengtharray.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qvector.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qversiontagging.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qxptype_traits.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qyieldcpu.h \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QColor \
+  C:/Qt/6.9.2/mingw_64/include/QtGui/QContextMenuEvent \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QResizeEvent \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QTransform \
   C:/Qt/6.9.2/mingw_64/include/QtGui/qaction.h \
@@ -245,6 +256,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QCheckBox \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QComboBox \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QFrame \
+  C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsEffect \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGridLayout \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QHBoxLayout \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QLabel \
@@ -263,6 +275,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/qcheckbox.h \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/qcombobox.h \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/qframe.h \
+  C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgraphicseffect.h \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgridlayout.h \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlabel.h \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlayout.h \

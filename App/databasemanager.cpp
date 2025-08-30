@@ -59,12 +59,9 @@ void DatabaseManager::initDatabase()
     query.exec("ALTER TABLE games ADD COLUMN user_display_name TEXT");
 }
 
-// NOVO: Implementação da função "INSERT OR UPDATE"
 bool DatabaseManager::addOrUpdateGame(const QString& executableName, const QString& displayName, const QString& coverPath)
 {
     QSqlQuery query(m_db);
-    // Esta sintaxe do SQLite insere uma nova linha. Se a chave 'executable_name' já existir,
-    // ela executa a ação de UPDATE.
     query.prepare("INSERT INTO games (executable_name, display_name, cover_path) "
                   "VALUES (:exe, :display, :cover) "
                   "ON CONFLICT(executable_name) DO UPDATE SET "
@@ -121,14 +118,22 @@ GameData DatabaseManager::getGameData(const QString& executableName)
     return data;
 }
 
-QList<GameData> DatabaseManager::getGamesByMostRecent()
+QList<GameData> DatabaseManager::getGamesByMostRecent(int limit)
 {
     QList<GameData> games;
     QSqlQuery query(m_db);
-    query.prepare("SELECT g.executable_name FROM games g "
-                  "LEFT JOIN (SELECT game_id, MAX(end_time) as max_end_time FROM game_sessions GROUP BY game_id) s "
-                  "ON g.id = s.game_id "
-                  "ORDER BY s.max_end_time DESC");
+
+    // CORREÇÃO: Adicionado "NULLS LAST" para que jogos nunca jogados fiquem por último.
+    QString queryString = "SELECT g.executable_name FROM games g "
+                          "LEFT JOIN (SELECT game_id, MAX(end_time) as max_end_time FROM game_sessions GROUP BY game_id) s "
+                          "ON g.id = s.game_id "
+                          "ORDER BY s.max_end_time DESC NULLS LAST";
+
+    if (limit > 0) {
+        queryString += " LIMIT " + QString::number(limit);
+    }
+
+    query.prepare(queryString);
 
     if (query.exec()) {
         while (query.next()) {
@@ -140,7 +145,25 @@ QList<GameData> DatabaseManager::getGamesByMostRecent()
     return games;
 }
 
-// ALTERADO: Renomeado para clareza
+// NOVA FUNÇÃO
+QList<GameData> DatabaseManager::getAllGames()
+{
+    QList<GameData> games;
+    QSqlQuery query(m_db);
+    // Ordena alfabeticamente pelo nome de exibição
+    query.prepare("SELECT executable_name FROM games ORDER BY COALESCE(user_display_name, display_name) ASC");
+
+    if (query.exec()) {
+        while (query.next()) {
+            games.append(getGameData(query.value(0).toString()));
+        }
+    } else {
+        qWarning() << "Failed to get all games:" << query.lastError();
+    }
+    return games;
+}
+
+
 bool DatabaseManager::updateGameCover(int gameId, const QString& coverPath)
 {
     QSqlQuery query(m_db);
@@ -170,7 +193,6 @@ bool DatabaseManager::removeGame(const QString& executableName)
     return true;
 }
 
-
 bool DatabaseManager::addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps)
 {
     QSqlQuery query(m_db);
@@ -189,7 +211,6 @@ bool DatabaseManager::addGameSession(int gameId, qint64 startTime, qint64 endTim
 
 bool DatabaseManager::setManualGameName(const QString& executableName, const QString& newName)
 {
-    // Garante que o jogo exista na tabela antes de atualizar
     addOrUpdateGame(executableName, newName, "");
 
     QSqlQuery query(m_db);
@@ -200,6 +221,26 @@ bool DatabaseManager::setManualGameName(const QString& executableName, const QSt
         qWarning() << "Failed to set manual game name:" << query.lastError();
         return false;
     }
-    // Limpar o cover_path força uma nova busca na API com o nome correto
     return true;
+}
+
+// NOVA FUNÇÃO
+bool DatabaseManager::clearAllHistory()
+{
+    m_db.transaction();
+    QSqlQuery query(m_db);
+    bool ok = query.exec("DELETE FROM game_sessions");
+    if (ok) {
+        ok = query.exec("DELETE FROM games");
+    }
+
+    if (ok) {
+        m_db.commit();
+        qDebug() << "Histórico de jogos e sessões foi limpo com sucesso.";
+        return true;
+    } else {
+        m_db.rollback();
+        qWarning() << "Falha ao limpar o histórico:" << query.lastError();
+        return false;
+    }
 }

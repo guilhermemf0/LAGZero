@@ -52,6 +52,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QMetaType \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QObject \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/QParallelAnimationGroup \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QPointF \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QProcess \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QPropertyAnimation \
@@ -64,6 +65,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QTimer \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QUrl \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QVariant \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/QVariantAnimation \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/QVector \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/Qt \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/q17memory.h \
@@ -78,6 +80,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qabstracteventdispatcher.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qabstractitemmodel.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qalgorithms.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qanimationgroup.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qanystringview.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qarraydata.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qarraydataops.h \
@@ -160,6 +163,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qobjectdefs_impl.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qoverload.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qpair.h \
+	C:/Qt/6.9.2/mingw_64/include/QtCore/qparallelanimationgroup.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qpoint.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qprocess.h \
 	C:/Qt/6.9.2/mingw_64/include/QtCore/qprocessordetection.h \
@@ -303,6 +307,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QComboBox \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QDialog \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QFrame \
+	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsEffect \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGridLayout \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QHBoxLayout \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/QLabel \
@@ -322,6 +327,7 @@ App_autogen/timestamp: \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qcombobox.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qframe.h \
+	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgraphicseffect.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgridlayout.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlabel.h \
 	C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlayout.h \
