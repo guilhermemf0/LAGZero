@@ -7,7 +7,6 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/QRect \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QSize \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QSizeF \
-  C:/Qt/6.9.2/mingw_64/include/QtCore/QVariantAnimation \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q17memory.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q20functional.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q20iterator.h \
@@ -151,7 +150,9 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qversiontagging.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qxptype_traits.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/qyieldcpu.h \
+  C:/Qt/6.9.2/mingw_64/include/QtGui/QColor \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QContextMenuEvent \
+  C:/Qt/6.9.2/mingw_64/include/QtGui/QPixmap \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QTransform \
   C:/Qt/6.9.2/mingw_64/include/QtGui/qaction.h \
   C:/Qt/6.9.2/mingw_64/include/QtGui/qbitmap.h \
@@ -192,7 +193,6 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtGui/qvectornd.h \
   C:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs.h \
   C:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs_win.h \
-  C:/Qt/6.9.2/mingw_64/include/QtWidgets/QFrame \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsEffect \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QLabel \
   C:/Qt/6.9.2/mingw_64/include/QtWidgets/QWidget \

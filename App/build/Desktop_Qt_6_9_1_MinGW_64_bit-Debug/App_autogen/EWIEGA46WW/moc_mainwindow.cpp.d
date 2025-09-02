@@ -26,7 +26,6 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/QTimer \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QUrl \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QVariant \
-  C:/Qt/6.9.2/mingw_64/include/QtCore/QVariantAnimation \
   C:/Qt/6.9.2/mingw_64/include/QtCore/QVector \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q17memory.h \
   C:/Qt/6.9.2/mingw_64/include/QtCore/q20functional.h \
@@ -190,6 +189,7 @@ C:/Projetos/LAGZero/App/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/App_autogen/EW
   C:/Qt/6.9.2/mingw_64/include/QtCore/qyieldcpu.h \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QColor \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QContextMenuEvent \
+  C:/Qt/6.9.2/mingw_64/include/QtGui/QPixmap \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QResizeEvent \
   C:/Qt/6.9.2/mingw_64/include/QtGui/QTransform \
   C:/Qt/6.9.2/mingw_64/include/QtGui/qaction.h \

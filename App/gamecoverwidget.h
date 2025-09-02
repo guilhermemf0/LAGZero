@@ -5,14 +5,12 @@
 #include <QLabel>
 #include <QPropertyAnimation>
 #include <QContextMenuEvent>
-#include <QGraphicsEffect>
 #include <QParallelAnimationGroup>
-#include <QFrame>
-#include <QVariantAnimation>
+#include <QPixmap>
+#include <QColor>
+#include <QGraphicsEffect> // Adicionado
 
-class QGraphicsOpacityEffect;
-class QGraphicsDropShadowEffect;
-class QVariantAnimation;
+class QGraphicsDropShadowEffect; // Forward declaration
 
 class GameCoverWidget : public QWidget
 {
@@ -30,23 +28,11 @@ protected:
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
 
 private:
-    void createReflection();
-
     // UI Widgets
-    QFrame* m_glowFrame = nullptr;
     QLabel *m_coverLabel;
-    QLabel *m_reflectionLabel;
-
-    // Effects
-    QGraphicsDropShadowEffect* m_shadowEffect;
-    QGraphicsDropShadowEffect* m_glowEffect = nullptr;
-    QGraphicsOpacityEffect* m_glowOpacityEffect = nullptr;
-
-    // Animação auxiliar
-    QVariantAnimation* m_blurAnimation = nullptr;
+    QGraphicsDropShadowEffect* m_shadowEffect; // De volta!
 
     // Animation Control
     QParallelAnimationGroup *m_animationGroup;
@@ -54,6 +40,12 @@ private:
     // Data
     QString m_executableName;
     QPixmap m_originalCover;
+    QColor m_dominantColor;
+
+    // Funções Auxiliares
+    QPixmap createRoundedPixmap(const QPixmap& source, int radius);
+    QColor extractVibrantColor(const QPixmap &pixmap);
 };
 
 #endif // GAMECOVERWIDGET_H
+
