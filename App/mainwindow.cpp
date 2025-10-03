@@ -30,6 +30,7 @@
 #include <QDirIterator>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QGroupBox>
 
 // ... (funções auxiliares cleanEmulatorWindowTitle, findEpicGameDisplayName, getTempColor permanecem as mesmas) ...
 QString cleanEmulatorWindowTitle(QString windowTitle) {
@@ -91,17 +92,24 @@ MainWindow::MainWindow(QWidget *parent)
     setupConnections();
 
     populateRecentGames();
-    populateLibrary(); // Carrega a biblioteca na inicialização
+    populateLibrary();
     setActiveGameView(false);
     m_navButtons.first()->click();
 
     QSettings settings("LAGZero", "MonitorApp");
-    bool particlesEnabled = settings.value(AppConfig::SETTING_PARTICLES_ENABLED, true).toBool();
-    m_enableParticlesCheckBox->setChecked(particlesEnabled);
-    onParticlesEnabledChanged(particlesEnabled ? Qt::Checked : Qt::Unchecked);
+    m_enableParticlesCheckBox->setChecked(settings.value(AppConfig::SETTING_PARTICLES_ENABLED, true).toBool());
+    onParticlesEnabledChanged(m_enableParticlesCheckBox->isChecked() ? Qt::Checked : Qt::Unchecked);
     m_saveReportsCheckBox->setChecked(settings.value(AppConfig::SETTING_REPORTS_ENABLED, true).toBool());
     m_chartDurationComboBox->setCurrentIndex(settings.value("chart/durationIndex", 1).toInt());
     m_reportFormatComboBox->setCurrentIndex(settings.value("reports/formatIndex", 0).toInt());
+
+    m_overlayEnabledCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_ENABLED, true).toBool());
+    m_overlayPositionComboBox->setCurrentIndex(settings.value(AppConfig::SETTING_OVERLAY_POSITION, 0).toInt());
+    m_overlayShowCpuCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU, true).toBool());
+    m_overlayShowGpuCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU, true).toBool());
+    m_overlayShowMbCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_MB, false).toBool());
+    m_overlayShowStorageCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_STORAGE, false).toBool());
+    m_overlayShowGraphCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_GRAPH, false).toBool());
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -140,7 +148,6 @@ void MainWindow::setupUi()
     navPanel->setFixedWidth(220);
     auto* navLayout = new QVBoxLayout(navPanel);
     navLayout->setContentsMargins(0, 15, 0, 15); navLayout->setSpacing(5);
-    // Adicionado botão "Biblioteca"
     m_navButtons << new QPushButton(" Visão Geral") << new QPushButton(" Biblioteca") << new QPushButton(" Temperaturas");
     for(auto btn : m_navButtons) navLayout->addWidget(btn);
     navLayout->addStretch();
@@ -156,13 +163,14 @@ void MainWindow::setupUi()
     mainLayout->addWidget(contentPanel, 1);
 
     setupOverviewPage();
-    setupLibraryPage(); // Chama a criação da nova página
+    setupLibraryPage();
     setupTempPage();
     setupSettingsPage();
 }
 
 void MainWindow::setupConnections() {
     connect(m_hardwareMonitor, &HardwareMonitor::hardwareUpdated, this, &MainWindow::onHardwareUpdated);
+    connect(m_hardwareMonitor, &HardwareMonitor::hardwareUpdated, m_fpsMonitor, &FpsMonitor::onHardwareUpdated);
     connect(m_fpsMonitor, &FpsMonitor::rtssStatusUpdated, this, &MainWindow::onRtssStatusUpdated);
     connect(m_fpsMonitor, &FpsMonitor::gameSessionStarted, this, &MainWindow::onGameSessionStarted);
     connect(m_fpsMonitor, &FpsMonitor::gameSessionEnded, this, &MainWindow::onGameSessionEnded);
@@ -178,6 +186,14 @@ void MainWindow::setupConnections() {
     connect(m_saveReportsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onSaveReportsChanged);
     connect(m_chartDurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::onChartDurationChanged);
     connect(m_apiManager, &ApiManager::gridListAvailable, this, &MainWindow::onGridListReady);
+
+    connect(m_overlayEnabledCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayPositionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowCpuCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowGpuCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowMbCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowStorageCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowGraphCheckBox, &QCheckBox::stateChanged, this, &MainWindow::onOverlaySettingChanged);
 }
 
 void MainWindow::setupOverviewPage() {
@@ -242,7 +258,7 @@ void MainWindow::setupOverviewPage() {
     auto* recentTitle = new QLabel("Jogados Recentemente"); recentTitle->setProperty("class", "TitleLabel");
     m_recentGamesScrollArea = new QScrollArea();
     m_recentGamesScrollArea->setWidgetResizable(true);
-    m_recentGamesScrollArea->setFixedHeight(320); // Aumenta a altura da vitrine
+    m_recentGamesScrollArea->setFixedHeight(320);
     m_recentGamesContainer = new QWidget();
     m_recentGamesLayout = new QHBoxLayout(m_recentGamesContainer);
     m_recentGamesLayout->setSpacing(20);
@@ -256,7 +272,6 @@ void MainWindow::setupOverviewPage() {
     m_mainStackedWidget->addWidget(page);
 }
 
-// NOVA FUNÇÃO
 void MainWindow::setupLibraryPage()
 {
     auto* page = new QWidget();
@@ -272,7 +287,7 @@ void MainWindow::setupLibraryPage()
 
     m_libraryContainer = new QWidget();
     m_libraryLayout = new QGridLayout(m_libraryContainer);
-    m_libraryLayout->setSpacing(25); // Aumenta o espaçamento
+    m_libraryLayout->setSpacing(25);
     m_libraryLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     m_libraryScrollArea->setWidget(m_libraryContainer);
@@ -335,26 +350,62 @@ void MainWindow::setupSettingsPage() {
     m_enableParticlesCheckBox = new QCheckBox("Ativar efeito de partículas no fundo");
     layout->addWidget(m_enableParticlesCheckBox);
 
+    auto* chartLayout = new QHBoxLayout();
+    chartLayout->addWidget(new QLabel("Período de tempo do gráfico:"));
     m_chartDurationComboBox = new QComboBox();
     m_chartDurationComboBox->addItem("Últimos 60 segundos", 60);
     m_chartDurationComboBox->addItem("Últimos 2 minutos", 120);
     m_chartDurationComboBox->addItem("Últimos 5 minutos", 300);
-    auto* chartLayout = new QHBoxLayout();
-    chartLayout->addWidget(new QLabel("Período de tempo do gráfico:"));
     chartLayout->addWidget(m_chartDurationComboBox);
+    chartLayout->addStretch();
     layout->addLayout(chartLayout);
+
+    // --- Nova Seção de Overlay ---
+    auto* overlayTitle = new QLabel("Configuração do Overlay (RTSS)");
+    overlayTitle->setProperty("class", "SubtitleLabel");
+    layout->addWidget(overlayTitle);
+
+    m_overlayEnabledCheckBox = new QCheckBox("Ativar overlay de performance no jogo");
+    layout->addWidget(m_overlayEnabledCheckBox);
+
+    auto* positionLayout = new QHBoxLayout();
+    positionLayout->addWidget(new QLabel("Posição do overlay na tela:"));
+    m_overlayPositionComboBox = new QComboBox();
+    m_overlayPositionComboBox->addItem("Canto Superior Esquerdo");
+    m_overlayPositionComboBox->addItem("Canto Superior Direito");
+    m_overlayPositionComboBox->addItem("Canto Inferior Esquerdo");
+    m_overlayPositionComboBox->addItem("Canto Inferior Direito");
+    positionLayout->addWidget(m_overlayPositionComboBox);
+    positionLayout->addStretch();
+    layout->addLayout(positionLayout);
+
+    auto* contentBox = new QGroupBox("Itens a serem exibidos no overlay");
+    auto* contentLayout = new QVBoxLayout(contentBox);
+    m_overlayShowCpuCheckBox = new QCheckBox("Temperatura do CPU");
+    m_overlayShowGpuCheckBox = new QCheckBox("Temperatura da GPU");
+    m_overlayShowMbCheckBox = new QCheckBox("Temperatura da Placa-mãe");
+    m_overlayShowStorageCheckBox = new QCheckBox("Temperatura do Armazenamento");
+    m_overlayShowGraphCheckBox = new QCheckBox("Gráfico de tempo de quadro (Frametime)");
+    contentLayout->addWidget(m_overlayShowCpuCheckBox);
+    contentLayout->addWidget(m_overlayShowGpuCheckBox);
+    contentLayout->addWidget(m_overlayShowMbCheckBox);
+    contentLayout->addWidget(m_overlayShowStorageCheckBox);
+    contentLayout->addWidget(m_overlayShowGraphCheckBox);
+    layout->addWidget(contentBox);
+
 
     auto* reportsTitle = new QLabel("Relatórios e Dados"); reportsTitle->setProperty("class", "SubtitleLabel");
     layout->addWidget(reportsTitle);
     m_saveReportsCheckBox = new QCheckBox("Salvar relatórios de performance da sessão");
     layout->addWidget(m_saveReportsCheckBox);
 
+    auto* reportFormatLayout = new QHBoxLayout();
+    reportFormatLayout->addWidget(new QLabel("Formato do relatório:"));
     m_reportFormatComboBox = new QComboBox();
     m_reportFormatComboBox->addItem("Texto (.txt)");
     m_reportFormatComboBox->addItem("CSV (.csv)");
-    auto* reportFormatLayout = new QHBoxLayout();
-    reportFormatLayout->addWidget(new QLabel("Formato do relatório:"));
     reportFormatLayout->addWidget(m_reportFormatComboBox);
+    reportFormatLayout->addStretch();
     layout->addLayout(reportFormatLayout);
 
     auto* reportsBtn = new QPushButton("Abrir pasta de relatórios");
@@ -363,9 +414,8 @@ void MainWindow::setupSettingsPage() {
     connect(reportsBtn, &QPushButton::clicked, this, &MainWindow::openReportsFolder);
     layout->addWidget(reportsBtn, 0, Qt::AlignLeft);
 
-    // Novos botões de limpeza
     auto* dangerZoneTitle = new QLabel("Zona de Perigo"); dangerZoneTitle->setProperty("class", "SubtitleLabel");
-    dangerZoneTitle->setStyleSheet("color: #f87171;"); // Cor vermelha
+    dangerZoneTitle->setStyleSheet("color: #f87171;");
     layout->addWidget(dangerZoneTitle);
 
     auto* clearHistoryBtn = new QPushButton("Limpar Histórico de Jogos");
@@ -383,9 +433,20 @@ void MainWindow::setupSettingsPage() {
     m_mainStackedWidget->addWidget(page);
 }
 
+void MainWindow::onOverlaySettingChanged()
+{
+    QSettings settings("LAGZero", "MonitorApp");
+    settings.setValue(AppConfig::SETTING_OVERLAY_ENABLED, m_overlayEnabledCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_POSITION, m_overlayPositionComboBox->currentIndex());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_CPU, m_overlayShowCpuCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_GPU, m_overlayShowGpuCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_MB, m_overlayShowMbCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_STORAGE, m_overlayShowStorageCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_GRAPH, m_overlayShowGraphCheckBox->isChecked());
+}
+
 void MainWindow::onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId)
 {
-    // ... (lógica existente)
     qDebug() << "[SESSION START] Executable:" << exeName << "| PID:" << processId << "| Window Title:" << windowTitle;
 
     QString searchName;
@@ -444,7 +505,7 @@ void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double ave
     if (gameId != -1) {
         DatabaseManager::instance().addGameSession(gameId, 0, QDateTime::currentSecsSinceEpoch(), averageFps);
         populateRecentGames();
-        populateLibrary(); // Atualiza a biblioteca também
+        populateLibrary();
     }
     m_currentSession = CurrentSession();
 }
@@ -453,7 +514,6 @@ void MainWindow::onApiSearchFinished(const ApiGameResult& result)
 {
     qDebug() << "[API FINISHED] Para o executável:" << result.executableName;
 
-    // Verifica se o resultado corresponde à sessão ativa ou a uma troca de capa manual
     bool isForCurrentSession = (m_currentSession.exeName == result.executableName);
     bool isForCoverChange = (m_coverChangeTargetExe == result.executableName);
 
@@ -462,14 +522,12 @@ void MainWindow::onApiSearchFinished(const ApiGameResult& result)
         return;
     }
 
-    // Usa o nome da API se ele foi encontrado, senão mantém o nome que já tínhamos
     QString finalDisplayName = result.name.isEmpty() ?
                                    (isForCurrentSession ? m_currentSession.displayName : DatabaseManager::instance().getGameData(result.executableName).displayName)
                                                      : result.name;
 
     qDebug() << "[API FINISHED] Nome final determinado:" << finalDisplayName;
 
-    // Atualiza a UI da sessão ativa se for o caso
     if (isForCurrentSession) {
         m_activeGameNameLabel->setText(finalDisplayName);
         m_currentSession.displayName = finalDisplayName;
@@ -484,13 +542,11 @@ void MainWindow::onApiSearchFinished(const ApiGameResult& result)
         QString uniqueId = QCryptographicHash::hash(exePathBytes, QCryptographicHash::Md5).toHex();
         QString coverPath = coverDir + "/" + uniqueId + ".png";
 
-        // Sempre atualiza o DB com o nome mais recente, mas espera a imagem baixar para salvar o caminho
         DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
         m_apiManager->downloadImage(QUrl(result.coverUrl), coverPath);
     } else {
         qDebug() << "[API FINISHED] Busca falhou. Salvando jogo com o melhor nome que temos, mas sem capa.";
         DatabaseManager::instance().addOrUpdateGame(result.executableName, finalDisplayName, "");
-        // Se a busca falhou, limpamos o alvo para não ficar "preso" esperando uma imagem que nunca virá
         if (isForCoverChange) {
             m_coverChangeTargetExe.clear();
         }
@@ -502,8 +558,6 @@ void MainWindow::onImageDownloaded(const QString& localPath, const QUrl&)
 {
     qDebug() << "[IMAGE DOWNLOADED] Caminho:" << localPath;
 
-    // CORREÇÃO: Usa a variável alvo (m_coverChangeTargetExe) como prioridade para identificar o jogo.
-    // Se ela estiver vazia, usa a da sessão atual.
     QString targetExe = m_coverChangeTargetExe.isEmpty() ? m_currentSession.exeName : m_coverChangeTargetExe;
 
     if (targetExe.isEmpty()) {
@@ -543,7 +597,6 @@ void MainWindow::populateRecentGames() {
         if (item->widget()) delete item->widget();
         delete item;
     }
-    // Pega apenas os 10 mais recentes
     QList<GameData> recentGames = DatabaseManager::instance().getGamesByMostRecent(10);
     for (const auto& gameData : recentGames) {
         QPixmap cover(gameData.coverPath);
@@ -556,7 +609,6 @@ void MainWindow::populateRecentGames() {
     m_recentGamesLayout->addStretch();
 }
 
-// NOVA FUNÇÃO
 void MainWindow::populateLibrary()
 {
     QLayoutItem* item;
@@ -567,7 +619,7 @@ void MainWindow::populateLibrary()
 
     QList<GameData> allGames = DatabaseManager::instance().getAllGames();
     int row = 0, col = 0;
-    const int maxCols = 4; // Ajustado para 4 colunas para capas maiores
+    const int maxCols = 4;
 
     for (const auto& gameData : allGames) {
         QPixmap cover(gameData.coverPath);
@@ -613,7 +665,6 @@ void MainWindow::onGridListReady(const QString& executableName, const QList<QJso
     }
 }
 
-// NOVA FUNÇÃO
 void MainWindow::onClearHistoryClicked()
 {
     QMessageBox::StandardButton reply;
@@ -622,10 +673,8 @@ void MainWindow::onClearHistoryClicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         if (DatabaseManager::instance().clearAllHistory()) {
-            // Limpa as pastas de capas também
             QString coverDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/covers";
             QDir(coverDir).removeRecursively();
-            // Atualiza as interfaces
             populateRecentGames();
             populateLibrary();
             QMessageBox::information(this, "Sucesso", "Seu histórico de jogos foi limpo.");
@@ -635,7 +684,6 @@ void MainWindow::onClearHistoryClicked()
     }
 }
 
-// NOVA FUNÇÃO
 void MainWindow::onClearReportsClicked()
 {
     QMessageBox::StandardButton reply;
@@ -654,7 +702,6 @@ void MainWindow::onClearReportsClicked()
 }
 
 
-// ... (resto do mainwindow.cpp: setActiveGameView, onNavigationButtonClicked, etc., permanecem praticamente os mesmos, com pequenas adaptações para a nova aba) ...
 void MainWindow::setActiveGameView(bool active) {
     m_activeGameWidget->setVisible(active);
     m_waitingForGameLabel->setVisible(!active);
@@ -854,12 +901,11 @@ void MainWindow::onManualEditRequested(const QString& executableName)
     }
 }
 
-// ... (onHardwareUpdated, updateSessionInfo, openReportsFolder, createInfoCard, createMetricCard) ...
 void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
 {
-    for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
-        m_currentSession.lastTemps[it.key()] = it.value().temperature;
+    m_currentSession.lastTemps = deviceInfos;
 
+    for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
         if (m_tempInfoCards.contains(it.key())) {
             auto* card = m_tempInfoCards.value(it.key());
             auto* valueLabel = card->findChild<QLabel*>("Value");
@@ -881,7 +927,7 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
     if (m_currentSession.processId != 0) {
         for (auto it = m_charts.constBegin(); it != m_charts.constEnd(); ++it) {
             if (m_currentSession.lastTemps.contains(it.key())) {
-                it.value()->addDataPoint(m_currentSession.lastTemps.value(it.key()), m_currentSession.lastFps);
+                it.value()->addDataPoint(m_currentSession.lastTemps.value(it.key()).temperature, m_currentSession.lastFps);
             }
         }
     }

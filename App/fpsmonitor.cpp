@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <numeric>
 #include <QThread>
+#include "appconstants.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -25,6 +26,8 @@ FpsMonitor::FpsMonitor(QObject *parent) : QObject(parent)
     connect(worker, &FpsWorker::gameSessionEnded, this, &FpsMonitor::gameSessionEnded);
     connect(worker, &FpsWorker::activeGameFpsUpdate, this, &FpsMonitor::activeGameFpsUpdate);
 
+    connect(this, &FpsMonitor::hardwareDataUpdated, worker, &FpsWorker::onHardwareUpdated);
+
     workerThread.start();
 }
 
@@ -36,6 +39,10 @@ FpsMonitor::~FpsMonitor()
     }
 }
 
+void FpsMonitor::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
+{
+    emit hardwareDataUpdated(deviceInfos);
+}
 
 // --- FpsWorker (Lógica em Thread Separada) ---
 FpsWorker::FpsWorker() {}
@@ -48,6 +55,11 @@ void FpsWorker::process()
     connect(m_timer, &QTimer::timeout, this, &FpsWorker::readFps);
     m_timer->start(1000);
     readFps();
+}
+
+void FpsWorker::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos)
+{
+    m_lastHardwareInfo = deviceInfos;
 }
 
 bool FpsWorker::isRtssRunning()
@@ -68,7 +80,7 @@ QString FpsWorker::getRtssInstallPath()
 
 struct EnumData {
     DWORD processId;
-    HWND bestHwnd;
+    HWND bestHnd;
     int bestTitleLength;
 };
 
@@ -85,7 +97,7 @@ BOOL CALLBACK EnumWindowsCallback(HWND hwnd, LPARAM lParam)
             GetWindowTextW(hwnd, title, 256);
             QString qTitle = QString::fromWCharArray(title);
             if (qTitle != "D3DProxyWindow" && !qTitle.contains("NVIDIA") && !qTitle.contains("AMD") && qTitle.length() > 3) {
-                data->bestHwnd = hwnd;
+                data->bestHnd = hwnd;
                 data->bestTitleLength = length;
             }
         }
@@ -98,16 +110,16 @@ QString FpsWorker::getWindowTitleByProcessId(DWORD processId)
     EnumData data = { processId, nullptr, 0 };
     for (int i = 0; i < 10; ++i) {
         EnumWindows(EnumWindowsCallback, (LPARAM)&data);
-        if (data.bestHwnd) {
+        if (data.bestHnd) {
             QThread::msleep(500);
         } else {
             QThread::msleep(500);
         }
     }
 
-    if (data.bestHwnd) {
+    if (data.bestHnd) {
         wchar_t title[256];
-        GetWindowTextW(data.bestHwnd, title, 256);
+        GetWindowTextW(data.bestHnd, title, 256);
         return QString::fromWCharArray(title);
     }
     return QString();
@@ -134,10 +146,10 @@ void FpsWorker::readFps()
 
     emit rtssStatusUpdated(true, getRtssInstallPath());
 
-    HANDLE hMapFile = OpenFileMappingA(FILE_MAP_READ, FALSE, "RTSSSharedMemoryV2");
+    HANDLE hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, "RTSSSharedMemoryV2");
     if (!hMapFile) return;
 
-    LPVOID pMapAddr = MapViewOfFile(hMapFile, FILE_MAP_READ, 0, 0, 0);
+    LPVOID pMapAddr = MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
     if (!pMapAddr) {
         CloseHandle(hMapFile);
         return;
@@ -147,6 +159,9 @@ void FpsWorker::readFps()
 
     if ((pMem->dwSignature == 0x52545353) && (pMem->dwVersion >= 0x00020000))
     {
+        QSettings settings("LAGZero", "MonitorApp");
+        bool overlayEnabled = settings.value(AppConfig::SETTING_OVERLAY_ENABLED, true).toBool();
+
         QSet<uint32_t> currentPids;
         const QList<QString> blacklist = {"App.exe", "TempReader.exe", "devenv.exe", "msedgewebview2.exe", "TabTip.exe"};
 
@@ -188,6 +203,74 @@ void FpsWorker::readFps()
 
             m_activeSessions[pid].fpsSamples.append(qRound(currentFps));
             emit activeGameFpsUpdate(pid, qRound(currentFps));
+
+            if (overlayEnabled) {
+                int position = settings.value(AppConfig::SETTING_OVERLAY_POSITION, 0).toInt();
+                switch (position) {
+                case 0: pAppEntry->dwOSDX = 5; pAppEntry->dwOSDY = 5; break; // TL
+                case 1: pAppEntry->dwOSDX = -5; pAppEntry->dwOSDY = 5; break; // TR
+                case 2: pAppEntry->dwOSDX = 5; pAppEntry->dwOSDY = -5; break; // BL
+                case 3: pAppEntry->dwOSDX = -5; pAppEntry->dwOSDY = -5; break; // BR
+                }
+
+                QStringList overlayLines;
+                overlayLines.append(QString("<C=00FFFF>FPS<C=FFFFFF>: %1").arg(qRound(currentFps)));
+
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU, true).toBool() && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
+                    overlayLines.append(QString("<C=FF00FF>CPU<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::CPU_KEY].temperature, 0, 'f', 0));
+                }
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU, true).toBool() && m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) {
+                    overlayLines.append(QString("<C=00FF00>GPU<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::GPU_KEY].temperature, 0, 'f', 0));
+                }
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_MB, false).toBool() && m_lastHardwareInfo.contains(AppConfig::MB_KEY)) {
+                    overlayLines.append(QString("<C=FFFF00>MB<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::MB_KEY].temperature, 0, 'f', 0));
+                }
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_STORAGE, false).toBool()) {
+                    for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
+                        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
+                            overlayLines.append(QString("<C=FFA500>%1<C=FFFFFF>: %2°C").arg(it.value().driveType).arg(it.value().temperature, 0, 'f', 0));
+                        }
+                    }
+                }
+
+                RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY pOSDEntry =
+                    (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((LPBYTE)pMem + pMem->dwOSDArrOffset);
+
+                strcpy_s(pOSDEntry->szOSDOwner, "LAGZERO");
+                strcpy_s(pOSDEntry->szOSD, overlayLines.join("\n").toStdString().c_str());
+
+                // Lógica do Gráfico
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_GRAPH, false).toBool() && pAppEntry->dwStatFrameTimeBufFramerate != 0) {
+                    float fltMin = 1000.0f / pAppEntry->dwStatFrameTimeBufFramerate * 0.5f;
+                    float fltMax = 1000.0f / pAppEntry->dwStatFrameTimeBufFramerate * 2.0f;
+                    DWORD dwDataCount = sizeof(pAppEntry->dwStatFrameTimeBuf) / sizeof(pAppEntry->dwStatFrameTimeBuf[0]);
+
+                    LPRTSS_EMBEDDED_OBJECT_GRAPH pGraph = (LPRTSS_EMBEDDED_OBJECT_GRAPH)pOSDEntry->buffer;
+                    pGraph->header.dwSignature = RTSS_EMBEDDED_OBJECT_GRAPH_SIGNATURE;
+                    pGraph->header.dwSize = sizeof(RTSS_EMBEDDED_OBJECT_GRAPH) + dwDataCount * sizeof(float);
+                    pGraph->header.dwWidth = -100; pGraph->header.dwHeight = -25;
+                    pGraph->dwFlags = RTSS_EMBEDDED_OBJECT_GRAPH_FLAG_FILLED | RTSS_EMBEDDED_OBJECT_GRAPH_FLAG_FRAMERATE;
+                    pGraph->fltMin = fltMin; pGraph->fltMax = fltMax;
+                    pGraph->dwDataCount = dwDataCount;
+
+                    for (DWORD j=0; j<dwDataCount; j++)
+                        pGraph->fltData[j] = pAppEntry->dwStatFrameTimeBuf[(pAppEntry->dwStatFrameTimeBufPos + j) % dwDataCount] / 1000.0f;
+
+                    sprintf_s(pOSDEntry->szOSDEx, "<O=%d>", sizeof(pOSDEntry->buffer));
+                } else {
+                    strcpy_s(pOSDEntry->szOSDEx, "");
+                }
+
+            } else { // Se o overlay estiver desabilitado, limpa
+                RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY pOSDEntry =
+                    (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((LPBYTE)pMem + pMem->dwOSDArrOffset);
+                if (strcmp(pOSDEntry->szOSDOwner, "LAGZERO") == 0) {
+                    strcpy_s(pOSDEntry->szOSDOwner, "");
+                    strcpy_s(pOSDEntry->szOSD, "");
+                    strcpy_s(pOSDEntry->szOSDEx, "");
+                }
+            }
+            pMem->dwOSDFrame++;
         }
 
         QList<uint32_t> closedPids;
@@ -199,6 +282,17 @@ void FpsWorker::readFps()
 
         for (uint32_t pid : closedPids) {
             GameSessionInfo session = m_activeSessions.take(pid);
+
+            RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY pOSDEntry =
+                (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((LPBYTE)pMem + pMem->dwOSDArrOffset);
+
+            if (strcmp(pOSDEntry->szOSDOwner, "LAGZERO") == 0) {
+                strcpy_s(pOSDEntry->szOSDOwner, "");
+                strcpy_s(pOSDEntry->szOSD, "");
+                strcpy_s(pOSDEntry->szOSDEx, "");
+                pMem->dwOSDFrame++;
+            }
+
             double avg = 0;
             if (!session.fpsSamples.isEmpty()) {
                 avg = std::accumulate(session.fpsSamples.constBegin(), session.fpsSamples.constEnd(), 0.0) / session.fpsSamples.size();

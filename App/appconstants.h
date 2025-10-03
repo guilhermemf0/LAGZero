@@ -7,12 +7,22 @@ namespace AppConfig {
 // Chaves de Hardware
 const QString CPU_KEY = "CPU";
 const QString GPU_KEY = "GPU";
-const QString MB_KEY = "MOTHERBOARD"; // Placa-mãe de volta
+const QString MB_KEY = "MOTHERBOARD";
 const QString STORAGE_KEY_PREFIX = "STORAGE_";
 
 // Chaves de Configurações
 const QString SETTING_PARTICLES_ENABLED = "particles/enabled";
 const QString SETTING_REPORTS_ENABLED = "reports/enabled";
+
+// Novas Chaves de Configuração do Overlay
+const QString SETTING_OVERLAY_ENABLED = "overlay/enabled";
+const QString SETTING_OVERLAY_POSITION = "overlay/position";
+const QString SETTING_OVERLAY_SHOW_CPU = "overlay/showCpuTemp";
+const QString SETTING_OVERLAY_SHOW_GPU = "overlay/showGpuTemp";
+const QString SETTING_OVERLAY_SHOW_MB = "overlay/showMbTemp";
+const QString SETTING_OVERLAY_SHOW_STORAGE = "overlay/showStorageTemp";
+const QString SETTING_OVERLAY_SHOW_GRAPH = "overlay/showGraph";
+
 
 // Conteúdo SVG dos Ícones
 const QString ICON_CPU_SVG = R"(<svg ...></svg>)"; // (Conteúdo SVG omitido por brevidade)

@@ -9,6 +9,7 @@
 #include <QVector>
 #include <QDateTime>
 #include <cstdint>
+#include "hardwaremonitor.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -31,6 +32,7 @@ public:
 
 public slots:
     void process();
+    void onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
 
 signals:
     void rtssStatusUpdated(bool found, const QString& installPath);
@@ -48,6 +50,8 @@ private:
 
     QTimer *m_timer = nullptr;
     QMap<uint32_t, GameSessionInfo> m_activeSessions;
+    QMap<QString, HardwareInfo> m_lastHardwareInfo;
+
 };
 
 class FpsMonitor : public QObject
@@ -57,11 +61,16 @@ public:
     explicit FpsMonitor(QObject *parent = nullptr);
     ~FpsMonitor();
 
+public slots:
+    void onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
+
 signals:
     void rtssStatusUpdated(bool found, const QString& installPath);
     void gameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId);
     void gameSessionEnded(uint32_t processId, const QString& exeName, double averageFps);
     void activeGameFpsUpdate(uint32_t processId, int currentFps);
+    void hardwareDataUpdated(const QMap<QString, HardwareInfo> &deviceInfos);
+
 
 private:
     QThread workerThread;

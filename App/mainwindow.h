@@ -23,10 +23,9 @@
 #include "particleswidget.h"
 #include "apimanager.h"
 #include "performancechartwidget.h"
-#include "gamecoverwidget.h" // Incluindo o header corrigido
+#include "gamecoverwidget.h"
 
 class FpsMonitor;
-// class GameCoverWidget; // Não é mais necessário porque foi incluído acima
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -39,7 +38,7 @@ struct CurrentSession {
     QString coverPath;
     QElapsedTimer timer;
     int lastFps = 0;
-    QMap<QString, double> lastTemps;
+    QMap<QString, HardwareInfo> lastTemps;
 };
 
 class MainWindow : public QMainWindow
@@ -73,6 +72,7 @@ private slots:
     void onGridListReady(const QString& executableName, const QList<QJsonObject>& gridList);
     void onClearHistoryClicked();
     void onClearReportsClicked();
+    void onOverlaySettingChanged();
 
 
 private:
@@ -117,6 +117,15 @@ private:
     QCheckBox *m_saveReportsCheckBox;
     QComboBox *m_reportFormatComboBox;
     QComboBox *m_chartDurationComboBox;
+    // Novos widgets para o overlay
+    QCheckBox* m_overlayEnabledCheckBox;
+    QComboBox* m_overlayPositionComboBox;
+    QCheckBox* m_overlayShowCpuCheckBox;
+    QCheckBox* m_overlayShowGpuCheckBox;
+    QCheckBox* m_overlayShowMbCheckBox;
+    QCheckBox* m_overlayShowStorageCheckBox;
+    QCheckBox* m_overlayShowGraphCheckBox;
+
 
     // --- Cards de Status ---
     QFrame *m_rtssStatusCard;
