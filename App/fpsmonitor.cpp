@@ -216,19 +216,50 @@ void FpsWorker::readFps()
                 QStringList overlayLines;
                 overlayLines.append(QString("<C=00FFFF>FPS<C=FFFFFF>: %1").arg(qRound(currentFps)));
 
-                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU, true).toBool() && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
-                    overlayLines.append(QString("<C=FF00FF>CPU<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::CPU_KEY].temperature, 0, 'f', 0));
+                if (m_lastHardwareInfo.contains("CPU_USAGE")) {
+                    overlayLines.append(QString("<C=FF00FF>CPU Usage<C=FFFFFF>: %1%").arg(m_lastHardwareInfo["CPU_USAGE"].usage, 0, 'f', 1));
                 }
+                if (m_lastHardwareInfo.contains("GPU_USAGE")) {
+                    overlayLines.append(QString("<C=00FF00>GPU Usage<C=FFFFFF>: %1%").arg(m_lastHardwareInfo["GPU_USAGE"].usage, 0, 'f', 1));
+                }
+                if (m_lastHardwareInfo.contains("RAM_USAGE")) {
+                    overlayLines.append(QString("<C=FFFF00>RAM Usage<C=FFFFFF>: %1 MB").arg(m_lastHardwareInfo["RAM_USAGE"].usage, 0, 'f', 0));
+                }
+
+                if (overlayLines.size() > 1) {
+                    overlayLines.append(QString("<C=808080>--------------------"));
+                }
+
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU, true).toBool() && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
+                    overlayLines.append(QString("<C=FF00FF>CPU Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::CPU_KEY].temperature, 0, 'f', 0));
+                }
+
+                QStringList coreTemps;
+                for (auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
+                    if (it.key().startsWith("CPU_CORE_")) {
+                        coreTemps.append(QString("<C=FF00FF>%1<C=FFFFFF>: %2°C").arg(it.value().name).arg(it.value().temperature, 0, 'f', 0));
+                    }
+                }
+                if (!coreTemps.isEmpty()) {
+                    for(int i = 0; i < coreTemps.size(); i += 2) {
+                        QString line = coreTemps[i];
+                        if (i + 1 < coreTemps.size()) {
+                            line += " | " + coreTemps[i+1];
+                        }
+                        overlayLines.append(line);
+                    }
+                }
+
                 if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU, true).toBool() && m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) {
-                    overlayLines.append(QString("<C=00FF00>GPU<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::GPU_KEY].temperature, 0, 'f', 0));
+                    overlayLines.append(QString("<C=00FF00>GPU Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::GPU_KEY].temperature, 0, 'f', 0));
                 }
                 if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_MB, false).toBool() && m_lastHardwareInfo.contains(AppConfig::MB_KEY)) {
-                    overlayLines.append(QString("<C=FFFF00>MB<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::MB_KEY].temperature, 0, 'f', 0));
+                    overlayLines.append(QString("<C=FFFF00>MB Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::MB_KEY].temperature, 0, 'f', 0));
                 }
                 if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_STORAGE, false).toBool()) {
                     for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
                         if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
-                            overlayLines.append(QString("<C=FFA500>%1<C=FFFFFF>: %2°C").arg(it.value().driveType).arg(it.value().temperature, 0, 'f', 0));
+                            overlayLines.append(QString("<C=FFA500>%1 Temp<C=FFFFFF>: %2°C").arg(it.value().driveType).arg(it.value().temperature, 0, 'f', 0));
                         }
                     }
                 }

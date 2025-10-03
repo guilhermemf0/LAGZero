@@ -11,6 +11,7 @@
 struct HardwareInfo {
     QString name = "N/D";
     double temperature = -1.0;
+    double usage = -1.0; // NOVO
     QString driveType = "";
 };
 

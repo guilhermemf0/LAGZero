@@ -77,6 +77,12 @@ void HardwareWorker::onProcessFinished(int exitCode, QProcess::ExitStatus exitSt
                 info.name = pair[1];
                 info.driveType = pair[2];
                 info.temperature = pair[3].toDouble(&ok);
+            } else if (key == "CPU_USAGE" || key == "GPU_USAGE" || key == "RAM_USAGE") {
+                info.name = pair[1];
+                info.usage = pair[2].toDouble(&ok);
+            } else if (key.startsWith("CPU_CORE_")) {
+                info.name = pair[1];
+                info.temperature = pair[2].toDouble(&ok);
             } else if (pair.length() == 3) {
                 info.name = pair[1];
                 info.temperature = pair[2].toDouble(&ok);

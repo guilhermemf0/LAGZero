@@ -3,6 +3,7 @@ using System.Threading;
 using System.Globalization;
 using LibreHardwareMonitor.Hardware;
 using System.Text;
+using System.Linq; // Adicionado para facilitar a busca por sensores
 
 public class UpdateVisitor : IVisitor
 {
@@ -25,7 +26,8 @@ public class HardwareMonitor
             IsCpuEnabled = true,
             IsGpuEnabled = true,
             IsMotherboardEnabled = true,
-            IsStorageEnabled = true
+            IsStorageEnabled = true,
+            IsMemoryEnabled = true // NOVO: Habilita o monitoramento de memória
         };
 
         StringBuilder result = new StringBuilder();
@@ -33,7 +35,7 @@ public class HardwareMonitor
         try
         {
             computer.Open();
-            Thread.Sleep(1000);
+            Thread.Sleep(1000); // Dê um tempo para os sensores inicializarem
             computer.Accept(new UpdateVisitor());
 
             foreach (IHardware hardware in computer.Hardware)
@@ -43,37 +45,59 @@ public class HardwareMonitor
 
                 if (hardware.HardwareType == HardwareType.Cpu)
                 {
+                    // Sensor de temperatura do pacote (geral)
                     ISensor tempSensor = FindBestSensor(hardware, new[] { "Package", "Core (Tctl/Tdie)" });
                     if (tempSensor != null && tempSensor.Value.HasValue)
                     {
                         result.AppendFormat("CPU:{0}:{1};", hardwareName, tempSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture));
                     }
+
+                    // NOVO: Sensor de uso total da CPU
+                    ISensor usageSensor = hardware.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Load && s.Name == "CPU Total");
+                    if (usageSensor != null && usageSensor.Value.HasValue)
+                    {
+                        result.AppendFormat("CPU_USAGE:{0}:{1};", "Total", usageSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture));
+                    }
+                    
+                    // NOVO: Sensores de temperatura por núcleo
+                    foreach (ISensor sensor in hardware.Sensors)
+                    {
+                        if (sensor.SensorType == SensorType.Temperature && sensor.Name.Contains("Core #"))
+                        {
+                            string coreId = new string(sensor.Name.Where(char.IsDigit).ToArray());
+                            if (!string.IsNullOrEmpty(coreId) && sensor.Value.HasValue)
+                            {
+                                result.AppendFormat("CPU_CORE_{0}:{1}:{2};", coreId, "Core " + coreId, sensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture));
+                            }
+                        }
+                    }
                 }
 
                 if (hardware.HardwareType == HardwareType.GpuAmd || hardware.HardwareType == HardwareType.GpuNvidia)
                 {
+                    // Temperatura da GPU
                     ISensor tempSensor = FindBestSensor(hardware, new[] { "Hotspot", "Core" });
                     if (tempSensor != null && tempSensor.Value.HasValue)
                     {
                         result.AppendFormat("GPU:{0}:{1};", hardwareName, tempSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture));
                     }
-                }
-
-                if (hardware.HardwareType == HardwareType.Motherboard)
-                {
-                    ISensor tempSensor = FindBestSensor(hardware, new[] { "System", "Chipset", "CPU Socket", "VRM", "Mainboard" });
-                    if (tempSensor == null)
+                    
+                    // NOVO: Uso da GPU
+                    ISensor gpuUsageSensor = hardware.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Load && (s.Name == "GPU Core" || s.Name == "D3D 3D"));
+                     if (gpuUsageSensor != null && gpuUsageSensor.Value.HasValue)
                     {
-                        foreach (IHardware subHardware in hardware.SubHardware)
-                        {
-                            subHardware.Update();
-                            tempSensor = FindBestSensor(subHardware, new[] { "System", "Chipset", "CPU Socket", "VRM", "Mainboard" });
-                            if (tempSensor != null) break;
-                        }
+                        result.AppendFormat("GPU_USAGE:{0}:{1};", "Core", gpuUsageSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture));
                     }
-                    if (tempSensor != null && tempSensor.Value.HasValue)
+                }
+                
+                // NOVO: Monitoramento de Memória RAM
+                if (hardware.HardwareType == HardwareType.Memory)
+                {
+                    ISensor memUsedSensor = hardware.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Data && s.Name == "Memory Used");
+                    if (memUsedSensor != null && memUsedSensor.Value.HasValue)
                     {
-                        result.AppendFormat("MOTHERBOARD:{0}:{1};", hardwareName, tempSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture));
+                        // O valor é em GB, convertemos para MB
+                        result.AppendFormat("RAM_USAGE:{0}:{1};", "Used", (memUsedSensor.Value.Value * 1024).ToString("F0", CultureInfo.InvariantCulture));
                     }
                 }
 
@@ -82,41 +106,18 @@ public class HardwareMonitor
                     ISensor tempSensor = FindBestSensor(hardware, new[] { "Temperature" });
                     if (tempSensor != null && tempSensor.Value.HasValue)
                     {
-                        // --- CORREÇÃO FINAL: Detecta o tipo de drive pelo NOME do sensor ---
                         string driveType;
-                        bool hasRotationSensor = false;
+                        bool hasRotationSensor = hardware.Sensors.Any(s => s.Name.IndexOf("Rotation", StringComparison.OrdinalIgnoreCase) >= 0);
 
-                        // Procura por um sensor cujo NOME contenha "Rotation", que é mais compatível
-                        foreach (ISensor sensor in hardware.Sensors)
-                        {
-                            if (sensor.Name.IndexOf("Rotation", StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                hasRotationSensor = true;
-                                break;
-                            }
-                        }
-
-                        if (hasRotationSensor)
-                        {
-                            driveType = "HD";
-                        }
-                        else
-                        {
+                        if (hasRotationSensor) driveType = "HD";
+                        else {
                             string nameUpper = hardware.Name.ToUpper();
-                            if (nameUpper.Contains("NVME") || nameUpper.Contains("M.2"))
-                            {
-                                driveType = "SSD M.2";
-                            }
-                            else
-                            {
-                                driveType = "SSD";
-                            }
+                            if (nameUpper.Contains("NVME") || nameUpper.Contains("M.2")) driveType = "SSD M.2";
+                            else driveType = "SSD";
                         }
 
                         result.AppendFormat("STORAGE_{0}:{1}:{2}:{3};",
-                            hardwareName.Replace(" ", "_"),
-                            hardwareName,
-                            driveType,
+                            hardwareName.Replace(" ", "_"), hardwareName, driveType,
                             tempSensor.Value.Value.ToString("F1", CultureInfo.InvariantCulture));
                     }
                 }
