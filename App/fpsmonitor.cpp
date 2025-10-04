@@ -216,49 +216,55 @@ void FpsWorker::readFps()
                 QStringList overlayLines;
                 overlayLines.append(QString("<C=00FFFF>FPS<C=FFFFFF>: %1").arg(qRound(currentFps)));
 
-                if (m_lastHardwareInfo.contains("CPU_USAGE")) {
+                bool usageShown = false;
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_USAGE, true).toBool() && m_lastHardwareInfo.contains("CPU_USAGE")) {
                     overlayLines.append(QString("<C=FF00FF>CPU Usage<C=FFFFFF>: %1%").arg(m_lastHardwareInfo["CPU_USAGE"].usage, 0, 'f', 1));
+                    usageShown = true;
                 }
-                if (m_lastHardwareInfo.contains("GPU_USAGE")) {
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_USAGE, true).toBool() && m_lastHardwareInfo.contains("GPU_USAGE")) {
                     overlayLines.append(QString("<C=00FF00>GPU Usage<C=FFFFFF>: %1%").arg(m_lastHardwareInfo["GPU_USAGE"].usage, 0, 'f', 1));
+                    usageShown = true;
                 }
-                if (m_lastHardwareInfo.contains("RAM_USAGE")) {
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_RAM_USAGE, true).toBool() && m_lastHardwareInfo.contains("RAM_USAGE")) {
                     overlayLines.append(QString("<C=FFFF00>RAM Usage<C=FFFFFF>: %1 MB").arg(m_lastHardwareInfo["RAM_USAGE"].usage, 0, 'f', 0));
+                    usageShown = true;
                 }
 
-                if (overlayLines.size() > 1) {
+                if (usageShown) {
                     overlayLines.append(QString("<C=808080>--------------------"));
                 }
 
-                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU, true).toBool() && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
-                    overlayLines.append(QString("<C=FF00FF>CPU Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::CPU_KEY].temperature, 0, 'f', 0));
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_TEMP, true).toBool() && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
+                    overlayLines.append(QString::fromWCharArray(L"<C=FF00FF>CPU Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::CPU_KEY].temperature, 0, 'f', 0));
                 }
 
-                QStringList coreTemps;
-                for (auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
-                    if (it.key().startsWith("CPU_CORE_")) {
-                        coreTemps.append(QString("<C=FF00FF>%1<C=FFFFFF>: %2°C").arg(it.value().name).arg(it.value().temperature, 0, 'f', 0));
-                    }
-                }
-                if (!coreTemps.isEmpty()) {
-                    for(int i = 0; i < coreTemps.size(); i += 2) {
-                        QString line = coreTemps[i];
-                        if (i + 1 < coreTemps.size()) {
-                            line += " | " + coreTemps[i+1];
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_CORES, true).toBool()) {
+                    QStringList coreTemps;
+                    for (auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
+                        if (it.key().startsWith("CPU_CORE_")) {
+                            coreTemps.append(QString::fromWCharArray(L"<C=FF00FF>%1<C=FFFFFF>: %2°C").arg(it.value().name).arg(it.value().temperature, 0, 'f', 0));
                         }
-                        overlayLines.append(line);
+                    }
+                    if (!coreTemps.isEmpty()) {
+                        for(int i = 0; i < coreTemps.size(); i += 2) {
+                            QString line = coreTemps[i];
+                            if (i + 1 < coreTemps.size()) {
+                                line += "\t| " + coreTemps[i+1];
+                            }
+                            overlayLines.append(line);
+                        }
                     }
                 }
 
-                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU, true).toBool() && m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) {
-                    overlayLines.append(QString("<C=00FF00>GPU Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::GPU_KEY].temperature, 0, 'f', 0));
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_TEMP, true).toBool() && m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) {
+                    overlayLines.append(QString::fromWCharArray(L"<C=00FF00>GPU Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::GPU_KEY].temperature, 0, 'f', 0));
                 }
-                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_MB, false).toBool() && m_lastHardwareInfo.contains(AppConfig::MB_KEY)) {
-                    overlayLines.append(QString("<C=FFFF00>MB Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::MB_KEY].temperature, 0, 'f', 0));
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_MB_TEMP, false).toBool() && m_lastHardwareInfo.contains(AppConfig::MB_KEY)) {
+                    overlayLines.append(QString::fromWCharArray(L"<C=FFFF00>MB Temp<C=FFFFFF>: %1°C").arg(m_lastHardwareInfo[AppConfig::MB_KEY].temperature, 0, 'f', 0));
                 }
-                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_STORAGE, false).toBool()) {
+                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_STORAGE_TEMP, true).toBool()) { // Também ajustei o padrão para 'true'
                     for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
-                        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
+                        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX) && it.value().temperature >= 0) {
                             overlayLines.append(QString("<C=FFA500>%1 Temp<C=FFFFFF>: %2°C").arg(it.value().driveType).arg(it.value().temperature, 0, 'f', 0));
                         }
                     }
@@ -267,30 +273,11 @@ void FpsWorker::readFps()
                 RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY pOSDEntry =
                     (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((LPBYTE)pMem + pMem->dwOSDArrOffset);
 
+                QByteArray overlayBytes = overlayLines.join("\n").toUtf8();
                 strcpy_s(pOSDEntry->szOSDOwner, "LAGZERO");
-                strcpy_s(pOSDEntry->szOSD, overlayLines.join("\n").toStdString().c_str());
 
-                // Lógica do Gráfico
-                if (settings.value(AppConfig::SETTING_OVERLAY_SHOW_GRAPH, false).toBool() && pAppEntry->dwStatFrameTimeBufFramerate != 0) {
-                    float fltMin = 1000.0f / pAppEntry->dwStatFrameTimeBufFramerate * 0.5f;
-                    float fltMax = 1000.0f / pAppEntry->dwStatFrameTimeBufFramerate * 2.0f;
-                    DWORD dwDataCount = sizeof(pAppEntry->dwStatFrameTimeBuf) / sizeof(pAppEntry->dwStatFrameTimeBuf[0]);
-
-                    LPRTSS_EMBEDDED_OBJECT_GRAPH pGraph = (LPRTSS_EMBEDDED_OBJECT_GRAPH)pOSDEntry->buffer;
-                    pGraph->header.dwSignature = RTSS_EMBEDDED_OBJECT_GRAPH_SIGNATURE;
-                    pGraph->header.dwSize = sizeof(RTSS_EMBEDDED_OBJECT_GRAPH) + dwDataCount * sizeof(float);
-                    pGraph->header.dwWidth = -100; pGraph->header.dwHeight = -25;
-                    pGraph->dwFlags = RTSS_EMBEDDED_OBJECT_GRAPH_FLAG_FILLED | RTSS_EMBEDDED_OBJECT_GRAPH_FLAG_FRAMERATE;
-                    pGraph->fltMin = fltMin; pGraph->fltMax = fltMax;
-                    pGraph->dwDataCount = dwDataCount;
-
-                    for (DWORD j=0; j<dwDataCount; j++)
-                        pGraph->fltData[j] = pAppEntry->dwStatFrameTimeBuf[(pAppEntry->dwStatFrameTimeBufPos + j) % dwDataCount] / 1000.0f;
-
-                    sprintf_s(pOSDEntry->szOSDEx, "<O=%d>", sizeof(pOSDEntry->buffer));
-                } else {
-                    strcpy_s(pOSDEntry->szOSDEx, "");
-                }
+                strcpy_s(pOSDEntry->szOSDEx, "");
+                strcpy_s(pOSDEntry->szOSDEx, sizeof(pOSDEntry->szOSDEx), overlayBytes.constData());
 
             } else { // Se o overlay estiver desabilitado, limpa
                 RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY pOSDEntry =
@@ -339,3 +326,4 @@ void FpsWorker::readFps()
     // Lógica para outros sistemas operacionais (não implementado)
 #endif
 }
+

@@ -117,15 +117,18 @@ private:
     QCheckBox *m_saveReportsCheckBox;
     QComboBox *m_reportFormatComboBox;
     QComboBox *m_chartDurationComboBox;
-    // Novos widgets para o overlay
+    // Widgets do overlay
     QCheckBox* m_overlayEnabledCheckBox;
     QComboBox* m_overlayPositionComboBox;
-    QCheckBox* m_overlayShowCpuCheckBox;
-    QCheckBox* m_overlayShowGpuCheckBox;
-    QCheckBox* m_overlayShowMbCheckBox;
-    QCheckBox* m_overlayShowStorageCheckBox;
-    QCheckBox* m_overlayShowGraphCheckBox;
-
+    QCheckBox* m_overlayShowCpuTempCheckBox;
+    QCheckBox* m_overlayShowCpuUsageCheckBox;
+    QCheckBox* m_overlayShowCpuCoresCheckBox;
+    QCheckBox* m_overlayShowGpuTempCheckBox;
+    QCheckBox* m_overlayShowGpuUsageCheckBox;
+    QCheckBox* m_overlayShowRamUsageCheckBox;
+    QCheckBox* m_overlayShowMbTempCheckBox;
+    QCheckBox* m_overlayShowStorageTempCheckBox;
+    // O checkbox do gráfico foi removido.
 
     // --- Cards de Status ---
     QFrame *m_rtssStatusCard;
@@ -153,3 +156,4 @@ private:
     void triggerCoverChange(const QString& executableName);
 };
 #endif // MAINWINDOW_H
+

@@ -14,15 +14,18 @@ const QString STORAGE_KEY_PREFIX = "STORAGE_";
 const QString SETTING_PARTICLES_ENABLED = "particles/enabled";
 const QString SETTING_REPORTS_ENABLED = "reports/enabled";
 
-// Novas Chaves de Configuração do Overlay
+// Chaves de Configuração do Overlay (Atualizadas)
 const QString SETTING_OVERLAY_ENABLED = "overlay/enabled";
 const QString SETTING_OVERLAY_POSITION = "overlay/position";
-const QString SETTING_OVERLAY_SHOW_CPU = "overlay/showCpuTemp";
-const QString SETTING_OVERLAY_SHOW_GPU = "overlay/showGpuTemp";
-const QString SETTING_OVERLAY_SHOW_MB = "overlay/showMbTemp";
-const QString SETTING_OVERLAY_SHOW_STORAGE = "overlay/showStorageTemp";
-const QString SETTING_OVERLAY_SHOW_GRAPH = "overlay/showGraph";
-
+const QString SETTING_OVERLAY_SHOW_CPU_TEMP = "overlay/showCpuTemp";
+const QString SETTING_OVERLAY_SHOW_CPU_USAGE = "overlay/showCpuUsage";
+const QString SETTING_OVERLAY_SHOW_CPU_CORES = "overlay/showCpuCores";
+const QString SETTING_OVERLAY_SHOW_GPU_TEMP = "overlay/showGpuTemp";
+const QString SETTING_OVERLAY_SHOW_GPU_USAGE = "overlay/showGpuUsage";
+const QString SETTING_OVERLAY_SHOW_RAM_USAGE = "overlay/showRamUsage";
+const QString SETTING_OVERLAY_SHOW_MB_TEMP = "overlay/showMbTemp";
+const QString SETTING_OVERLAY_SHOW_STORAGE_TEMP = "overlay/showStorageTemp";
+// A chave para o gráfico foi removida.
 
 // Conteúdo SVG dos Ícones
 const QString ICON_CPU_SVG = R"(<svg ...></svg>)"; // (Conteúdo SVG omitido por brevidade)
@@ -32,3 +35,4 @@ const QString ICON_STORAGE_SVG = R"(<svg ...></svg>)";
 }
 
 #endif // APPCONSTANTS_H
+
