@@ -25,6 +25,9 @@ const QString SETTING_OVERLAY_SHOW_GPU_USAGE = "overlay/showGpuUsage";
 const QString SETTING_OVERLAY_SHOW_RAM_USAGE = "overlay/showRamUsage";
 const QString SETTING_OVERLAY_SHOW_MB_TEMP = "overlay/showMbTemp";
 const QString SETTING_OVERLAY_SHOW_STORAGE_TEMP = "overlay/showStorageTemp";
+const QString SETTING_OVERLAY_SHOW_AVG_FPS = "overlay/showAvgFps";
+const QString SETTING_OVERLAY_SHOW_MIN_FPS = "overlay/showMinFps";
+const QString SETTING_OVERLAY_SHOW_MAX_FPS = "overlay/showMaxFps";
 // A chave para o gráfico foi removida.
 
 // Conteúdo SVG dos Ícones

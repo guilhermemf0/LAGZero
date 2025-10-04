@@ -113,6 +113,17 @@ MainWindow::MainWindow(QWidget *parent)
     m_overlayShowStorageTempCheckBox->blockSignals(true);
     m_overlayShowStorageTempCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_STORAGE_TEMP, true).toBool());
     m_overlayShowStorageTempCheckBox->blockSignals(false);
+    m_overlayShowAvgFpsCheckBox->blockSignals(true);
+    m_overlayShowAvgFpsCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_AVG_FPS, true).toBool());
+    m_overlayShowAvgFpsCheckBox->blockSignals(false);
+
+    m_overlayShowMinFpsCheckBox->blockSignals(true);
+    m_overlayShowMinFpsCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_MIN_FPS, true).toBool());
+    m_overlayShowMinFpsCheckBox->blockSignals(false);
+
+    m_overlayShowMaxFpsCheckBox->blockSignals(true);
+    m_overlayShowMaxFpsCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_MAX_FPS, true).toBool());
+    m_overlayShowMaxFpsCheckBox->blockSignals(false);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -200,6 +211,9 @@ void MainWindow::setupConnections() {
     connect(m_overlayShowRamUsageCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
     connect(m_overlayShowMbTempCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
     connect(m_overlayShowStorageTempCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowAvgFpsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowMinFpsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowMaxFpsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
 }
 
 void MainWindow::setupOverviewPage() {
@@ -404,6 +418,9 @@ void MainWindow::setupSettingsPage() {
     m_overlayShowCpuUsageCheckBox = new QCheckBox("Uso de CPU");
     m_overlayShowGpuUsageCheckBox = new QCheckBox("Uso de GPU");
     m_overlayShowRamUsageCheckBox = new QCheckBox("Uso de RAM");
+    m_overlayShowAvgFpsCheckBox = new QCheckBox("Exibir FPS Médio");
+    m_overlayShowMinFpsCheckBox = new QCheckBox("Exibir FPS Mínimo");
+    m_overlayShowMaxFpsCheckBox = new QCheckBox("Exibir FPS Máximo");
     m_overlayShowCpuTempCheckBox = new QCheckBox("Temperatura do CPU (Pacote)");
     m_overlayShowCpuCoresCheckBox = new QCheckBox("Temperatura dos Núcleos da CPU");
     m_overlayShowGpuTempCheckBox = new QCheckBox("Temperatura da GPU");
@@ -418,6 +435,9 @@ void MainWindow::setupSettingsPage() {
     contentLayout->addWidget(m_overlayShowGpuTempCheckBox, 2, 1);
     contentLayout->addWidget(m_overlayShowMbTempCheckBox, 3, 1);
     contentLayout->addWidget(m_overlayShowStorageTempCheckBox, 4, 1);
+    contentLayout->addWidget(m_overlayShowAvgFpsCheckBox, 0, 2);
+    contentLayout->addWidget(m_overlayShowMinFpsCheckBox, 1, 2);
+    contentLayout->addWidget(m_overlayShowMaxFpsCheckBox, 2, 2);
 
     overlayLayout->addWidget(contentBox);
     mainLayout->addWidget(overlayGroup);
@@ -481,6 +501,9 @@ void MainWindow::onOverlaySettingChanged()
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_RAM_USAGE, m_overlayShowRamUsageCheckBox->isChecked());
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_MB_TEMP, m_overlayShowMbTempCheckBox->isChecked());
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_STORAGE_TEMP, m_overlayShowStorageTempCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_AVG_FPS, m_overlayShowAvgFpsCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_MIN_FPS, m_overlayShowMinFpsCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_MAX_FPS, m_overlayShowMaxFpsCheckBox->isChecked());
 }
 
 void MainWindow::onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId)

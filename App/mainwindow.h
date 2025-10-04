@@ -128,8 +128,10 @@ private:
     QCheckBox* m_overlayShowRamUsageCheckBox;
     QCheckBox* m_overlayShowMbTempCheckBox;
     QCheckBox* m_overlayShowStorageTempCheckBox;
-    // O checkbox do gráfico foi removido.
 
+    QCheckBox* m_overlayShowAvgFpsCheckBox;
+    QCheckBox* m_overlayShowMinFpsCheckBox;
+    QCheckBox* m_overlayShowMaxFpsCheckBox;
     // --- Cards de Status ---
     QFrame *m_rtssStatusCard;
     QFrame *m_hardwareStatusCard;
