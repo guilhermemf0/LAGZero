@@ -1,0 +1,81 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "SensorReader/1.0.0": {
+        "dependencies": {
+          "System.Management": "9.0.9",
+          "LibreHardwareMonitorLib": "0.9.4.0"
+        },
+        "runtime": {
+          "SensorReader.dll": {}
+        }
+      },
+      "System.CodeDom/9.0.9": {
+        "runtime": {
+          "lib/net9.0/System.CodeDom.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.925.41916"
+          }
+        }
+      },
+      "System.Management/9.0.9": {
+        "dependencies": {
+          "System.CodeDom": "9.0.9"
+        },
+        "runtime": {
+          "lib/net9.0/System.Management.dll": {
+            "assemblyVersion": "9.0.0.9",
+            "fileVersion": "9.0.925.41916"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net9.0/System.Management.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "9.0.0.9",
+            "fileVersion": "9.0.925.41916"
+          }
+        }
+      },
+      "LibreHardwareMonitorLib/0.9.4.0": {
+        "runtime": {
+          "LibreHardwareMonitorLib.dll": {
+            "assemblyVersion": "0.9.4.0",
+            "fileVersion": "0.9.4.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SensorReader/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.CodeDom/9.0.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Az4ngSi0MO3Qwu1+BJRHnc2C8e7+x0oXj+Q++C/wru0vM8J2oL3QlliiZPdwPnR0VbiL0lH7izSIGQssMaRiGQ==",
+      "path": "system.codedom/9.0.9",
+      "hashPath": "system.codedom.9.0.9.nupkg.sha512"
+    },
+    "System.Management/9.0.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U+OnvxuFi/V0++P98Auba1pAyaOXU5EioSz0xczgFsB7l/sPX9Ix4rWwI+lXJG4/icPieeRsfpXPEIcSBTQShw==",
+      "path": "system.management/9.0.9",
+      "hashPath": "system.management.9.0.9.nupkg.sha512"
+    },
+    "LibreHardwareMonitorLib/0.9.4.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

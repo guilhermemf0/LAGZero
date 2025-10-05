@@ -7,6 +7,7 @@
 #include "appconstants.h"
 #include "steamappcache.h"
 #include "coverselectiondialog.h"
+#include "infocardwidget.h" // Adicionado para evitar erro de tipo incompleto
 #include <QFontDatabase>
 #include <QIcon>
 #include <QStyle>
@@ -337,7 +338,7 @@ void MainWindow::setupTempPage() {
         auto* p = new QWidget();
         auto* l = new QVBoxLayout(p);
         l->setSpacing(20); l->setContentsMargins(0, 10, 0, 0);
-        m_tempInfoCards[key] = createInfoCard(key, icon, title);
+        m_tempInfoCards[key] = new InfoCardWidget(icon, title, p);
         m_charts[key] = new PerformanceChartWidget();
         l->addWidget(m_tempInfoCards[key]);
         l->addWidget(m_charts[key], 1);
@@ -896,29 +897,77 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
 {
     m_currentSession.lastTemps = deviceInfos;
 
+    // 1. Lida com CPU, GPU e Placa-mãe
+    const QList<QString> mainKeys = { AppConfig::CPU_KEY, AppConfig::GPU_KEY, AppConfig::MB_KEY };
+    for (const QString& key : mainKeys) {
+        if (m_tempInfoCards.contains(key)) {
+            InfoCardWidget* card = qobject_cast<InfoCardWidget*>(m_tempInfoCards.value(key));
+            if (!card) continue;
+
+            if (deviceInfos.contains(key)) {
+                const HardwareInfo& info = deviceInfos.value(key);
+                card->setTitle(info.name);
+
+                if (info.temperature >= 0) {
+                    card->setValue(QString::number(info.temperature, 'f', 1) + " °C");
+                    card->setValueStyleSheet("color: " + getTempColor(info.temperature, key));
+                } else {
+                    card->setValue("Sensor não encontrado");
+                    card->setValueStyleSheet("color: #aeb9d6;");
+                }
+            }
+            // Não faz nada se a chave não existir, mantendo o card com o nome padrão
+        }
+    }
+
+    // 2. Lida com Armazenamento
+    QSet<QString> updatedStorageKeys;
     for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
-        if (m_tempInfoCards.contains(it.key())) {
-            auto* card = m_tempInfoCards.value(it.key());
-            auto* valueLabel = card->findChild<QLabel*>("Value");
-            auto* titleLabel = card->findChild<QLabel*>("Title");
-            if (valueLabel && it.value().temperature >= 0) {
-                valueLabel->setText(QString::number(it.value().temperature, 'f', 1) + " °C");
-                valueLabel->setStyleSheet("color: " + getTempColor(it.value().temperature, it.key()));
-            }
-            if (titleLabel && !it.value().name.isEmpty() && it.value().name != "N/D") {
-                titleLabel->setText(it.value().name);
-            }
-        } else if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
+        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
+            updatedStorageKeys.insert(it.key());
+            const HardwareInfo& info = it.value();
+
             if (!m_tempInfoCards.contains(it.key())) {
-                m_storagePageLayout->addWidget(createInfoCard(it.key(), AppConfig::ICON_STORAGE_SVG, it.value().name));
+                auto* newCard = new InfoCardWidget(AppConfig::ICON_STORAGE_SVG, "Armazenamento", this);
+                m_storagePageLayout->addWidget(newCard);
+                m_tempInfoCards[it.key()] = newCard;
+            }
+
+            InfoCardWidget* card = qobject_cast<InfoCardWidget*>(m_tempInfoCards.value(it.key()));
+            if (!card) continue;
+
+            QString title = QString("%1 (%2)").arg(info.name, info.driveType == "HDD" ? "HD" : info.driveType);
+            card->setTitle(title);
+
+            if (info.temperature >= 0) {
+                card->setValue(QString::number(info.temperature, 'f', 1) + " °C");
+                card->setValueStyleSheet("color: " + getTempColor(info.temperature, "STORAGE"));
+            } else {
+                card->setValue("Sensor não encontrado");
+                card->setValueStyleSheet("color: #aeb9d6;");
             }
         }
     }
 
+    // 3. Remove cards de armazenamento que não existem mais
+    for (auto it = m_tempInfoCards.begin(); it != m_tempInfoCards.end();) {
+        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX) && !updatedStorageKeys.contains(it.key())) {
+            it.value()->deleteLater();
+            it = m_tempInfoCards.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Adiciona dados aos gráficos se uma sessão estiver ativa
     if (m_currentSession.processId != 0) {
         for (auto it = m_charts.constBegin(); it != m_charts.constEnd(); ++it) {
+            // Usa o mapa da sessão (lastTemps) para garantir consistência
             if (m_currentSession.lastTemps.contains(it.key())) {
-                it.value()->addDataPoint(m_currentSession.lastTemps.value(it.key()).temperature, m_currentSession.lastFps);
+                const auto& info = m_currentSession.lastTemps.value(it.key());
+                if(info.temperature >= 0) {
+                    it.value()->addDataPoint(info.temperature, m_currentSession.lastFps);
+                }
             }
         }
     }
@@ -960,27 +1009,7 @@ void MainWindow::openReportsFolder()
 }
 
 QWidget* MainWindow::createInfoCard(const QString& key, const QString& iconSvg, const QString& title) {
-    auto* card = new QWidget();
-    card->setProperty("class", "InfoCard");
-    card->setFixedHeight(100);
-    auto* layout = new QHBoxLayout(card);
-    auto* icon = new QLabel();
-    icon->setFixedSize(32, 32);
-    QSvgRenderer renderer; renderer.load(iconSvg.toUtf8());
-    QPixmap pixmap(icon->size()); pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap); renderer.render(&painter);
-    icon->setPixmap(pixmap);
-
-    auto* textLayout = new QVBoxLayout();
-    auto* titleLabel = new QLabel(title); titleLabel->setProperty("class", "Title");
-    titleLabel->setObjectName("Title");
-    auto* valueLabel = new QLabel("N/D"); valueLabel->setProperty("class", "Value");
-    valueLabel->setObjectName("Value");
-    textLayout->addWidget(titleLabel);
-    textLayout->addWidget(valueLabel);
-
-    layout->addWidget(icon);
-    layout->addLayout(textLayout);
+    auto* card = new InfoCardWidget(iconSvg, title, this);
     m_tempInfoCards[key] = card;
     return card;
 }
@@ -1024,4 +1053,3 @@ QString MainWindow::findEpicGameDisplayName(const QString& executablePath)
     }
     return QString();
 }
-

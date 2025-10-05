@@ -1,0 +1,15 @@
+C:\Projetos\LAGZero\App\helper\SensorReader\bin\Debug\net48\SensorReader.exe.config
+C:\Projetos\LAGZero\App\helper\SensorReader\bin\Debug\net48\SensorReader.exe
+C:\Projetos\LAGZero\App\helper\SensorReader\bin\Debug\net48\SensorReader.pdb
+C:\Projetos\LAGZero\App\helper\SensorReader\bin\Debug\net48\System.CodeDom.dll
+C:\Projetos\LAGZero\App\helper\SensorReader\bin\Debug\net48\LibreHardwareMonitorLib.dll
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.csproj.AssemblyReference.cache
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.AssemblyInfoInputs.cache
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.AssemblyInfo.cs
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.csproj.CoreCompileInputs.cache
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.sourcelink.json
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorRe.3A8F2015.Up2Date
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.exe
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.pdb
+C:\Projetos\LAGZero\App\helper\SensorReader\obj\Debug\net48\SensorReader.exe.config

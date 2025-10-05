@@ -204,7 +204,6 @@ void FpsWorker::readFps()
                     continue;
                 }
                 QString windowTitle = getWindowTitleByProcessId(pid);
-                qDebug() << "Novo jogo detectado:" << exeName << "PID:" << pid << "Título:" << windowTitle;
                 GameSessionInfo newSession;
                 newSession.exeName = exeName;
                 newSession.startTime = QDateTime::currentSecsSinceEpoch();
@@ -254,34 +253,50 @@ void FpsWorker::readFps()
                     overlayLines.append(statsLine);
                 }
 
-                if (showCpuUsage) {
-                    QString usage = m_lastHardwareInfo.contains("CPU_USAGE") ? QString::number(m_lastHardwareInfo["CPU_USAGE"].usage, 'f', 0) : "--";
-                    QString line = QString("<C=00D1FF>|<C=FF00FF> CPU   <C=FFFFFF>%1%").arg(usage.rightJustified(3));
-                    if (showCpuTemp) {
-                        QString temp = m_lastHardwareInfo.contains(AppConfig::CPU_KEY) ? QString::number(m_lastHardwareInfo[AppConfig::CPU_KEY].temperature, 'f', 0) : "--";
-                        line.append(QString("<C=808080> |<C=FFFFFF> %1<C=808080> C").arg(temp.rightJustified(3)));
-                    }
-                    mainHardwareLines.append(line);
-                } else if (showCpuTemp) {
-                    QString temp = m_lastHardwareInfo.contains(AppConfig::CPU_KEY) ? QString::number(m_lastHardwareInfo[AppConfig::CPU_KEY].temperature, 'f', 0) : "--";
-                    temperaturesLines.append(QString("<C=00D1FF>|<C=FF00FF> CPU       <C=FFFFFF>%1<C=808080> C").arg(temp.rightJustified(3)));
+                // --- LÓGICA DINÂMICA PARA CPU E GPU ---
+                QString cpuUsage = "--";
+                if(showCpuUsage && m_lastHardwareInfo.contains("CPU_USAGE")) {
+                    double usageValue = m_lastHardwareInfo["CPU_USAGE"].usage;
+                    if (usageValue >= 0) cpuUsage = QString::number(usageValue, 'f', 0);
+                }
+                QString cpuTemp = "--";
+                if(showCpuTemp && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
+                    double tempValue = m_lastHardwareInfo[AppConfig::CPU_KEY].temperature;
+                    if (tempValue >= 0) cpuTemp = QString::number(tempValue, 'f', 0);
+                }
+                QString gpuUsage = "--";
+                if(showGpuUsage && m_lastHardwareInfo.contains("GPU_USAGE")) {
+                    double usageValue = m_lastHardwareInfo["GPU_USAGE"].usage;
+                    if (usageValue >= 0) gpuUsage = QString::number(usageValue, 'f', 0);
+                }
+                QString gpuTemp = "--";
+                if(showGpuTemp && m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) {
+                    double tempValue = m_lastHardwareInfo[AppConfig::GPU_KEY].temperature;
+                    if (tempValue >= 0) gpuTemp = QString::number(tempValue, 'f', 0);
                 }
 
-                if (showGpuUsage) {
-                    QString usage = m_lastHardwareInfo.contains("GPU_USAGE") ? QString::number(m_lastHardwareInfo["GPU_USAGE"].usage, 'f', 0) : "--";
-                    QString line = QString("<C=00D1FF>|<C=00FF00> GPU   <C=FFFFFF>%1%").arg(usage.rightJustified(3));
-                    if (showGpuTemp) {
-                        QString temp = m_lastHardwareInfo.contains(AppConfig::GPU_KEY) ? QString::number(m_lastHardwareInfo[AppConfig::GPU_KEY].temperature, 'f', 0) : "--";
-                        line.append(QString("<C=808080> |<C=FFFFFF> %1<C=808080> C").arg(temp.rightJustified(3)));
-                    }
-                    mainHardwareLines.append(line);
+                if (showCpuUsage && showCpuTemp) {
+                    mainHardwareLines.append(QString("<C=00D1FF>|<C=FF00FF> CPU   <C=FFFFFF>%1%<C=808080> |<C=FFFFFF> %2<C=808080> C").arg(cpuUsage.rightJustified(3)).arg(cpuTemp.rightJustified(3)));
+                } else if (showCpuUsage) {
+                    mainHardwareLines.append(QString("<C=00D1FF>|<C=FF00FF> CPU   <C=FFFFFF>%1%").arg(cpuUsage.rightJustified(3)));
+                } else if (showCpuTemp) {
+                    temperaturesLines.append(QString("<C=00D1FF>|<C=FF00FF> CPU       <C=FFFFFF>%1<C=808080> C").arg(cpuTemp.rightJustified(3)));
+                }
+
+                if (showGpuUsage && showGpuTemp) {
+                    mainHardwareLines.append(QString("<C=00D1FF>|<C=00FF00> GPU   <C=FFFFFF>%1%<C=808080> |<C=FFFFFF> %2<C=808080> C").arg(gpuUsage.rightJustified(3)).arg(gpuTemp.rightJustified(3)));
+                } else if (showGpuUsage) {
+                    mainHardwareLines.append(QString("<C=00D1FF>|<C=00FF00> GPU   <C=FFFFFF>%1%").arg(gpuUsage.rightJustified(3)));
                 } else if (showGpuTemp) {
-                    QString temp = m_lastHardwareInfo.contains(AppConfig::GPU_KEY) ? QString::number(m_lastHardwareInfo[AppConfig::GPU_KEY].temperature, 'f', 0) : "--";
-                    temperaturesLines.append(QString("<C=00D1FF>|<C=00FF00> GPU       <C=FFFFFF>%1<C=808080> C").arg(temp.rightJustified(3)));
+                    temperaturesLines.append(QString("<C=00D1FF>|<C=00FF00> GPU       <C=FFFFFF>%1<C=808080> C").arg(gpuTemp.rightJustified(3)));
                 }
 
                 if (showRamUsage) {
-                    QString usage = m_lastHardwareInfo.contains("RAM_USAGE") ? QString::number(m_lastHardwareInfo["RAM_USAGE"].usage, 'f', 0) : "--";
+                    QString usage = "--";
+                    if (m_lastHardwareInfo.contains("RAM_USAGE")) {
+                        double usageValue = m_lastHardwareInfo["RAM_USAGE"].usage;
+                        if (usageValue >= 0) usage = QString::number(usageValue, 'f', 0);
+                    }
                     mainHardwareLines.append(QString("<C=00D1FF>|<C=FFFF00> RAM   <C=FFFFFF>%1 MB").arg(usage.rightJustified(5)));
                 }
 
@@ -294,16 +309,22 @@ void FpsWorker::readFps()
                     QStringList coreTemps;
                     for (auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
                         if (it.key().startsWith("CPU_CORE_")) {
-                            QString temp = it.value().temperature >= 0 ? QString::number(it.value().temperature, 'f', 0) : "--";
-                            coreTemps.append(QString("<C=FF00FF>%1<C=FFFFFF> %2<C=808080> C").arg(it.value().name).arg(temp));
+                            QString temp = "--";
+                            double tempValue = it.value().temperature;
+                            if (tempValue >= 0) temp = QString::number(tempValue, 'f', 0);
+
+                            QString coreId = it.key().split('_').last();
+                            QString coreLabel = QString("Core %1").arg(coreId);
+
+                            coreTemps.append(QString("<C=FF00FF>%1<C=FFFFFF> %2<C=808080> C").arg(coreLabel.leftJustified(7)).arg(temp));
                         }
                     }
                     if (!coreTemps.isEmpty()) {
                         overlayLines.append("<C=00D1FF>|..........................|");
-                        for(int i = 0; i < coreTemps.size(); i += 2) {
-                            QString line = QString("<C=00D1FF>|<C=FFFFFF> %1").arg(coreTemps[i].leftJustified(11));
-                            if (i + 1 < coreTemps.size()) {
-                                line.append(QString(" <C=808080>|<C=FFFFFF> %1").arg(coreTemps[i+1]));
+                        for(int j = 0; j < coreTemps.size(); j += 2) {
+                            QString line = QString("<C=00D1FF>|<C=FFFFFF> %1").arg(coreTemps[j].leftJustified(11));
+                            if (j + 1 < coreTemps.size()) {
+                                line.append(QString(" <C=808080>|<C=FFFFFF> %1").arg(coreTemps[j+1]));
                             }
                             overlayLines.append(line);
                         }
@@ -311,27 +332,42 @@ void FpsWorker::readFps()
                 }
 
                 if (showMb) {
-                    QString temp = m_lastHardwareInfo.contains(AppConfig::MB_KEY) ? QString::number(m_lastHardwareInfo[AppConfig::MB_KEY].temperature, 'f', 0) : "--";
+                    QString temp = "--";
+                    if (m_lastHardwareInfo.contains(AppConfig::MB_KEY)) {
+                        double tempValue = m_lastHardwareInfo[AppConfig::MB_KEY].temperature;
+                        if (tempValue >= 0) temp = QString::number(tempValue, 'f', 0);
+                    }
                     temperaturesLines.append(QString("<C=00D1FF>|<C=94A3B8> Placa Mae   <C=FFFFFF>%1<C=808080> C").arg(temp.rightJustified(3)));
                 }
 
                 if (showStorage) {
-                    QStringList ssdTemps, hddTemps;
-                    int ssdCount = 1, hddCount = 1;
+                    int totalSsds = 0, totalHds = 0;
                     for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
                         if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
-                            QString temp = it.value().temperature >= 0 ? QString::number(it.value().temperature, 'f', 0) : "--";
+                            if (it.value().driveType == "SSD") totalSsds++;
+                            else if (it.value().driveType == "HD") totalHds++;
+                        }
+                    }
+
+                    QStringList ssdTemps, hdTemps;
+                    int ssdCount = 1, hdCount = 1;
+                    for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
+                        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
+                            QString temp = "--";
+                            double tempValue = it.value().temperature;
+                            if (tempValue >= 0) temp = QString::number(tempValue, 'f', 0);
+
                             if (it.value().driveType == "SSD") {
-                                QString line = QString("<C=00D1FF>|<C=94A3B8> SSD %1      <C=FFFFFF>%2<C=808080> C").arg(ssdCount++).arg(temp.rightJustified(3));
-                                ssdTemps.append(line);
-                            } else {
-                                QString line = QString("<C=00D1FF>|<C=94A3B8> HDD %1      <C=FFFFFF>%2<C=808080> C").arg(hddCount++).arg(temp.rightJustified(3));
-                                hddTemps.append(line);
+                                QString label = (totalSsds > 1) ? QString("SSD %1").arg(ssdCount++) : "SSD";
+                                ssdTemps.append(QString("<C=00D1FF>|<C=94A3B8> %1<C=FFFFFF>%2<C=808080> C").arg(label.leftJustified(10)).arg(temp.rightJustified(3)));
+                            } else if (it.value().driveType == "HD") {
+                                QString label = (totalHds > 1) ? QString("HD %1").arg(hdCount++) : "HD";
+                                hdTemps.append(QString("<C=00D1FF>|<C=94A3B8> %1<C=FFFFFF>%2<C=808080> C").arg(label.leftJustified(10)).arg(temp.rightJustified(3)));
                             }
                         }
                     }
                     if (!ssdTemps.isEmpty()) { temperaturesLines.append(ssdTemps); }
-                    if (!hddTemps.isEmpty()) { temperaturesLines.append(hddTemps); }
+                    if (!hdTemps.isEmpty()) { temperaturesLines.append(hdTemps); }
                 }
 
                 if (!temperaturesLines.isEmpty()) {

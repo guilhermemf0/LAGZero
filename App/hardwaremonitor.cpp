@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QFile>
+#include <QRegularExpression>
 
 // --- HardwareMonitor (Classe Principal) ---
 HardwareMonitor::HardwareMonitor(QObject *parent) : QObject(parent)
@@ -26,7 +27,6 @@ HardwareMonitor::~HardwareMonitor() {
 // --- HardwareWorker (Lógica em Thread Separada) ---
 HardwareWorker::HardwareWorker() : m_process(nullptr), m_timer(nullptr) {}
 
-// CORREÇÃO FINAL: Garante que o processo seja encerrado de forma limpa
 HardwareWorker::~HardwareWorker()
 {
     if (m_process && m_process->state() != QProcess::NotRunning) {
@@ -46,7 +46,7 @@ void HardwareWorker::process() {
     connect(m_process, &QProcess::finished, this, &HardwareWorker::onProcessFinished);
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &HardwareWorker::readHardwareData);
-    m_timer->start(2000); // Aumentado para 2 segundos para dar tempo de resposta
+    m_timer->start(2000);
     readHardwareData();
 }
 void HardwareWorker::readHardwareData() {
@@ -67,29 +67,58 @@ void HardwareWorker::onProcessFinished(int exitCode, QProcess::ExitStatus exitSt
         QStringList parts = resultStr.split(';', Qt::SkipEmptyParts);
         for (const QString &part : parts) {
             QStringList pair = part.split(':');
-            if (pair.length() < 3) continue;
+            if (pair.length() < 4) continue;
 
-            QString key = pair[0];
+            QString fullKey = pair[0];
+            QString hardwareName = pair[1];
+            QString sensorName = pair[2];
+            double value = pair[3].toDouble();
+
             HardwareInfo info;
-            bool ok = false;
+            info.name = hardwareName;
 
-            if (key.startsWith("STORAGE") && pair.length() == 4) {
-                info.name = pair[1];
-                info.driveType = pair[2];
-                info.temperature = pair[3].toDouble(&ok);
-            } else if (key == "CPU_USAGE" || key == "GPU_USAGE" || key == "RAM_USAGE") {
-                info.name = pair[1];
-                info.usage = pair[2].toDouble(&ok);
-            } else if (key.startsWith("CPU_CORE_")) {
-                info.name = pair[1];
-                info.temperature = pair[2].toDouble(&ok);
-            } else if (pair.length() == 3) {
-                info.name = pair[1];
-                info.temperature = pair[2].toDouble(&ok);
-            }
-
-            if (ok) {
-                deviceInfos.insert(key, info);
+            if (fullKey.startsWith("CPU_TEMPERATURE")) {
+                if (sensorName.contains("Package") || sensorName.contains("Tctl/Tdie)") || sensorName == "No Sensor") {
+                    info.temperature = value;
+                    deviceInfos.insert("CPU", info);
+                }
+                else if (sensorName.contains("Core #")) {
+                    QString coreId = QString(sensorName).remove(QRegularExpression("[^0-9]"));
+                    info.temperature = value;
+                    deviceInfos.insert("CPU_CORE_" + coreId, info);
+                }
+            } else if (fullKey.startsWith("CPU_LOAD")) {
+                if (sensorName.contains("CPU Total")) {
+                    info.usage = value;
+                    deviceInfos.insert("CPU_USAGE", info);
+                }
+            } else if (fullKey.startsWith("GPU_TEMPERATURE")) {
+                if (sensorName.contains("Hotspot") || sensorName.contains("Core") || sensorName == "No Sensor") {
+                    if (!deviceInfos.contains("GPU")) {
+                        info.temperature = value;
+                        deviceInfos.insert("GPU", info);
+                    }
+                }
+            } else if (fullKey.startsWith("GPU_LOAD")) {
+                if (sensorName.contains("GPU Core") || sensorName.contains("D3D 3D")){
+                    info.usage = value;
+                    deviceInfos.insert("GPU_USAGE", info);
+                }
+            } else if (fullKey.startsWith("RAM_DATA")) {
+                if (sensorName == "Memory Used") { // Alterado de .contains() para == para ser exato
+                    info.usage = value;
+                    deviceInfos.insert("RAM_USAGE", info);
+                }
+            } else if (fullKey.startsWith("MB_TEMPERATURE")) {
+                if (!deviceInfos.contains("MOTHERBOARD")) {
+                    info.temperature = value;
+                    deviceInfos.insert("MOTHERBOARD", info);
+                }
+            } else if (fullKey.startsWith("STORAGE") && fullKey.contains("TEMPERATURE")) {
+                info.temperature = value;
+                if (fullKey.contains("SSD")) info.driveType = "SSD";
+                else if (fullKey.contains("HD")) info.driveType = "HD";
+                deviceInfos.insert(fullKey, info);
             }
         }
     }
