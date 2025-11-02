@@ -13,6 +13,7 @@
 #include <QStyle>
 #include <QCryptographicHash>
 #include <QDesktopServices>
+#include <QButtonGroup>
 #include <QSettings>
 #include <QtSvg/QSvgRenderer>
 #include <QPainter>
@@ -20,6 +21,9 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QButtonGroup>
+#include <QGridLayout>
+#include <QGroupBox>
 #include <QGraphicsDropShadowEffect>
 #include <QRegularExpression>
 #include <numeric>
@@ -88,7 +92,13 @@ MainWindow::MainWindow(QWidget *parent)
     m_overlayEnabledCheckBox->blockSignals(true);
     m_overlayEnabledCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_ENABLED, true).toBool());
     m_overlayEnabledCheckBox->blockSignals(false);
-    m_overlayPositionComboBox->setCurrentIndex(settings.value(AppConfig::SETTING_OVERLAY_POSITION, 0).toInt());
+
+    m_positionSelector->setCurrentPosition(settings.value(AppConfig::SETTING_OVERLAY_POSITION, 0).toInt());
+
+    int savedStyleId = settings.value(AppConfig::SETTING_OVERLAY_STYLE, 0).toInt();
+    if (auto* btn = m_styleSelector->buttonGroup()->button(savedStyleId)) {
+        btn->setChecked(true);
+    }
 
     m_overlayShowCpuTempCheckBox->blockSignals(true);
     m_overlayShowCpuTempCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_TEMP, true).toBool());
@@ -117,14 +127,28 @@ MainWindow::MainWindow(QWidget *parent)
     m_overlayShowAvgFpsCheckBox->blockSignals(true);
     m_overlayShowAvgFpsCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_AVG_FPS, true).toBool());
     m_overlayShowAvgFpsCheckBox->blockSignals(false);
-
     m_overlayShowMinFpsCheckBox->blockSignals(true);
     m_overlayShowMinFpsCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_MIN_FPS, true).toBool());
     m_overlayShowMinFpsCheckBox->blockSignals(false);
-
     m_overlayShowMaxFpsCheckBox->blockSignals(true);
     m_overlayShowMaxFpsCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_MAX_FPS, true).toBool());
     m_overlayShowMaxFpsCheckBox->blockSignals(false);
+
+    m_overlayShowCpuPowerCheckBox->blockSignals(true);
+    m_overlayShowCpuPowerCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_POWER, true).toBool());
+    m_overlayShowCpuPowerCheckBox->blockSignals(false);
+    m_overlayShowCpuClockCheckBox->blockSignals(true);
+    m_overlayShowCpuClockCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_CLOCK, true).toBool());
+    m_overlayShowCpuClockCheckBox->blockSignals(false);
+    m_overlayShowGpuPowerCheckBox->blockSignals(true);
+    m_overlayShowGpuPowerCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_POWER, true).toBool());
+    m_overlayShowGpuPowerCheckBox->blockSignals(false);
+    m_overlayShowGpuClockCheckBox->blockSignals(true);
+    m_overlayShowGpuClockCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_CLOCK, true).toBool());
+    m_overlayShowGpuClockCheckBox->blockSignals(false);
+    m_overlayShowFansCheckBox->blockSignals(true);
+    m_overlayShowFansCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_SHOW_FANS, true).toBool());
+    m_overlayShowFansCheckBox->blockSignals(false);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -163,7 +187,12 @@ void MainWindow::setupUi()
     navPanel->setFixedWidth(220);
     auto* navLayout = new QVBoxLayout(navPanel);
     navLayout->setContentsMargins(0, 15, 0, 15); navLayout->setSpacing(5);
-    m_navButtons << new QPushButton(" Visão Geral") << new QPushButton(" Biblioteca") << new QPushButton(" Temperaturas");
+
+    m_navButtons << new QPushButton(" Visão Geral")
+                 << new QPushButton(" Biblioteca")
+                 << new QPushButton(" Temperaturas")
+                 << new QPushButton(" Ventoinhas");
+
     for(auto btn : m_navButtons) navLayout->addWidget(btn);
     navLayout->addStretch();
     m_settingsButton = new QPushButton(); m_settingsButton->setObjectName("settingsButton");
@@ -180,7 +209,31 @@ void MainWindow::setupUi()
     setupOverviewPage();
     setupLibraryPage();
     setupTempPage();
+    setupFansPage();
     setupSettingsPage();
+}
+
+void MainWindow::setupFansPage()
+{
+    auto* page = new QWidget();
+    auto* layout = new QVBoxLayout(page);
+    layout->setSpacing(15);
+    m_mainStackedWidget->addWidget(page);
+
+    auto* title = new QLabel("Ventoinhas");
+    title->setProperty("class", "TitleLabel");
+    layout->addWidget(title);
+
+    m_fansScrollArea = new QScrollArea();
+    m_fansScrollArea->setWidgetResizable(true);
+
+    m_fansContainer = new QWidget();
+    m_fansLayout = new QGridLayout(m_fansContainer);
+    m_fansLayout->setSpacing(20);
+    m_fansLayout->setAlignment(Qt::AlignTop);
+
+    m_fansScrollArea->setWidget(m_fansContainer);
+    layout->addWidget(m_fansScrollArea);
 }
 
 void MainWindow::setupConnections() {
@@ -203,7 +256,9 @@ void MainWindow::setupConnections() {
     connect(m_apiManager, &ApiManager::gridListAvailable, this, &MainWindow::onGridListReady);
 
     connect(m_overlayEnabledCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
-    connect(m_overlayPositionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::onOverlaySettingChanged);
+    connect(m_positionSelector, &OverlayPositionSelector::positionSelected, this, &MainWindow::onOverlayPositionChanged);
+    connect(m_styleSelector->buttonGroup(), &QButtonGroup::idClicked, this, &MainWindow::onOverlayStyleChanged);
+
     connect(m_overlayShowCpuTempCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
     connect(m_overlayShowCpuUsageCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
     connect(m_overlayShowCpuCoresCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
@@ -215,6 +270,12 @@ void MainWindow::setupConnections() {
     connect(m_overlayShowAvgFpsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
     connect(m_overlayShowMinFpsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
     connect(m_overlayShowMaxFpsCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+
+    connect(m_overlayShowCpuPowerCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowCpuClockCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowGpuPowerCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowGpuClockCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
+    connect(m_overlayShowFansCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::onOverlaySettingChanged);
 }
 
 void MainWindow::setupOverviewPage() {
@@ -334,20 +395,43 @@ void MainWindow::setupTempPage() {
     layout->addWidget(tempNavPanel);
     layout->addWidget(m_tempStackedWidget, 1);
 
-    auto createTempPage = [&](const QString& key, const QString& icon, const QString& title) {
+    auto createCpuPage = [&]() {
         auto* p = new QWidget();
         auto* l = new QVBoxLayout(p);
         l->setSpacing(20); l->setContentsMargins(0, 10, 0, 0);
-        m_tempInfoCards[key] = new InfoCardWidget(icon, title, p);
-        m_charts[key] = new PerformanceChartWidget();
-        l->addWidget(m_tempInfoCards[key]);
-        l->addWidget(m_charts[key], 1);
+        m_cpuSummaryCard = new HardwareSummaryCard(AppConfig::ICON_CPU_SVG, "Processador", p);
+        m_cpuChart = new PerformanceChartWidget();
+        m_cpuChart->setLabels("Temp. CPU (°C)", "Uso CPU (%)");
+        l->addWidget(m_cpuSummaryCard);
+        l->addWidget(m_cpuChart, 1);
         return p;
     };
 
-    m_tempStackedWidget->addWidget(createTempPage(AppConfig::CPU_KEY, AppConfig::ICON_CPU_SVG, "Processador"));
-    m_tempStackedWidget->addWidget(createTempPage(AppConfig::GPU_KEY, AppConfig::ICON_GPU_SVG, "Placa de Vídeo"));
-    m_tempStackedWidget->addWidget(createTempPage(AppConfig::MB_KEY, AppConfig::ICON_MB_SVG, "Placa-mãe"));
+    auto createGpuPage = [&]() {
+        auto* p = new QWidget();
+        auto* l = new QVBoxLayout(p);
+        l->setSpacing(20); l->setContentsMargins(0, 10, 0, 0);
+        m_gpuSummaryCard = new HardwareSummaryCard(AppConfig::ICON_GPU_SVG, "Placa de Vídeo", p);
+        m_gpuChart = new PerformanceChartWidget();
+        m_gpuChart->setLabels("Temp. GPU (°C)", "Uso GPU (%)");
+        l->addWidget(m_gpuSummaryCard);
+        l->addWidget(m_gpuChart, 1);
+        return p;
+    };
+
+    auto createMbPage = [&]() {
+        auto* p = new QWidget();
+        auto* l = new QVBoxLayout(p);
+        l->setSpacing(20); l->setContentsMargins(0, 10, 0, 0);
+        m_mbSummaryCard = new InfoCardWidget(AppConfig::ICON_MB_SVG, "Placa-mãe", p);
+        l->addWidget(m_mbSummaryCard);
+        l->addStretch();
+        return p;
+    };
+
+    m_tempStackedWidget->addWidget(createCpuPage());
+    m_tempStackedWidget->addWidget(createGpuPage());
+    m_tempStackedWidget->addWidget(createMbPage());
 
     m_storageScrollArea = new QScrollArea(); m_storageScrollArea->setWidgetResizable(true);
     m_storageContainer = new QWidget();
@@ -377,7 +461,6 @@ void MainWindow::setupSettingsPage() {
     title->setProperty("class", "TitleLabel");
     mainLayout->addWidget(title);
 
-    // --- Seção: Aparência e Gráficos ---
     auto* appearanceTitle = new QLabel("Aparência e Gráficos");
     appearanceTitle->setProperty("class", "SubtitleLabel");
     mainLayout->addWidget(appearanceTitle);
@@ -396,54 +479,100 @@ void MainWindow::setupSettingsPage() {
     appearanceLayout->addLayout(chartLayout);
     mainLayout->addWidget(appearanceGroup);
 
-    // --- Seção: Configuração do Overlay ---
     auto* overlayTitle = new QLabel("Configuração do Overlay (RTSS)");
     overlayTitle->setProperty("class", "SubtitleLabel");
     mainLayout->addWidget(overlayTitle);
     auto* overlayGroup = new QGroupBox();
     auto* overlayLayout = new QVBoxLayout(overlayGroup);
+    overlayLayout->setSpacing(20);
     m_overlayEnabledCheckBox = new QCheckBox("Ativar overlay de performance no jogo");
     overlayLayout->addWidget(m_overlayEnabledCheckBox);
-    auto* positionLayout = new QHBoxLayout();
-    positionLayout->addWidget(new QLabel("Posição do overlay na tela:"));
-    m_overlayPositionComboBox = new QComboBox();
-    m_overlayPositionComboBox->addItem("Canto Superior Esquerdo");
-    m_overlayPositionComboBox->addItem("Canto Superior Direito");
-    m_overlayPositionComboBox->addItem("Canto Inferior Esquerdo");
-    m_overlayPositionComboBox->addItem("Canto Inferior Direito");
-    positionLayout->addWidget(m_overlayPositionComboBox);
-    positionLayout->addStretch();
-    overlayLayout->addLayout(positionLayout);
+
+    auto* appearanceOverlayLayout = new QHBoxLayout();
+    appearanceOverlayLayout->setSpacing(25);
+
+    auto* posVLayout = new QVBoxLayout();
+    posVLayout->setSpacing(8);
+    posVLayout->addWidget(new QLabel("Posição do overlay:"));
+    m_positionSelector = new OverlayPositionSelector(this);
+    posVLayout->addWidget(m_positionSelector, 0, Qt::AlignLeft);
+    posVLayout->addStretch();
+
+    auto* styleVLayout = new QVBoxLayout();
+    styleVLayout->setSpacing(8);
+    styleVLayout->addWidget(new QLabel("Estilo do overlay:"));
+    m_styleSelector = new OverlayStyleSelector(this);
+    styleVLayout->addWidget(m_styleSelector);
+    styleVLayout->addStretch();
+
+    appearanceOverlayLayout->addLayout(posVLayout);
+    appearanceOverlayLayout->addLayout(styleVLayout, 1);
+    overlayLayout->addLayout(appearanceOverlayLayout);
+
     auto* contentBox = new QGroupBox("Itens a serem exibidos");
-    auto* contentLayout = new QGridLayout(contentBox);
-    m_overlayShowCpuUsageCheckBox = new QCheckBox("Uso de CPU");
-    m_overlayShowGpuUsageCheckBox = new QCheckBox("Uso de GPU");
-    m_overlayShowRamUsageCheckBox = new QCheckBox("Uso de RAM");
+    auto* contentLayout = new QHBoxLayout(contentBox);
+    contentLayout->setAlignment(Qt::AlignTop);
+
+    auto* fpsLayout = new QVBoxLayout();
+    fpsLayout->setSpacing(8);
+    fpsLayout->addWidget(new QLabel("FPS"));
     m_overlayShowAvgFpsCheckBox = new QCheckBox("Exibir FPS Médio");
     m_overlayShowMinFpsCheckBox = new QCheckBox("Exibir FPS Mínimo");
     m_overlayShowMaxFpsCheckBox = new QCheckBox("Exibir FPS Máximo");
-    m_overlayShowCpuTempCheckBox = new QCheckBox("Temperatura do CPU (Pacote)");
-    m_overlayShowCpuCoresCheckBox = new QCheckBox("Temperatura dos Núcleos da CPU");
-    m_overlayShowGpuTempCheckBox = new QCheckBox("Temperatura da GPU");
+    fpsLayout->addWidget(m_overlayShowAvgFpsCheckBox);
+    fpsLayout->addWidget(m_overlayShowMinFpsCheckBox);
+    fpsLayout->addWidget(m_overlayShowMaxFpsCheckBox);
+    fpsLayout->addStretch();
+
+    auto* cpuLayout = new QVBoxLayout();
+    cpuLayout->setSpacing(8);
+    cpuLayout->addWidget(new QLabel("CPU"));
+    m_overlayShowCpuUsageCheckBox = new QCheckBox("Uso de CPU");
+    m_overlayShowCpuTempCheckBox = new QCheckBox("Temperatura");
+    m_overlayShowCpuPowerCheckBox = new QCheckBox("Potência (Power)");
+    m_overlayShowCpuClockCheckBox = new QCheckBox("Clock");
+    m_overlayShowCpuCoresCheckBox = new QCheckBox("Temperaturas dos Núcleos");
+    cpuLayout->addWidget(m_overlayShowCpuUsageCheckBox);
+    cpuLayout->addWidget(m_overlayShowCpuTempCheckBox);
+    cpuLayout->addWidget(m_overlayShowCpuPowerCheckBox);
+    cpuLayout->addWidget(m_overlayShowCpuClockCheckBox);
+    cpuLayout->addWidget(m_overlayShowCpuCoresCheckBox);
+    cpuLayout->addStretch();
+
+    auto* gpuLayout = new QVBoxLayout();
+    gpuLayout->setSpacing(8);
+    gpuLayout->addWidget(new QLabel("GPU"));
+    m_overlayShowGpuUsageCheckBox = new QCheckBox("Uso de GPU");
+    m_overlayShowGpuTempCheckBox = new QCheckBox("Temperatura");
+    m_overlayShowGpuPowerCheckBox = new QCheckBox("Potência (Power)");
+    m_overlayShowGpuClockCheckBox = new QCheckBox("Clock");
+    gpuLayout->addWidget(m_overlayShowGpuUsageCheckBox);
+    gpuLayout->addWidget(m_overlayShowGpuTempCheckBox);
+    gpuLayout->addWidget(m_overlayShowGpuPowerCheckBox);
+    gpuLayout->addWidget(m_overlayShowGpuClockCheckBox);
+    gpuLayout->addStretch();
+
+    auto* otherLayout = new QVBoxLayout();
+    otherLayout->setSpacing(8);
+    otherLayout->addWidget(new QLabel("Outros"));
+    m_overlayShowRamUsageCheckBox = new QCheckBox("Uso de RAM");
+    m_overlayShowFansCheckBox = new QCheckBox("Velocidade das Ventoinhas");
     m_overlayShowMbTempCheckBox = new QCheckBox("Temperatura da Placa-mãe");
     m_overlayShowStorageTempCheckBox = new QCheckBox("Temperatura do Armazenamento");
+    otherLayout->addWidget(m_overlayShowRamUsageCheckBox);
+    otherLayout->addWidget(m_overlayShowFansCheckBox);
+    otherLayout->addWidget(m_overlayShowMbTempCheckBox);
+    otherLayout->addWidget(m_overlayShowStorageTempCheckBox);
+    otherLayout->addStretch();
 
-    contentLayout->addWidget(m_overlayShowCpuUsageCheckBox, 0, 0);
-    contentLayout->addWidget(m_overlayShowGpuUsageCheckBox, 1, 0);
-    contentLayout->addWidget(m_overlayShowRamUsageCheckBox, 2, 0);
-    contentLayout->addWidget(m_overlayShowCpuTempCheckBox, 0, 1);
-    contentLayout->addWidget(m_overlayShowCpuCoresCheckBox, 1, 1);
-    contentLayout->addWidget(m_overlayShowGpuTempCheckBox, 2, 1);
-    contentLayout->addWidget(m_overlayShowMbTempCheckBox, 3, 1);
-    contentLayout->addWidget(m_overlayShowStorageTempCheckBox, 4, 1);
-    contentLayout->addWidget(m_overlayShowAvgFpsCheckBox, 0, 2);
-    contentLayout->addWidget(m_overlayShowMinFpsCheckBox, 1, 2);
-    contentLayout->addWidget(m_overlayShowMaxFpsCheckBox, 2, 2);
+    contentLayout->addLayout(fpsLayout);
+    contentLayout->addLayout(cpuLayout);
+    contentLayout->addLayout(gpuLayout);
+    contentLayout->addLayout(otherLayout);
 
     overlayLayout->addWidget(contentBox);
     mainLayout->addWidget(overlayGroup);
 
-    // --- Seção: Relatórios e Dados ---
     auto* reportsTitle = new QLabel("Relatórios e Dados");
     reportsTitle->setProperty("class", "SubtitleLabel");
     mainLayout->addWidget(reportsTitle);
@@ -466,7 +595,6 @@ void MainWindow::setupSettingsPage() {
     reportsLayout->addWidget(reportsBtn, 0, Qt::AlignLeft);
     mainLayout->addWidget(reportsGroup);
 
-    // --- Seção: Zona de Perigo ---
     auto* dangerZoneTitle = new QLabel("Zona de Perigo");
     dangerZoneTitle->setProperty("class", "SubtitleLabel");
     dangerZoneTitle->setStyleSheet("color: #f87171;");
@@ -488,12 +616,11 @@ void MainWindow::setupSettingsPage() {
     m_mainStackedWidget->addWidget(page);
 }
 
-
 void MainWindow::onOverlaySettingChanged()
 {
     QSettings settings("LAGZero", "MonitorApp");
     settings.setValue(AppConfig::SETTING_OVERLAY_ENABLED, m_overlayEnabledCheckBox->isChecked());
-    settings.setValue(AppConfig::SETTING_OVERLAY_POSITION, m_overlayPositionComboBox->currentIndex());
+
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_CPU_TEMP, m_overlayShowCpuTempCheckBox->isChecked());
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_CPU_USAGE, m_overlayShowCpuUsageCheckBox->isChecked());
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_CPU_CORES, m_overlayShowCpuCoresCheckBox->isChecked());
@@ -505,6 +632,24 @@ void MainWindow::onOverlaySettingChanged()
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_AVG_FPS, m_overlayShowAvgFpsCheckBox->isChecked());
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_MIN_FPS, m_overlayShowMinFpsCheckBox->isChecked());
     settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_MAX_FPS, m_overlayShowMaxFpsCheckBox->isChecked());
+
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_CPU_POWER, m_overlayShowCpuPowerCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_CPU_CLOCK, m_overlayShowCpuClockCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_GPU_POWER, m_overlayShowGpuPowerCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_GPU_CLOCK, m_overlayShowGpuClockCheckBox->isChecked());
+    settings.setValue(AppConfig::SETTING_OVERLAY_SHOW_FANS, m_overlayShowFansCheckBox->isChecked());
+}
+
+void MainWindow::onOverlayPositionChanged(int id)
+{
+    QSettings settings("LAGZero", "MonitorApp");
+    settings.setValue(AppConfig::SETTING_OVERLAY_POSITION, id);
+}
+
+void MainWindow::onOverlayStyleChanged(int id)
+{
+    QSettings settings("LAGZero", "MonitorApp");
+    settings.setValue(AppConfig::SETTING_OVERLAY_STYLE, id);
 }
 
 void MainWindow::onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId)
@@ -544,7 +689,9 @@ void MainWindow::onGameSessionStarted(const QString& exeName, const QString& win
         m_apiManager->findGameInfo(exeName, searchName);
     }
 
-    for(auto* chart : m_charts) if(chart) chart->clearData();
+    if (m_cpuChart) m_cpuChart->clearData();
+    if (m_gpuChart) m_gpuChart->clearData();
+
     m_sessionTimer->start(1000);
     m_currentSession.timer.start();
 }
@@ -561,6 +708,10 @@ void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double ave
         populateRecentGames();
         populateLibrary();
     }
+
+    if (m_cpuChart) m_cpuChart->clearData();
+    if (m_gpuChart) m_gpuChart->clearData();
+
     m_currentSession = CurrentSession();
 }
 
@@ -825,20 +976,18 @@ void MainWindow::saveSessionReport() {
         }
     };
 
-    if (m_charts.contains(AppConfig::CPU_KEY)) {
-        writeStats("FPS", m_charts.value(AppConfig::CPU_KEY)->getFpsData(), "");
-        for (auto it = m_charts.constBegin(); it != m_charts.constEnd(); ++it) {
-            QString key = it.key();
-            PerformanceChartWidget* chart = it.value();
-            QString formattedKey;
-            if (key == AppConfig::CPU_KEY) formattedKey = "Temp. CPU";
-            else if (key == AppConfig::GPU_KEY) formattedKey = "Temp. GPU";
-            else if (key == AppConfig::MB_KEY) formattedKey = "Temp. Placa-mãe";
-            else if (key.startsWith(AppConfig::STORAGE_KEY_PREFIX)) formattedKey = "Temp. Drive";
-
-            if(!formattedKey.isEmpty()) writeStats(formattedKey, chart->getTempData(), "C");
-        }
+    if (m_cpuChart) {
+        writeStats("FPS", m_cpuChart->getFpsData(), "");
+        writeStats("Temp. CPU", m_cpuChart->getTempData(), "C");
     }
+    if (m_gpuChart) {
+        writeStats("Temp. GPU", m_gpuChart->getTempData(), "C");
+    }
+
+    if (m_mbSummaryCard && m_currentSession.lastTemps.contains(AppConfig::MB_KEY)) {
+        writeStats("Temp. Placa-mãe", QList<double>() << m_currentSession.lastTemps.value(AppConfig::MB_KEY).temperature, "C");
+    }
+
 
     if (!isCsv) out << "\n============================================================\n";
     file.close();
@@ -852,9 +1001,10 @@ void MainWindow::onHelperMissing()
 void MainWindow::onChartDurationChanged(int index)
 {
     int duration = m_chartDurationComboBox->itemData(index).toInt();
-    for (auto* chart : m_charts) {
-        if (chart) chart->setMaxDataPoints(duration);
-    }
+
+    if (m_cpuChart) m_cpuChart->setMaxDataPoints(duration);
+    if (m_gpuChart) m_gpuChart->setMaxDataPoints(duration);
+
     QSettings("LAGZero", "MonitorApp").setValue("chart/durationIndex", index);
 }
 
@@ -897,46 +1047,50 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
 {
     m_currentSession.lastTemps = deviceInfos;
 
-    // 1. Lida com CPU, GPU e Placa-mãe
-    const QList<QString> mainKeys = { AppConfig::CPU_KEY, AppConfig::GPU_KEY, AppConfig::MB_KEY };
-    for (const QString& key : mainKeys) {
-        if (m_tempInfoCards.contains(key)) {
-            InfoCardWidget* card = qobject_cast<InfoCardWidget*>(m_tempInfoCards.value(key));
-            if (!card) continue;
-
-            if (deviceInfos.contains(key)) {
-                const HardwareInfo& info = deviceInfos.value(key);
-                card->setTitle(info.name);
-
-                if (info.temperature >= 0) {
-                    card->setValue(QString::number(info.temperature, 'f', 1) + " °C");
-                    card->setValueStyleSheet("color: " + getTempColor(info.temperature, key));
-                } else {
-                    card->setValue("Sensor não encontrado");
-                    card->setValueStyleSheet("color: #aeb9d6;");
-                }
-            }
-            // Não faz nada se a chave não existir, mantendo o card com o nome padrão
+    if (deviceInfos.contains(AppConfig::CPU_KEY)) {
+        const HardwareInfo& info = deviceInfos.value(AppConfig::CPU_KEY);
+        m_cpuSummaryCard->updateMetrics(info);
+        if (m_currentSession.processId != 0 && info.temperature >= 0) {
+            m_cpuChart->addDataPoint(info.temperature, info.usage);
         }
     }
 
-    // 2. Lida com Armazenamento
+    if (deviceInfos.contains(AppConfig::GPU_KEY)) {
+        const HardwareInfo& info = deviceInfos.value(AppConfig::GPU_KEY);
+        m_gpuSummaryCard->updateMetrics(info);
+        if (m_currentSession.processId != 0 && info.temperature >= 0) {
+            m_gpuChart->addDataPoint(info.temperature, info.usage);
+        }
+    }
+
+    if (deviceInfos.contains(AppConfig::MB_KEY)) {
+        const HardwareInfo& info = deviceInfos.value(AppConfig::MB_KEY);
+        m_mbSummaryCard->setTitle(info.name);
+        if (info.temperature >= 0) {
+            m_mbSummaryCard->setValue(QString::number(info.temperature, 'f', 1) + " °C");
+            m_mbSummaryCard->setValueStyleSheet("color: " + getTempColor(info.temperature, AppConfig::MB_KEY));
+        } else {
+            m_mbSummaryCard->setValue("Sensor não encontrado");
+            m_mbSummaryCard->setValueStyleSheet("color: #aeb9d6;");
+        }
+    }
+
     QSet<QString> updatedStorageKeys;
     for (auto it = deviceInfos.constBegin(); it != deviceInfos.constEnd(); ++it) {
         if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
             updatedStorageKeys.insert(it.key());
             const HardwareInfo& info = it.value();
 
-            if (!m_tempInfoCards.contains(it.key())) {
+            if (!m_storageCards.contains(it.key())) {
                 auto* newCard = new InfoCardWidget(AppConfig::ICON_STORAGE_SVG, "Armazenamento", this);
                 m_storagePageLayout->addWidget(newCard);
-                m_tempInfoCards[it.key()] = newCard;
+                m_storageCards[it.key()] = newCard;
             }
 
-            InfoCardWidget* card = qobject_cast<InfoCardWidget*>(m_tempInfoCards.value(it.key()));
+            InfoCardWidget* card = m_storageCards.value(it.key());
             if (!card) continue;
 
-            QString title = QString("%1 (%2)").arg(info.name, info.driveType == "HDD" ? "HD" : info.driveType);
+            QString title = QString("%1 (%2)").arg(info.name, info.driveType.contains("HD") ? "HD" : info.driveType);
             card->setTitle(title);
 
             if (info.temperature >= 0) {
@@ -949,26 +1103,66 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
         }
     }
 
-    // 3. Remove cards de armazenamento que não existem mais
-    for (auto it = m_tempInfoCards.begin(); it != m_tempInfoCards.end();) {
-        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX) && !updatedStorageKeys.contains(it.key())) {
+    for (auto it = m_storageCards.begin(); it != m_storageCards.end();) {
+        if (!updatedStorageKeys.contains(it.key())) {
             it.value()->deleteLater();
-            it = m_tempInfoCards.erase(it);
+            it = m_storageCards.erase(it);
         } else {
             ++it;
         }
     }
 
-    // Adiciona dados aos gráficos se uma sessão estiver ativa
-    if (m_currentSession.processId != 0) {
-        for (auto it = m_charts.constBegin(); it != m_charts.constEnd(); ++it) {
-            // Usa o mapa da sessão (lastTemps) para garantir consistência
-            if (m_currentSession.lastTemps.contains(it.key())) {
-                const auto& info = m_currentSession.lastTemps.value(it.key());
-                if(info.temperature >= 0) {
-                    it.value()->addDataPoint(info.temperature, m_currentSession.lastFps);
+    QSet<QString> activeFanKeys;
+    const int maxCols = 3;
+    int row = 0, col = 0;
+
+    auto processFanMap = [&](const QMap<QString, double>& fanMap, const QString& sourceIcon, const QString& namePrefix) mutable {
+        for (auto it = fanMap.constBegin(); it != fanMap.constEnd(); ++it) {
+            const QString& fanName = it.key();
+            double fanSpeed = it.value();
+
+            if (fanSpeed <= 0) continue;
+
+            QString uniqueFanName = sourceIcon + fanName;
+            activeFanKeys.insert(uniqueFanName);
+
+            InfoCardWidget* card = nullptr;
+            if (!m_fanCards.contains(uniqueFanName)) {
+                card = new InfoCardWidget(sourceIcon, namePrefix + fanName, this);
+                m_fanCards[uniqueFanName] = card;
+            } else {
+                card = m_fanCards.value(uniqueFanName);
+            }
+
+            if (card->parentWidget() != m_fansContainer) {
+                m_fansLayout->addWidget(card, row, col++);
+                if (col >= maxCols) {
+                    col = 0;
+                    row++;
                 }
             }
+
+            card->setValue(QString::number(fanSpeed, 'f', 0) + " RPM");
+            card->setValueStyleSheet("color: #FFFFFF;");
+        }
+    };
+
+    if (deviceInfos.contains(AppConfig::CPU_KEY)) {
+        processFanMap(deviceInfos.value(AppConfig::CPU_KEY).fans, AppConfig::ICON_CPU_SVG, "CPU ");
+    }
+    if (deviceInfos.contains(AppConfig::GPU_KEY)) {
+        processFanMap(deviceInfos.value(AppConfig::GPU_KEY).fans, AppConfig::ICON_GPU_SVG, "GPU ");
+    }
+    if (deviceInfos.contains(AppConfig::MB_KEY)) {
+        processFanMap(deviceInfos.value(AppConfig::MB_KEY).fans, AppConfig::ICON_MB_SVG, "");
+    }
+
+    for (auto it = m_fanCards.begin(); it != m_fanCards.end();) {
+        if (!activeFanKeys.contains(it.key())) {
+            it.value()->deleteLater();
+            it = m_fanCards.erase(it);
+        } else {
+            ++it;
         }
     }
 }
@@ -991,12 +1185,12 @@ void MainWindow::updateSessionInfo()
         }
     };
 
-    if (m_charts.contains(AppConfig::CPU_KEY)) {
-        updateMetric("AVG_FPS", m_charts.value(AppConfig::CPU_KEY)->getFpsData());
-        updateMetric("MAX_CPU", m_charts.value(AppConfig::CPU_KEY)->getTempData(), AppConfig::CPU_KEY);
+    if (m_cpuChart) {
+        updateMetric("AVG_FPS", m_cpuChart->getFpsData());
+        updateMetric("MAX_CPU", m_cpuChart->getTempData(), AppConfig::CPU_KEY);
     }
-    if (m_charts.contains(AppConfig::GPU_KEY)) {
-        updateMetric("MAX_GPU", m_charts.value(AppConfig::GPU_KEY)->getTempData(), AppConfig::GPU_KEY);
+    if (m_gpuChart) {
+        updateMetric("MAX_GPU", m_gpuChart->getTempData(), AppConfig::GPU_KEY);
     }
 }
 
@@ -1006,12 +1200,6 @@ void MainWindow::openReportsFolder()
     QDir dir(reportsPath);
     if (!dir.exists()) dir.mkpath(".");
     QDesktopServices::openUrl(QUrl::fromLocalFile(reportsPath));
-}
-
-QWidget* MainWindow::createInfoCard(const QString& key, const QString& iconSvg, const QString& title) {
-    auto* card = new InfoCardWidget(iconSvg, title, this);
-    m_tempInfoCards[key] = card;
-    return card;
 }
 
 QWidget* MainWindow::createMetricCard(const QString& title, const QString& key) {

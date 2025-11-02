@@ -59,13 +59,16 @@ if(QT_VERSION_MAJOR GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
     )
 else()
-    add_executable(App WIN32 ${PROJECT_SOURCES})
+    add_executable(App WIN32 ${PROJECT_SOURCES}
+        hardwaresummarycard.h hardwaresummarycard.cpp
+        overlaypositionselector.h overlaypositionselector.cpp
+        overlaystyleselector.h overlaystyleselector.cpp)
 endif()
 
 target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core Qt6::Svg Qt6::Network Qt6::Sql)
 
 set(HELPER_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/helper/TempReader.exe
+    ${CMAKE_CURRENT_SOURCE_DIR}/helper/SensorReader.exe
     ${CMAKE_CURRENT_SOURCE_DIR}/helper/LibreHardwareMonitorLib.dll
 )
 

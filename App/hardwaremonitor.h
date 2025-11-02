@@ -7,12 +7,23 @@
 #include <QProcess>
 #include <QMap>
 #include <QString>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 struct HardwareInfo {
     QString name = "N/D";
+
     double temperature = -1.0;
-    double usage = -1.0; // NOVO
+    double usage = -1.0;
+    double power = -1.0;
+    double clock = -1.0;
+
     QString driveType = "";
+
+    QMap<QString, double> fans;
+    QMap<QString, double> coreTemps;
+    QMap<QString, double> coreClocks;
 };
 
 class HardwareWorker : public QObject
@@ -20,7 +31,7 @@ class HardwareWorker : public QObject
     Q_OBJECT
 public:
     HardwareWorker();
-    ~HardwareWorker(); // Adicionado destrutor
+    ~HardwareWorker();
 
 public slots:
     void process();

@@ -179,7 +179,7 @@ void FpsWorker::readFps()
         QSettings settings("LAGZero", "MonitorApp");
         bool overlayEnabled = settings.value(AppConfig::SETTING_OVERLAY_ENABLED, true).toBool();
         QSet<uint32_t> currentPids;
-        const QList<QString> blacklist = {"App.exe", "TempReader.exe", "devenv.exe", "msedgewebview2.exe", "TabTip.exe"};
+        const QList<QString> blacklist = {"App.exe", "SensorReader.exe", "devenv.exe", "msedgewebview2.exe", "TabTip.exe"};
         DWORD currentTime = GetTickCount();
 
         for (DWORD i = 0; i < pMem->dwAppArrSize; ++i)
@@ -220,162 +220,232 @@ void FpsWorker::readFps()
 
             if (overlayEnabled) {
                 int position = settings.value(AppConfig::SETTING_OVERLAY_POSITION, 0).toInt();
+                QString alignTag = "";
                 switch (position) {
                 case 0: pAppEntry->dwOSDX = 15; pAppEntry->dwOSDY = 15; break;
-                case 1: pAppEntry->dwOSDX = -15; pAppEntry->dwOSDY = 15; break;
+                case 1: pAppEntry->dwOSDX = -15; pAppEntry->dwOSDY = 15; alignTag = "<R>"; break;
                 case 2: pAppEntry->dwOSDX = 15; pAppEntry->dwOSDY = -15; break;
-                case 3: pAppEntry->dwOSDX = -15; pAppEntry->dwOSDY = -15; break;
+                case 3: pAppEntry->dwOSDX = -15; pAppEntry->dwOSDY = -15; alignTag = "<R>"; break;
                 }
+
+                int overlayStyle = settings.value(AppConfig::SETTING_OVERLAY_STYLE, 0).toInt();
 
                 bool showAvg = settings.value(AppConfig::SETTING_OVERLAY_SHOW_AVG_FPS, true).toBool();
                 bool showMin = settings.value(AppConfig::SETTING_OVERLAY_SHOW_MIN_FPS, true).toBool();
                 bool showMax = settings.value(AppConfig::SETTING_OVERLAY_SHOW_MAX_FPS, true).toBool();
                 bool showCpuUsage = settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_USAGE, true).toBool();
                 bool showCpuTemp = settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_TEMP, true).toBool();
+                bool showCpuPower = settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_POWER, true).toBool();
+                bool showCpuClock = settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_CLOCK, true).toBool();
                 bool showGpuUsage = settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_USAGE, true).toBool();
                 bool showGpuTemp = settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_TEMP, true).toBool();
+                bool showGpuPower = settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_POWER, true).toBool();
+                bool showGpuClock = settings.value(AppConfig::SETTING_OVERLAY_SHOW_GPU_CLOCK, true).toBool();
                 bool showRamUsage = settings.value(AppConfig::SETTING_OVERLAY_SHOW_RAM_USAGE, true).toBool();
                 bool showCores = settings.value(AppConfig::SETTING_OVERLAY_SHOW_CPU_CORES, false).toBool();
                 bool showMb = settings.value(AppConfig::SETTING_OVERLAY_SHOW_MB_TEMP, false).toBool();
                 bool showStorage = settings.value(AppConfig::SETTING_OVERLAY_SHOW_STORAGE_TEMP, false).toBool();
+                bool showFans = settings.value(AppConfig::SETTING_OVERLAY_SHOW_FANS, true).toBool();
+
+                QString cpuUsage = "--";
+                QString cpuTemp = "--";
+                QString cpuPower = "--";
+                QString cpuClock = "--";
+                QString cpuName = "CPU";
+                if (m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
+                    const auto& info = m_lastHardwareInfo[AppConfig::CPU_KEY];
+                    cpuName = info.name.split(' ').first();
+                    if (info.usage >= 0) cpuUsage = QString::number(info.usage, 'f', 0);
+                    if (info.temperature >= 0) cpuTemp = QString::number(info.temperature, 'f', 0);
+                    if (info.power >= 0) cpuPower = QString::number(info.power, 'f', 0);
+                    if (info.clock >= 0) cpuClock = QString::number(info.clock, 'f', 0);
+                }
+
+                QString gpuUsage = "--";
+                QString gpuTemp = "--";
+                QString gpuPower = "--";
+                QString gpuClock = "--";
+                QString gpuName = "GPU";
+                if (m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) {
+                    const auto& info = m_lastHardwareInfo[AppConfig::GPU_KEY];
+                    gpuName = info.name.split(' ').last();
+                    if (info.usage >= 0) gpuUsage = QString::number(info.usage, 'f', 0);
+                    if (info.temperature >= 0) gpuTemp = QString::number(info.temperature, 'f', 0);
+                    if (info.power >= 0) gpuPower = QString::number(info.power, 'f', 0);
+                    if (info.clock >= 0) gpuClock = QString::number(info.clock, 'f', 0);
+                }
+
+                QString ramUsage = "--";
+                if (m_lastHardwareInfo.contains("RAM_USAGE")) {
+                    double usageValue = m_lastHardwareInfo["RAM_USAGE"].usage;
+                    if (usageValue >= 0) ramUsage = QString::number(usageValue / 1024.0, 'f', 1); // Em GB
+                }
 
                 QStringList overlayLines;
-                QStringList mainHardwareLines;
-                QStringList temperaturesLines;
+                const QString cWhite = "<C=FFFFFF>";
+                const QString cGray = "<C=94A3B8>";
+                const QString cBlue = "<C=00D1FF>";
+                const QString cCpu = "<C=FF00FF>";
+                const QString cGpu = "<C=00FF00>";
+                const QString cRam = "<C=FFFF00>";
 
-                overlayLines.append("<C=00D1FF>+- LAG ZERO ---------------+");
-                overlayLines.append(QString("<C=00D1FF>|<C=FFFFFF> FPS %1").arg(QString::number(qRound(currentFps)).rightJustified(4)));
-                QString statsLine = "<C=00D1FF>| ";
-                if (showAvg) statsLine.append(QString("<C=94A3B8>AVG<C=FFFFFF>%1 ").arg(QString::number(static_cast<int>(avgFps)).rightJustified(4)));
-                if (showMin) statsLine.append(QString("<C=94A3B8>MIN<C=FFFFFF>%1 ").arg(QString::number(minFps).rightJustified(4)));
-                if (showMax) statsLine.append(QString("<C=94A3B8>MAX<C=FFFFFF>%1").arg(QString::number(maxFps).rightJustified(4)));
-                if (showAvg || showMin || showMax) {
-                    overlayLines.append(statsLine);
-                }
+                if (overlayStyle == 0) {
+                    overlayLines.append(alignTag + cBlue + "LAG ZERO");
 
-                // --- LÓGICA DINÂMICA PARA CPU E GPU ---
-                QString cpuUsage = "--";
-                if(showCpuUsage && m_lastHardwareInfo.contains("CPU_USAGE")) {
-                    double usageValue = m_lastHardwareInfo["CPU_USAGE"].usage;
-                    if (usageValue >= 0) cpuUsage = QString::number(usageValue, 'f', 0);
-                }
-                QString cpuTemp = "--";
-                if(showCpuTemp && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
-                    double tempValue = m_lastHardwareInfo[AppConfig::CPU_KEY].temperature;
-                    if (tempValue >= 0) cpuTemp = QString::number(tempValue, 'f', 0);
-                }
-                QString gpuUsage = "--";
-                if(showGpuUsage && m_lastHardwareInfo.contains("GPU_USAGE")) {
-                    double usageValue = m_lastHardwareInfo["GPU_USAGE"].usage;
-                    if (usageValue >= 0) gpuUsage = QString::number(usageValue, 'f', 0);
-                }
-                QString gpuTemp = "--";
-                if(showGpuTemp && m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) {
-                    double tempValue = m_lastHardwareInfo[AppConfig::GPU_KEY].temperature;
-                    if (tempValue >= 0) gpuTemp = QString::number(tempValue, 'f', 0);
-                }
+                    QStringList fpsStats;
+                    if (showAvg) fpsStats.append(QString("%1AVG %2%3").arg(cGray, cWhite, QString::number(static_cast<int>(avgFps)).rightJustified(3)));
+                    if (showMin) fpsStats.append(QString("%1MIN %2%3").arg(cGray, cWhite, QString::number(minFps).rightJustified(3)));
+                    if (showMax) fpsStats.append(QString("%1MAX %2%3").arg(cGray, cWhite, QString::number(maxFps).rightJustified(3)));
+                    overlayLines.append(alignTag + QString("%1FPS %2%3 %4")
+                                                       .arg(cGray)
+                                                       .arg(cWhite)
+                                                       .arg(QString::number(qRound(currentFps)).rightJustified(3))
+                                                       .arg(fpsStats.join(" ")));
 
-                if (showCpuUsage && showCpuTemp) {
-                    mainHardwareLines.append(QString("<C=00D1FF>|<C=FF00FF> CPU   <C=FFFFFF>%1%<C=808080> |<C=FFFFFF> %2<C=808080> C").arg(cpuUsage.rightJustified(3)).arg(cpuTemp.rightJustified(3)));
-                } else if (showCpuUsage) {
-                    mainHardwareLines.append(QString("<C=00D1FF>|<C=FF00FF> CPU   <C=FFFFFF>%1%").arg(cpuUsage.rightJustified(3)));
-                } else if (showCpuTemp) {
-                    temperaturesLines.append(QString("<C=00D1FF>|<C=FF00FF> CPU       <C=FFFFFF>%1<C=808080> C").arg(cpuTemp.rightJustified(3)));
-                }
+                    overlayLines.append(alignTag + cGray + "--------------------");
 
-                if (showGpuUsage && showGpuTemp) {
-                    mainHardwareLines.append(QString("<C=00D1FF>|<C=00FF00> GPU   <C=FFFFFF>%1%<C=808080> |<C=FFFFFF> %2<C=808080> C").arg(gpuUsage.rightJustified(3)).arg(gpuTemp.rightJustified(3)));
-                } else if (showGpuUsage) {
-                    mainHardwareLines.append(QString("<C=00D1FF>|<C=00FF00> GPU   <C=FFFFFF>%1%").arg(gpuUsage.rightJustified(3)));
-                } else if (showGpuTemp) {
-                    temperaturesLines.append(QString("<C=00D1FF>|<C=00FF00> GPU       <C=FFFFFF>%1<C=808080> C").arg(gpuTemp.rightJustified(3)));
-                }
-
-                if (showRamUsage) {
-                    QString usage = "--";
-                    if (m_lastHardwareInfo.contains("RAM_USAGE")) {
-                        double usageValue = m_lastHardwareInfo["RAM_USAGE"].usage;
-                        if (usageValue >= 0) usage = QString::number(usageValue, 'f', 0);
+                    if (showCpuUsage || showCpuTemp || showCpuPower || showCpuClock) {
+                        overlayLines.append(alignTag + QString("%1%2").arg(cCpu, cpuName));
+                        QString line1, line2;
+                        if (showCpuUsage) line1.append(QString("%1USO %2%3%   ").arg(cGray, cWhite, cpuUsage.rightJustified(3)));
+                        if (showCpuPower) line1.append(QString("%1PWR %2%3W").arg(cGray, cWhite, cpuPower.rightJustified(3)));
+                        if (showCpuTemp) line2.append(QString("%1TEMP %2%3C   ").arg(cGray, cWhite, cpuTemp.rightJustified(3)));
+                        if (showCpuClock) line2.append(QString("%1CLK %2%3MHz").arg(cGray, cWhite, cpuClock.rightJustified(4)));
+                        if (!line1.isEmpty()) overlayLines.append(alignTag + line1);
+                        if (!line2.isEmpty()) overlayLines.append(alignTag + line2);
                     }
-                    mainHardwareLines.append(QString("<C=00D1FF>|<C=FFFF00> RAM   <C=FFFFFF>%1 MB").arg(usage.rightJustified(5)));
-                }
+                    if (showGpuUsage || showGpuTemp || showGpuPower || showGpuClock) {
+                        overlayLines.append(alignTag + QString("%1%2").arg(cGpu, gpuName));
+                        QString line1, line2;
+                        if (showGpuUsage) line1.append(QString("%1USO %2%3%   ").arg(cGray, cWhite, gpuUsage.rightJustified(3)));
+                        if (showGpuPower) line1.append(QString("%1PWR %2%3W").arg(cGray, cWhite, gpuPower.rightJustified(3)));
+                        if (showGpuTemp) line2.append(QString("%1TEMP %2%3C   ").arg(cGray, cWhite, gpuTemp.rightJustified(3)));
+                        if (showGpuClock) line2.append(QString("%1CLK %2%3MHz").arg(cGray, cWhite, gpuClock.rightJustified(4)));
+                        if (!line1.isEmpty()) overlayLines.append(alignTag + line1);
+                        if (!line2.isEmpty()) overlayLines.append(alignTag + line2);
+                    }
+                    if (showRamUsage) {
+                        overlayLines.append(alignTag + QString("%1RAM %2%3 GB").arg(cRam, cWhite).arg(ramUsage.rightJustified(4)));
+                    }
 
-                if (!mainHardwareLines.isEmpty()) {
-                    overlayLines.append("<C=00D1FF>+- HARDWARE ---------------+");
-                    overlayLines.append(mainHardwareLines);
-                }
-
-                if (showCores) {
-                    QStringList coreTemps;
-                    for (auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
-                        if (it.key().startsWith("CPU_CORE_")) {
-                            QString temp = "--";
-                            double tempValue = it.value().temperature;
-                            if (tempValue >= 0) temp = QString::number(tempValue, 'f', 0);
-
-                            QString coreId = it.key().split('_').last();
-                            QString coreLabel = QString("Core %1").arg(coreId);
-
-                            coreTemps.append(QString("<C=FF00FF>%1<C=FFFFFF> %2<C=808080> C").arg(coreLabel.leftJustified(7)).arg(temp));
+                    if (showCores && m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) {
+                        const auto& coreMap = m_lastHardwareInfo[AppConfig::CPU_KEY].coreTemps;
+                        QStringList coreTemps;
+                        for(auto it = coreMap.constBegin(); it != coreMap.constEnd(); ++it) {
+                            QString temp = (it.value() >= 0) ? QString::number(it.value(), 'f', 0) : "--";
+                            QString coreName = it.key().split(' ').last().remove('#');
+                            coreTemps.append(QString("%1C%2 %3%4C").arg(cCpu, coreName, cWhite).arg(temp.rightJustified(3)));
                         }
-                    }
-                    if (!coreTemps.isEmpty()) {
-                        overlayLines.append("<C=00D1FF>|..........................|");
-                        for(int j = 0; j < coreTemps.size(); j += 2) {
-                            QString line = QString("<C=00D1FF>|<C=FFFFFF> %1").arg(coreTemps[j].leftJustified(11));
-                            if (j + 1 < coreTemps.size()) {
-                                line.append(QString(" <C=808080>|<C=FFFFFF> %1").arg(coreTemps[j+1]));
+                        if (!coreTemps.isEmpty()) {
+                            overlayLines.append(alignTag + cGray + "--------------------");
+                            for(int j = 0; j < coreTemps.size(); j += 2) {
+                                QString line = coreTemps[j].leftJustified(10);
+                                if (j + 1 < coreTemps.size()) {
+                                    line.append(QString(" %1| %2").arg(cGray).arg(coreTemps[j+1]));
+                                }
+                                overlayLines.append(alignTag + line);
                             }
-                            overlayLines.append(line);
                         }
                     }
-                }
 
-                if (showMb) {
-                    QString temp = "--";
-                    if (m_lastHardwareInfo.contains(AppConfig::MB_KEY)) {
+                    QStringList tempsLines;
+                    if (showMb && m_lastHardwareInfo.contains(AppConfig::MB_KEY)) {
                         double tempValue = m_lastHardwareInfo[AppConfig::MB_KEY].temperature;
-                        if (tempValue >= 0) temp = QString::number(tempValue, 'f', 0);
+                        QString temp = (tempValue >= 0) ? QString::number(tempValue, 'f', 0) : "--";
+                        tempsLines.append(QString("%1Placa Mae %2%3 C").arg(cGray, cWhite).arg(temp.rightJustified(3)));
                     }
-                    temperaturesLines.append(QString("<C=00D1FF>|<C=94A3B8> Placa Mae   <C=FFFFFF>%1<C=808080> C").arg(temp.rightJustified(3)));
-                }
-
-                if (showStorage) {
-                    int totalSsds = 0, totalHds = 0;
-                    for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
-                        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
-                            if (it.value().driveType == "SSD") totalSsds++;
-                            else if (it.value().driveType == "HD") totalHds++;
-                        }
-                    }
-
-                    QStringList ssdTemps, hdTemps;
-                    int ssdCount = 1, hdCount = 1;
-                    for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
-                        if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
-                            QString temp = "--";
-                            double tempValue = it.value().temperature;
-                            if (tempValue >= 0) temp = QString::number(tempValue, 'f', 0);
-
-                            if (it.value().driveType == "SSD") {
-                                QString label = (totalSsds > 1) ? QString("SSD %1").arg(ssdCount++) : "SSD";
-                                ssdTemps.append(QString("<C=00D1FF>|<C=94A3B8> %1<C=FFFFFF>%2<C=808080> C").arg(label.leftJustified(10)).arg(temp.rightJustified(3)));
-                            } else if (it.value().driveType == "HD") {
-                                QString label = (totalHds > 1) ? QString("HD %1").arg(hdCount++) : "HD";
-                                hdTemps.append(QString("<C=00D1FF>|<C=94A3B8> %1<C=FFFFFF>%2<C=808080> C").arg(label.leftJustified(10)).arg(temp.rightJustified(3)));
+                    if (showStorage) {
+                        for(auto it = m_lastHardwareInfo.constBegin(); it != m_lastHardwareInfo.constEnd(); ++it) {
+                            if (it.key().startsWith(AppConfig::STORAGE_KEY_PREFIX)) {
+                                double tempValue = it.value().temperature;
+                                QString temp = (tempValue >= 0) ? QString::number(tempValue, 'f', 0) : "--";
+                                QString label = it.value().driveType.contains("HD") ? "HD" : "SSD";
+                                tempsLines.append(QString("%1%2 %3%4 C").arg(cGray, label.leftJustified(9)).arg(cWhite).arg(temp.rightJustified(3)));
                             }
                         }
                     }
-                    if (!ssdTemps.isEmpty()) { temperaturesLines.append(ssdTemps); }
-                    if (!hdTemps.isEmpty()) { temperaturesLines.append(hdTemps); }
-                }
+                    if (!tempsLines.isEmpty()) {
+                        overlayLines.append(alignTag + cGray + "--------------------");
+                        overlayLines.append(tempsLines);
+                    }
 
-                if (!temperaturesLines.isEmpty()) {
-                    overlayLines.append("<C=00D1FF>+- TEMPERATURAS -----------+");
-                    overlayLines.append(temperaturesLines);
-                }
+                    if (showFans) {
+                        QStringList fansLines;
+                        auto addFanLines = [&](const QMap<QString, double>& fanMap, const QString& sourcePrefix) {
+                            for(auto it = fanMap.constBegin(); it != fanMap.constEnd(); ++it) {
+                                if (it.value() > 0) {
+                                    QString name = sourcePrefix + it.key();
+                                    if (name.length() > 10) name = name.left(10);
+                                    QString speed = QString::number(it.value(), 'f', 0);
+                                    fansLines.append(QString("%1%2 %3%4 RPM").arg(cGray, name.leftJustified(10)).arg(cWhite).arg(speed.rightJustified(4)));
+                                }
+                            }
+                        };
+                        if (m_lastHardwareInfo.contains(AppConfig::CPU_KEY)) addFanLines(m_lastHardwareInfo[AppConfig::CPU_KEY].fans, "CPU ");
+                        if (m_lastHardwareInfo.contains(AppConfig::GPU_KEY)) addFanLines(m_lastHardwareInfo[AppConfig::GPU_KEY].fans, "GPU ");
+                        if (m_lastHardwareInfo.contains(AppConfig::MB_KEY)) addFanLines(m_lastHardwareInfo[AppConfig::MB_KEY].fans, "");
 
-                overlayLines.append("<C=00D1FF>+--------------------------+");
+                        if (!fansLines.isEmpty()) {
+                            overlayLines.append(alignTag + cGray + "--------------------");
+                            overlayLines.append(fansLines);
+                        }
+                    }
+                }
+                else if (overlayStyle == 1)
+                {
+                    QStringList fpsLine;
+                    fpsLine.append(QString("%1FPS: %2%3").arg(cGray, cWhite, QString::number(qRound(currentFps))));
+                    if (showAvg) fpsLine.append(QString("%1AVG %2%3").arg(cGray, cWhite, QString::number(static_cast<int>(avgFps))));
+                    if (showMin) fpsLine.append(QString("%1MIN %2%3").arg(cGray, cWhite, QString::number(minFps)));
+                    if (showMax) fpsLine.append(QString("%1MAX %2%3").arg(cGray, cWhite, QString::number(maxFps)));
+                    overlayLines.append(alignTag + fpsLine.join(QString(" %1| ").arg(cGray)));
+
+                    QStringList cpuParts;
+                    if (showCpuUsage) cpuParts.append(QString("%1%2%").arg(cWhite, cpuUsage));
+                    if (showCpuTemp) cpuParts.append(QString("%1%2C").arg(cWhite, cpuTemp));
+                    if (showCpuPower) cpuParts.append(QString("%1%2W").arg(cWhite, cpuPower));
+                    if (!cpuParts.isEmpty()) overlayLines.append(alignTag + QString("%1CPU: ").arg(cCpu) + cpuParts.join(QString(" %1| ").arg(cGray)));
+
+                    QStringList gpuParts;
+                    if (showGpuUsage) gpuParts.append(QString("%1%2%").arg(cWhite, gpuUsage));
+                    if (showGpuTemp) gpuParts.append(QString("%1%2C").arg(cWhite, gpuTemp));
+                    if (showGpuPower) gpuParts.append(QString("%1%2W").arg(cWhite, gpuPower));
+                    if (!gpuParts.isEmpty()) overlayLines.append(alignTag + QString("%1GPU: ").arg(cGpu) + gpuParts.join(QString(" %1| ").arg(cGray)));
+
+                    if (showRamUsage) {
+                        overlayLines.append(alignTag + QString("%1RAM: %2%3 GB").arg(cRam, cWhite, ramUsage));
+                    }
+
+                    if (showFans) {
+                        QStringList fanParts;
+                        auto addFanParts = [&](const QMap<QString, double>& fanMap, const QString& sourcePrefix) {
+                            for(auto it = fanMap.constBegin(); it != fanMap.constEnd(); ++it) {
+                                if (it.value() > 0) {
+                                    QString speed = QString::number(it.value(), 'f', 0);
+                                    fanParts.append(QString("%1%2 %3RPM").arg(cGray, sourcePrefix).arg(cWhite, speed));
+                                }
+                            }
+                        };
+
+                        QMap<QString, double> cpuFans = m_lastHardwareInfo.value(AppConfig::CPU_KEY).fans;
+                        QMap<QString, double> gpuFans = m_lastHardwareInfo.value(AppConfig::GPU_KEY).fans;
+                        QMap<QString, double> mbFans = m_lastHardwareInfo.value(AppConfig::MB_KEY).fans;
+
+                        addFanParts(cpuFans, "CPU:");
+                        addFanParts(gpuFans, "GPU:");
+
+                        for(auto it = mbFans.constBegin(); it != mbFans.constEnd(); ++it) {
+                            if (it.value() > 0 && !cpuFans.contains(it.key()) && !gpuFans.contains(it.key())) {
+                                QString speed = QString::number(it.value(), 'f', 0);
+                                fanParts.append(QString("%1SYS: %2%3 RPM").arg(cGray).arg(cWhite, speed));
+                            }
+                        }
+
+                        if (!fanParts.isEmpty()) {
+                            overlayLines.append(alignTag + fanParts.join(QString(" %1| ").arg(cGray)));
+                        }
+                    }
+                }
 
                 RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY pOSDEntry =
                     (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((LPBYTE)pMem + pMem->dwOSDArrOffset);

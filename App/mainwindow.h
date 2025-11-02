@@ -24,8 +24,13 @@
 #include "apimanager.h"
 #include "performancechartwidget.h"
 #include "gamecoverwidget.h"
+#include "infocardwidget.h"
+#include "hardwaresummarycard.h"
+#include "overlaypositionselector.h"
+#include "overlaystyleselector.h"
 
 class FpsMonitor;
+class QButtonGroup;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -73,6 +78,8 @@ private slots:
     void onClearHistoryClicked();
     void onClearReportsClicked();
     void onOverlaySettingChanged();
+    void onOverlayPositionChanged(int id);
+    void onOverlayStyleChanged(int id);
 
 
 private:
@@ -87,7 +94,6 @@ private:
     QList<QPushButton*> m_navButtons;
     QPushButton *m_settingsButton;
 
-    // --- Widgets da Página "Visão Geral" ---
     QWidget* m_activeGameWidget;
     QLabel* m_activeGameCoverLabel;
     QLabel* m_activeGameNameLabel;
@@ -98,28 +104,37 @@ private:
     QHBoxLayout* m_recentGamesLayout;
     QMap<QString, QLabel*> m_sessionMetricValues;
 
-    // --- Widgets da Página "Biblioteca" ---
     QScrollArea* m_libraryScrollArea;
     QWidget* m_libraryContainer;
     QGridLayout* m_libraryLayout;
 
-    // --- Widgets da Página "Temperaturas" ---
     QStackedWidget *m_tempStackedWidget;
     QList<QPushButton*> m_tempNavButtons;
-    QMap<QString, PerformanceChartWidget*> m_charts;
-    QMap<QString, QWidget*> m_tempInfoCards;
+    HardwareSummaryCard* m_cpuSummaryCard;
+    HardwareSummaryCard* m_gpuSummaryCard;
+    InfoCardWidget* m_mbSummaryCard;
+    PerformanceChartWidget* m_cpuChart;
+    PerformanceChartWidget* m_gpuChart;
     QScrollArea* m_storageScrollArea;
     QWidget* m_storageContainer;
     QVBoxLayout *m_storagePageLayout;
+    QMap<QString, InfoCardWidget*> m_storageCards;
 
-    // --- Widgets da Página "Configurações" ---
+    QScrollArea* m_fansScrollArea;
+    QWidget* m_fansContainer;
+    QGridLayout* m_fansLayout;
+    QMap<QString, InfoCardWidget*> m_fanCards;
+
     QCheckBox *m_enableParticlesCheckBox;
     QCheckBox *m_saveReportsCheckBox;
     QComboBox *m_reportFormatComboBox;
     QComboBox *m_chartDurationComboBox;
-    // Widgets do overlay
+
     QCheckBox* m_overlayEnabledCheckBox;
     QComboBox* m_overlayPositionComboBox;
+    OverlayPositionSelector* m_positionSelector;
+    OverlayStyleSelector* m_styleSelector;
+
     QCheckBox* m_overlayShowCpuTempCheckBox;
     QCheckBox* m_overlayShowCpuUsageCheckBox;
     QCheckBox* m_overlayShowCpuCoresCheckBox;
@@ -128,11 +143,17 @@ private:
     QCheckBox* m_overlayShowRamUsageCheckBox;
     QCheckBox* m_overlayShowMbTempCheckBox;
     QCheckBox* m_overlayShowStorageTempCheckBox;
-
     QCheckBox* m_overlayShowAvgFpsCheckBox;
     QCheckBox* m_overlayShowMinFpsCheckBox;
     QCheckBox* m_overlayShowMaxFpsCheckBox;
-    // --- Cards de Status ---
+
+    QCheckBox* m_overlayShowCpuPowerCheckBox;
+    QCheckBox* m_overlayShowCpuClockCheckBox;
+    QCheckBox* m_overlayShowGpuPowerCheckBox;
+    QCheckBox* m_overlayShowGpuClockCheckBox;
+    QCheckBox* m_overlayShowFansCheckBox;
+
+
     QFrame *m_rtssStatusCard;
     QFrame *m_hardwareStatusCard;
 
@@ -144,8 +165,8 @@ private:
     void setupOverviewPage();
     void setupLibraryPage();
     void setupTempPage();
+    void setupFansPage();
     void setupSettingsPage();
-    QWidget* createInfoCard(const QString& key, const QString& iconSvg, const QString& title);
     QWidget* createMetricCard(const QString& title, const QString& key);
 
     void populateRecentGames();
@@ -158,4 +179,3 @@ private:
     void triggerCoverChange(const QString& executableName);
 };
 #endif // MAINWINDOW_H
-
