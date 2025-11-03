@@ -1,4 +1,5 @@
-/* Folha de estilos externa para facilitar a manutenção e a criação de temas. */
+/* Folha de estilos externa para facilitar a manutenção e a criação de temas.
+*/
 #centralContainer {
     background-color: #05070d;
 }
@@ -213,7 +214,8 @@ QPushButton.dangerButton:hover {
     margin: 0;
 }
 
-#tempNavPanel QPushButton:hover { color: #e2e8f0; }
+#tempNavPanel QPushButton:hover { color: #e2e8f0;
+}
 
 #tempNavPanel QPushButton[selected="true"] {
     color: #ffffff;
@@ -221,6 +223,15 @@ QPushButton.dangerButton:hover {
 }
 
 /* --- CARDS DE INFORMAÇÃO (PÁGINA DE TEMPERATURAS) --- */
+/* --- CORREÇÃO AQUI --- */
+/* Este seletor agora é mais específico, vencendo a regra de transparência */
+QScrollArea > QWidget > QWidget.InfoCard {
+    background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(15, 23, 42, 0.7), stop:1 rgba(20, 30, 55, 0.7));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+
+/* Esta regra de fallback é para InfoCards que NÃO estão em um ScrollArea */
 .InfoCard {
     background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(15, 23, 42, 0.7), stop:1 rgba(20, 30, 55, 0.7));
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -244,12 +255,15 @@ QScrollArea {
     background-color: transparent;
 }
 
-#libraryScrollArea {
+/* --- CORREÇÃO AQUI --- */
+/* Este ID de objeto agora será definido no mainwindow.cpp */
+#libraryScrollArea, #recentGamesScrollArea {
     background: qradialgradient(cx: 0.5, cy: 0.5, radius: 1.5,
                                 fx: 0.5, fy: 0.5,
                                 stop: 0 #1a2a44, stop: 1 #05070d);
 }
 
+/* Esta é a regra "assassina" que deixamos em paz */
 QScrollArea > QWidget > QWidget {
     background-color: transparent;
 }
@@ -260,10 +274,12 @@ GameCoverWidget {
     border: none;
 }
 
-/* Estilo da capa. Apenas cantos arredondados. A borda de foco agora é um brilho via C++. */
+/* Estilo da capa. Apenas cantos arredondados. A borda de foco agora é um brilho via C++.
+*/
 #gameCoverForeground {
     border-radius: 8px;
-    border: none; /* Nenhuma borda aqui. */
+    border: none; /* Nenhuma borda aqui.
+*/
 }
 
 /* Estilo da tooltip, para combinar com o visual. */
@@ -277,4 +293,3 @@ QToolTip {
     font-weight: bold;
     font-family: 'Inter';
 }
-

@@ -6,6 +6,7 @@
 #include "databasemanager.h"
 #include "appconstants.h"
 #include "steamappcache.h"
+#include "summarycardwidget.h"
 #include "coverselectiondialog.h"
 #include "infocardwidget.h" // Adicionado para evitar erro de tipo incompleto
 #include <QFontDatabase>
@@ -190,7 +191,7 @@ void MainWindow::setupUi()
 
     m_navButtons << new QPushButton(" Visão Geral")
                  << new QPushButton(" Biblioteca")
-                 << new QPushButton(" Temperaturas")
+                 << new QPushButton(" Componentes")
                  << new QPushButton(" Ventoinhas");
 
     for(auto btn : m_navButtons) navLayout->addWidget(btn);
@@ -340,6 +341,7 @@ void MainWindow::setupOverviewPage() {
 
     auto* recentTitle = new QLabel("Jogados Recentemente"); recentTitle->setProperty("class", "TitleLabel");
     m_recentGamesScrollArea = new QScrollArea();
+    // A linha setObjectName foi REMOVIDA
     m_recentGamesScrollArea->setWidgetResizable(true);
     m_recentGamesScrollArea->setFixedHeight(320);
     m_recentGamesContainer = new QWidget();
@@ -366,6 +368,7 @@ void MainWindow::setupLibraryPage()
     layout->addWidget(title);
 
     m_libraryScrollArea = new QScrollArea();
+    // A linha setObjectName foi REMOVIDA
     m_libraryScrollArea->setWidgetResizable(true);
 
     m_libraryContainer = new QWidget();
@@ -1071,7 +1074,7 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
             m_mbSummaryCard->setValueStyleSheet("color: " + getTempColor(info.temperature, AppConfig::MB_KEY));
         } else {
             m_mbSummaryCard->setValue("Sensor não encontrado");
-            m_mbSummaryCard->setValueStyleSheet("color: #aeb9d6;");
+            m_mbSummaryCard->setValueStyleSheet("color: #aeb9d8;");
         }
     }
 
@@ -1098,7 +1101,7 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
                 card->setValueStyleSheet("color: " + getTempColor(info.temperature, "STORAGE"));
             } else {
                 card->setValue("Sensor não encontrado");
-                card->setValueStyleSheet("color: #aeb9d6;");
+                card->setValueStyleSheet("color: #aeb9d8;");
             }
         }
     }
@@ -1112,8 +1115,17 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
         }
     }
 
+    // --- INÍCIO DA REFORMULAÇÃO DA ABA DE VENTOINHAS ---
     QSet<QString> activeFanKeys;
     const int maxCols = 3;
+
+    // 1. Limpa as posições do grid (sem deletar os widgets)
+    while (m_fansLayout->count() > 0) {
+        QLayoutItem* item = m_fansLayout->takeAt(0);
+        if (item->widget()) {
+            item->widget()->setParent(nullptr);
+        }
+    }
     int row = 0, col = 0;
 
     auto processFanMap = [&](const QMap<QString, double>& fanMap, const QString& sourceIcon, const QString& namePrefix) mutable {
@@ -1126,37 +1138,45 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
             QString uniqueFanName = sourceIcon + fanName;
             activeFanKeys.insert(uniqueFanName);
 
+            // TIPO DE WIDGET CORRIGIDO
             InfoCardWidget* card = nullptr;
             if (!m_fanCards.contains(uniqueFanName)) {
-                card = new InfoCardWidget(sourceIcon, namePrefix + fanName, this);
+                // 2. Cria um InfoCardWidget (o "quadrado" com fundo e ícone)
+                QString title = namePrefix.isEmpty() ? fanName : (namePrefix + " " + fanName);
+                // CORRIGIDO: Usa InfoCardWidget
+                card = new InfoCardWidget(sourceIcon, title, this);
                 m_fanCards[uniqueFanName] = card;
             } else {
                 card = m_fanCards.value(uniqueFanName);
             }
 
-            if (card->parentWidget() != m_fansContainer) {
-                m_fansLayout->addWidget(card, row, col++);
-                if (col >= maxCols) {
-                    col = 0;
-                    row++;
-                }
+            // 3. Readiciona o widget ao layout na posição correta
+            m_fansLayout->addWidget(card, row, col++);
+            card->show();
+            if (col >= maxCols) {
+                col = 0;
+                row++;
             }
 
+            // 4. Define o valor (RPM) e a cor
             card->setValue(QString::number(fanSpeed, 'f', 0) + " RPM");
+            // CORRIGIDO: Usa setValueStyleSheet
             card->setValueStyleSheet("color: #FFFFFF;");
         }
     };
 
     if (deviceInfos.contains(AppConfig::CPU_KEY)) {
-        processFanMap(deviceInfos.value(AppConfig::CPU_KEY).fans, AppConfig::ICON_CPU_SVG, "CPU ");
+        processFanMap(deviceInfos.value(AppConfig::CPU_KEY).fans, AppConfig::ICON_CPU_SVG, "CPU");
     }
     if (deviceInfos.contains(AppConfig::GPU_KEY)) {
-        processFanMap(deviceInfos.value(AppConfig::GPU_KEY).fans, AppConfig::ICON_GPU_SVG, "GPU ");
+        processFanMap(deviceInfos.value(AppConfig::GPU_KEY).fans, AppConfig::ICON_GPU_SVG, "GPU");
     }
     if (deviceInfos.contains(AppConfig::MB_KEY)) {
-        processFanMap(deviceInfos.value(AppConfig::MB_KEY).fans, AppConfig::ICON_MB_SVG, "");
+        // 5. Ícone corrigido para ICON_FAN_SVG
+        processFanMap(deviceInfos.value(AppConfig::MB_KEY).fans, AppConfig::ICON_FAN_SVG, "");
     }
 
+    // 6. Deleta widgets que não estão mais ativos
     for (auto it = m_fanCards.begin(); it != m_fanCards.end();) {
         if (!activeFanKeys.contains(it.key())) {
             it.value()->deleteLater();
@@ -1165,6 +1185,7 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
             ++it;
         }
     }
+    // --- FIM DA REFORMULAÇÃO DA ABA DE VENTOINHAS ---
 }
 
 void MainWindow::updateSessionInfo()

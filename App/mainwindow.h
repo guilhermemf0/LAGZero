@@ -123,6 +123,7 @@ private:
     QScrollArea* m_fansScrollArea;
     QWidget* m_fansContainer;
     QGridLayout* m_fansLayout;
+    // TIPO DE WIDGET CORRIGIDO (revertido para InfoCardWidget)
     QMap<QString, InfoCardWidget*> m_fanCards;
 
     QCheckBox *m_enableParticlesCheckBox;
@@ -131,7 +132,6 @@ private:
     QComboBox *m_chartDurationComboBox;
 
     QCheckBox* m_overlayEnabledCheckBox;
-    QComboBox* m_overlayPositionComboBox;
     OverlayPositionSelector* m_positionSelector;
     OverlayStyleSelector* m_styleSelector;
 
