@@ -39,6 +39,8 @@
 #include <QGroupBox>
 #include <QScrollArea>
 #include <QApplication>
+#include "infocardwidget.h" // Adicionado para evitar erro de tipo incompleto// <--- ADICIONE ESTA LINHA
+#include <QFontDatabase>
 
 // Funções auxiliares
 QString cleanEmulatorWindowTitle(QString windowTitle) {
@@ -191,14 +193,13 @@ void MainWindow::setupUi()
 
     m_navButtons << new QPushButton(" Visão Geral")
                  << new QPushButton(" Biblioteca")
-                 << new QPushButton(" Componentes")
-                 << new QPushButton(" Ventoinhas");
+                 << new QPushButton(" Componentes");
 
     for(auto btn : m_navButtons) navLayout->addWidget(btn);
     navLayout->addStretch();
     m_settingsButton = new QPushButton(); m_settingsButton->setObjectName("settingsButton");
     m_settingsButton->setCursor(Qt::PointingHandCursor);
-    navLayout->addWidget(m_settingsButton, 0, Qt::AlignCenter);
+    navLayout->addWidget(m_settingsButton); // Remove o Qt::AlignCenter
 
     auto* contentPanel = new QFrame(); contentPanel->setObjectName("contentPanel");
     auto* contentLayout = new QVBoxLayout(contentPanel);
@@ -210,31 +211,26 @@ void MainWindow::setupUi()
     setupOverviewPage();
     setupLibraryPage();
     setupTempPage();
-    setupFansPage();
     setupSettingsPage();
 }
 
-void MainWindow::setupFansPage()
+void MainWindow::setupFansPage(QVBoxLayout *layout)
 {
-    auto* page = new QWidget();
-    auto* layout = new QVBoxLayout(page);
-    layout->setSpacing(15);
-    m_mainStackedWidget->addWidget(page);
+    // 1. Remove o título (será o título da "caixa")
+    // 2. Remove o m_fansScrollArea (agora é redundante)
 
-    auto* title = new QLabel("Ventoinhas");
-    title->setProperty("class", "TitleLabel");
-    layout->addWidget(title);
-
-    m_fansScrollArea = new QScrollArea();
-    m_fansScrollArea->setWidgetResizable(true);
-
+    // Apenas cria o container (que tem o grid) e o adiciona ao layout
     m_fansContainer = new QWidget();
+    // --- MUDANÇA: Damos um ID para o QSS ---
+    m_fansContainer->setObjectName("fansBoxContainer");
+
     m_fansLayout = new QGridLayout(m_fansContainer);
     m_fansLayout->setSpacing(20);
     m_fansLayout->setAlignment(Qt::AlignTop);
 
-    m_fansScrollArea->setWidget(m_fansContainer);
-    layout->addWidget(m_fansScrollArea);
+    // Adiciona o container (onde o onHardwareUpdated colocará os cards)
+    // diretamente ao layout da "caixa" de Fans
+    layout->addWidget(m_fansContainer);
 }
 
 void MainWindow::setupConnections() {
@@ -390,7 +386,10 @@ void MainWindow::setupTempPage() {
     auto* tempNavPanel = new QFrame(); tempNavPanel->setObjectName("tempNavPanel");
     auto* tempNavLayout = new QHBoxLayout(tempNavPanel);
     tempNavLayout->setContentsMargins(0,0,0,0);
-    m_tempNavButtons << new QPushButton("CPU") << new QPushButton("GPU") << new QPushButton("Placa-mãe") << new QPushButton("Armazenamento");
+
+    // --- MUDANÇA 1: Renomeia os botões da sub-navegação ---
+    m_tempNavButtons.clear();
+    m_tempNavButtons << new QPushButton("CPU") << new QPushButton("GPU") << new QPushButton("Outros");
     for(auto btn : m_tempNavButtons) tempNavLayout->addWidget(btn);
     tempNavLayout->addStretch();
 
@@ -398,6 +397,7 @@ void MainWindow::setupTempPage() {
     layout->addWidget(tempNavPanel);
     layout->addWidget(m_tempStackedWidget, 1);
 
+    // --- PÁGINA 1: CPU (Sem mudança) ---
     auto createCpuPage = [&]() {
         auto* p = new QWidget();
         auto* l = new QVBoxLayout(p);
@@ -409,7 +409,9 @@ void MainWindow::setupTempPage() {
         l->addWidget(m_cpuChart, 1);
         return p;
     };
+    m_tempStackedWidget->addWidget(createCpuPage());
 
+    // --- PÁGINA 2: GPU (Sem mudança) ---
     auto createGpuPage = [&]() {
         auto* p = new QWidget();
         auto* l = new QVBoxLayout(p);
@@ -421,27 +423,79 @@ void MainWindow::setupTempPage() {
         l->addWidget(m_gpuChart, 1);
         return p;
     };
-
-    auto createMbPage = [&]() {
-        auto* p = new QWidget();
-        auto* l = new QVBoxLayout(p);
-        l->setSpacing(20); l->setContentsMargins(0, 10, 0, 0);
-        m_mbSummaryCard = new InfoCardWidget(AppConfig::ICON_MB_SVG, "Placa-mãe", p);
-        l->addWidget(m_mbSummaryCard);
-        l->addStretch();
-        return p;
-    };
-
-    m_tempStackedWidget->addWidget(createCpuPage());
     m_tempStackedWidget->addWidget(createGpuPage());
-    m_tempStackedWidget->addWidget(createMbPage());
 
-    m_storageScrollArea = new QScrollArea(); m_storageScrollArea->setWidgetResizable(true);
+    // --- MUDANÇA 2: As páginas "Placa-mãe" e "Armazenamento" são removidas daqui ---
+    // (A função createMbPage() é deletada e a criação do m_storageScrollArea é movida)
+
+    // --- PÁGINA 3: "OUTROS" (Página nova e consolidada) ---
+    // Esta página conterá Placa-mãe, Armazenamento e Fans.
+    auto* othersScrollArea = new QScrollArea();
+    othersScrollArea->setObjectName("othersScrollArea"); 
+    othersScrollArea->setWidgetResizable(true);
+
+    auto* othersPageWidget = new QWidget();
+    auto* othersLayout = new QVBoxLayout(othersPageWidget);
+    othersLayout->setSpacing(10); // Espaçamento menor entre os títulos e as caixas
+    othersLayout->setAlignment(Qt::AlignTop);
+
+    // --- SEÇÃO 1: PLACA-MÃE (Já é uma "caixa") ---
+    auto* mbTitle = new QLabel("Placa-mãe");
+    mbTitle->setProperty("class", "SubtitleLabel");
+
+    // 1. Cria a "caixa" para a Placa-mãe
+    auto* mbBoxContainer = new QWidget();
+    mbBoxContainer->setObjectName("mbBoxContainer"); // <-- Novo ID para o QSS
+
+    // 2. Cria um layout interno para a "caixa"
+    auto* mbBoxLayout = new QVBoxLayout(mbBoxContainer);
+    mbBoxLayout->setSpacing(20);
+    mbBoxLayout->setAlignment(Qt::AlignTop);
+
+    // 3. Cria o card
+    m_mbSummaryCard = new InfoCardWidget(AppConfig::ICON_MB_SVG, "Placa-mãe", mbBoxContainer);
+
+    // 4. Adiciona o card DENTRO da "caixa"
+    mbBoxLayout->addWidget(m_mbSummaryCard);
+    
+    // 5. Adiciona o título e a "caixa" ao layout principal
+    othersLayout->addWidget(mbTitle);
+    othersLayout->addWidget(mbBoxContainer); // <-- Adiciona a "caixa"
+    othersLayout->addSpacing(15); // Espaço extra // Espaço extra após a primeira caixa
+
+    // --- SEÇÃO 2: ARMAZENAMENTO (Nova "caixa") ---
+    auto* storageTitle = new QLabel("Armazenamento");
+    storageTitle->setProperty("class", "SubtitleLabel");
+    
+    // Removemos o m_storageScrollArea daqui
     m_storageContainer = new QWidget();
-    m_storagePageLayout = new QVBoxLayout(m_storageContainer);
-    m_storagePageLayout->setSpacing(20); m_storagePageLayout->setAlignment(Qt::AlignTop);
-    m_storageScrollArea->setWidget(m_storageContainer);
-    m_tempStackedWidget->addWidget(m_storageScrollArea);
+    // --- MUDANÇA: Damos um ID para o QSS ---
+    m_storageContainer->setObjectName("storageBoxContainer"); 
+    
+    m_storagePageLayout = new QVBoxLayout(m_storageContainer); // Este layout receberá os cards dos HDs
+    m_storagePageLayout->setSpacing(20); 
+    m_storagePageLayout->setAlignment(Qt::AlignTop);
+    
+    othersLayout->addWidget(storageTitle);
+    othersLayout->addWidget(m_storageContainer); // Adiciona a "caixa" (container)
+    othersLayout->addSpacing(15); // Espaço extra
+
+    // --- SEÇÃO 3: FANS (Nova "caixa") ---
+    auto* fansTitle = new QLabel("Fans");
+    fansTitle->setProperty("class", "SubtitleLabel");
+    
+    // Criamos um layout "wrapper" para a caixa das fans
+    auto* fansWrapperLayout = new QVBoxLayout();
+    // Chamamos nossa função modificada para adicionar o m_fansContainer (com ID) dentro dele
+    setupFansPage(fansWrapperLayout); 
+    
+    othersLayout->addWidget(fansTitle);
+    othersLayout->addLayout(fansWrapperLayout); // Adiciona o layout wrapper
+
+    // --- FIM DAS SEÇÕES ---
+    othersLayout->addStretch(1); // Empurra tudo para cima
+    othersScrollArea->setWidget(othersPageWidget);
+    m_tempStackedWidget->addWidget(othersScrollArea);
 }
 
 void MainWindow::setupSettingsPage() {
@@ -1179,7 +1233,7 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
     // 6. Deleta widgets que não estão mais ativos
     for (auto it = m_fanCards.begin(); it != m_fanCards.end();) {
         if (!activeFanKeys.contains(it.key())) {
-            it.value()->deleteLater();
+            it.value()->deleteLater(); 
             it = m_fanCards.erase(it);
         } else {
             ++it;

@@ -28,6 +28,7 @@
 #include "hardwaresummarycard.h"
 #include "overlaypositionselector.h"
 #include "overlaystyleselector.h"
+#include "overlaystyleselector.h"
 
 class FpsMonitor;
 class QButtonGroup;
@@ -165,7 +166,7 @@ private:
     void setupOverviewPage();
     void setupLibraryPage();
     void setupTempPage();
-    void setupFansPage();
+    void setupFansPage(QVBoxLayout *layout);
     void setupSettingsPage();
     QWidget* createMetricCard(const QString& title, const QString& key);
 

@@ -20,7 +20,6 @@
     border: none;
     border-radius: 8px;
     padding: 12px;
-    text-align: left;
     font-size: 14px;
     font-weight: 600;
     margin: 2px 10px;
@@ -38,13 +37,16 @@
 
 /* --- BOTÃO DE CONFIGURAÇÕES (REDESENHADO) --- */
 #settingsButton {
+    text-align: center;
     border-radius: 8px;
     min-height: 40px;
     max-height: 40px;
     min-width: 40px;
     max-width: 40px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 8px;
+
+    padding: 12px;
+    
 }
 
 #settingsButton:hover {
@@ -292,4 +294,45 @@ QToolTip {
     font-size: 16px;
     font-weight: bold;
     font-family: 'Inter';
+}
+
+/* --- CORREÇÃO PÁGINA "OUTROS" --- */
+/* Anula a "regra assassina" de transparência
+   para a nossa nova página "Outros" */
+QScrollArea#othersScrollArea > QWidget > QWidget {
+    background-color: transparent; /* O widget de conteúdo fica transparente */
+}
+
+/* Mas a própria área de rolagem (o fundo) não deve ser transparente */
+QScrollArea#othersScrollArea {
+    background: transparent;
+    /* (Se quiser o fundo escuro, mude 'transparent' para '#05070d') */
+}
+
+/* ... (todo o resto do seu QSS) ... */
+
+/* --- ESTILO DAS CAIXAS DA PÁGINA "OUTROS" --- */
+/* Aplica o estilo "cristalino" (do gráfico)
+   aos nossos dois novos containers */
+#mbBoxContainer, #storageBoxContainer, #fansBoxContainer {
+    /* Fundo cristalino */
+    background-color: rgba(16, 18, 26, 220); 
+    
+    /* Borda sutil */
+    border: 1px solid rgba(255, 255, 255, 15); 
+    
+    /* Cantos arredondados */
+    border-radius: 12px;
+    
+    /* Espaçamento interno para os cards não colarem na borda */
+    padding: 20px; 
+}
+
+/* Anula a regra "assassina" de transparência (linha 110)
+   para os cards de Info/Fan DENTRO das nossas novas caixas */
+#mbBoxContainer > .InfoCard,
+#storageBoxContainer > .InfoCard,
+#fansBoxContainer > .InfoCard {
+    background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(15, 23, 42, 0.7), stop:1 rgba(20, 30, 55, 0.7));
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
