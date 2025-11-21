@@ -5,10 +5,11 @@
 #include "launchermanager.h"
 #include "databasemanager.h"
 #include "appconstants.h"
+#include "sessionreportdialog.h"
 #include "steamappcache.h"
 #include "summarycardwidget.h"
 #include "coverselectiondialog.h"
-#include "infocardwidget.h" // Adicionado para evitar erro de tipo incompleto
+#include "infocardwidget.h"
 #include <QFontDatabase>
 #include <QIcon>
 #include <QStyle>
@@ -22,6 +23,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QFileDialog>
 #include <QButtonGroup>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -35,12 +37,16 @@
 #include <QDebug>
 #include <QDirIterator>
 #include <QJsonDocument>
+#include <QDateTime>
 #include <QJsonObject>
 #include <QGroupBox>
 #include <QScrollArea>
 #include <QApplication>
 #include "infocardwidget.h" // Adicionado para evitar erro de tipo incompleto// <--- ADICIONE ESTA LINHA
 #include <QFontDatabase>
+#include <QCoreApplication>
+#include <QDebug>
+
 
 // Funções auxiliares
 QString cleanEmulatorWindowTitle(QString windowTitle) {
@@ -73,7 +79,13 @@ MainWindow::MainWindow(QWidget *parent)
     m_hardwareMonitor = new HardwareMonitor(this);
     m_fpsMonitor = new FpsMonitor(this);
     m_apiManager = new ApiManager(this);
+
     m_sessionTimer = new QTimer(this);
+    m_recordingTimer = new QTimer(this);
+    connect(m_recordingTimer, &QTimer::timeout, this, &MainWindow::recordSessionData);
+
+    m_analysisProcess = new QProcess(this);
+    connect(m_analysisProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &MainWindow::onAnalysisFinished);
 
     SteamAppCache::instance();
 
@@ -90,7 +102,6 @@ MainWindow::MainWindow(QWidget *parent)
     onParticlesEnabledChanged(m_enableParticlesCheckBox->isChecked() ? Qt::Checked : Qt::Unchecked);
     m_saveReportsCheckBox->setChecked(settings.value(AppConfig::SETTING_REPORTS_ENABLED, true).toBool());
     m_chartDurationComboBox->setCurrentIndex(settings.value("chart/durationIndex", 1).toInt());
-    m_reportFormatComboBox->setCurrentIndex(settings.value("reports/formatIndex", 0).toInt());
 
     m_overlayEnabledCheckBox->blockSignals(true);
     m_overlayEnabledCheckBox->setChecked(settings.value(AppConfig::SETTING_OVERLAY_ENABLED, true).toBool());
@@ -214,25 +225,14 @@ void MainWindow::setupUi()
     setupSettingsPage();
 }
 
-void MainWindow::setupFansPage(QVBoxLayout *layout)
-{
-    // 1. Remove o título (será o título da "caixa")
-    // 2. Remove o m_fansScrollArea (agora é redundante)
-
-    // Apenas cria o container (que tem o grid) e o adiciona ao layout
+void MainWindow::setupFansPage(QVBoxLayout *layout) {
     m_fansContainer = new QWidget();
-    // --- MUDANÇA: Damos um ID para o QSS ---
     m_fansContainer->setObjectName("fansBoxContainer");
-
     m_fansLayout = new QGridLayout(m_fansContainer);
     m_fansLayout->setSpacing(20);
     m_fansLayout->setAlignment(Qt::AlignTop);
-
-    // Adiciona o container (onde o onHardwareUpdated colocará os cards)
-    // diretamente ao layout da "caixa" de Fans
     layout->addWidget(m_fansContainer);
 }
-
 void MainWindow::setupConnections() {
     connect(m_hardwareMonitor, &HardwareMonitor::hardwareUpdated, this, &MainWindow::onHardwareUpdated);
     connect(m_hardwareMonitor, &HardwareMonitor::hardwareUpdated, m_fpsMonitor, &FpsMonitor::onHardwareUpdated);
@@ -502,24 +502,20 @@ void MainWindow::setupSettingsPage() {
     auto* page = new QWidget();
     auto* pageLayout = new QVBoxLayout(page);
     pageLayout->setContentsMargins(0,0,0,0);
-
     auto* scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
     pageLayout->addWidget(scrollArea);
-
     auto* scrollContentWidget = new QWidget();
     scrollArea->setWidget(scrollContentWidget);
-
     auto* mainLayout = new QVBoxLayout(scrollContentWidget);
     mainLayout->setSpacing(15);
     mainLayout->setAlignment(Qt::AlignTop);
 
-    auto* title = new QLabel("Configurações");
-    title->setProperty("class", "TitleLabel");
+    auto* title = new QLabel("Configurações"); title->setProperty("class", "TitleLabel");
     mainLayout->addWidget(title);
 
-    auto* appearanceTitle = new QLabel("Aparência e Gráficos");
-    appearanceTitle->setProperty("class", "SubtitleLabel");
+    // --- APARÊNCIA ---
+    auto* appearanceTitle = new QLabel("Aparência e Gráficos"); appearanceTitle->setProperty("class", "SubtitleLabel");
     mainLayout->addWidget(appearanceTitle);
     auto* appearanceGroup = new QGroupBox();
     auto* appearanceLayout = new QVBoxLayout(appearanceGroup);
@@ -536,6 +532,7 @@ void MainWindow::setupSettingsPage() {
     appearanceLayout->addLayout(chartLayout);
     mainLayout->addWidget(appearanceGroup);
 
+    // --- OVERLAY (RTSS) - INICIALIZAÇÃO COMPLETA ---
     auto* overlayTitle = new QLabel("Configuração do Overlay (RTSS)");
     overlayTitle->setProperty("class", "SubtitleLabel");
     mainLayout->addWidget(overlayTitle);
@@ -630,28 +627,40 @@ void MainWindow::setupSettingsPage() {
     overlayLayout->addWidget(contentBox);
     mainLayout->addWidget(overlayGroup);
 
+    // --- RELATÓRIOS ---
     auto* reportsTitle = new QLabel("Relatórios e Dados");
     reportsTitle->setProperty("class", "SubtitleLabel");
     mainLayout->addWidget(reportsTitle);
+
     auto* reportsGroup = new QGroupBox();
     auto* reportsLayout = new QVBoxLayout(reportsGroup);
     m_saveReportsCheckBox = new QCheckBox("Salvar relatórios de performance da sessão");
     reportsLayout->addWidget(m_saveReportsCheckBox);
-    auto* reportFormatLayout = new QHBoxLayout();
-    reportFormatLayout->addWidget(new QLabel("Formato do relatório:"));
-    m_reportFormatComboBox = new QComboBox();
-    m_reportFormatComboBox->addItem("Texto (.txt)");
-    m_reportFormatComboBox->addItem("CSV (.csv)");
-    reportFormatLayout->addWidget(m_reportFormatComboBox);
-    reportFormatLayout->addStretch();
-    reportsLayout->addLayout(reportFormatLayout);
+
     auto* reportsBtn = new QPushButton("Abrir pasta de relatórios");
     reportsBtn->setCursor(Qt::PointingHandCursor);
     reportsBtn->setStyleSheet("background:transparent; color:#0085ff; text-decoration:underline; font-weight: 600;");
     connect(reportsBtn, &QPushButton::clicked, this, &MainWindow::openReportsFolder);
     reportsLayout->addWidget(reportsBtn, 0, Qt::AlignLeft);
+
+    // Botão de Teste Manual
+    auto* testBtn = new QPushButton("Testar Análise (Selecionar CSV)");
+    testBtn->setCursor(Qt::PointingHandCursor);
+    testBtn->setStyleSheet("background-color: #2e7d32; color: white; border-radius: 6px; padding: 8px 15px; margin-top: 10px;");
+    connect(testBtn, &QPushButton::clicked, this, [this](){
+        QString fileName = QFileDialog::getOpenFileName(this, "Selecionar Relatório",
+                                                        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/reports",
+                                                        "Arquivos CSV (*.csv)");
+        if (!fileName.isEmpty()) {
+            m_currentSession.displayName = "Teste Manual";
+            runAnalysisScript(fileName);
+        }
+    });
+    reportsLayout->addWidget(testBtn, 0, Qt::AlignLeft);
+
     mainLayout->addWidget(reportsGroup);
 
+    // --- ZONA DE PERIGO ---
     auto* dangerZoneTitle = new QLabel("Zona de Perigo");
     dangerZoneTitle->setProperty("class", "SubtitleLabel");
     dangerZoneTitle->setStyleSheet("color: #f87171;");
@@ -711,8 +720,6 @@ void MainWindow::onOverlayStyleChanged(int id)
 
 void MainWindow::onGameSessionStarted(const QString& exeName, const QString& windowTitle, uint32_t processId)
 {
-    qDebug() << "[SESSION START] Executable:" << exeName << "| PID:" << processId << "| Window Title:" << windowTitle;
-
     QString searchName;
     const QStringList emulatorExes = {"dolphin.exe", "cemu.exe", "yuzu.exe", "ryujinx.exe", "pcsx2.exe", "rpcs3.exe"};
     QString currentExeFile = QFileInfo(exeName).fileName().toLower();
@@ -732,8 +739,11 @@ void MainWindow::onGameSessionStarted(const QString& exeName, const QString& win
     m_currentSession.processId = processId;
     m_currentSession.exeName = exeName;
 
-    GameData existingData = DatabaseManager::instance().getGameData(exeName);
+    // Limpa o histórico e começa a gravação
+    m_currentSession.dataHistory.clear();
+    m_recordingTimer->start(500); // GRAVA A CADA 500ms
 
+    GameData existingData = DatabaseManager::instance().getGameData(exeName);
     if (existingData.id != -1 && !existingData.displayName.isEmpty() && !existingData.coverPath.isEmpty()) {
         m_currentSession.displayName = existingData.displayName;
         m_currentSession.coverPath = existingData.coverPath;
@@ -756,8 +766,13 @@ void MainWindow::onGameSessionStarted(const QString& exeName, const QString& win
 void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double averageFps)
 {
     setActiveGameView(false);
-    if (m_saveReportsCheckBox->isChecked()) saveSessionReport();
+    m_recordingTimer->stop(); // PARA A GRAVAÇÃO
     m_sessionTimer->stop();
+
+    QString csvPath;
+    if (m_saveReportsCheckBox->isChecked()) {
+        csvPath = saveSessionReport();
+    }
 
     int gameId = DatabaseManager::instance().getGameId(exeName);
     if (gameId != -1) {
@@ -769,7 +784,12 @@ void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double ave
     if (m_cpuChart) m_cpuChart->clearData();
     if (m_gpuChart) m_gpuChart->clearData();
 
-    m_currentSession = CurrentSession();
+    m_currentSession = CurrentSession(); // Reseta a sessão (e o histórico)
+
+    if (!csvPath.isEmpty()) {
+        m_lastSessionCsvPath = csvPath;
+        runAnalysisScript(csvPath);
+    }
 }
 
 void MainWindow::onApiSearchFinished(const ApiGameResult& result)
@@ -988,8 +1008,9 @@ void MainWindow::onRtssStatusUpdated(bool found, const QString&) {
 
 void MainWindow::onDownloadRtssClicked() { QDesktopServices::openUrl(QUrl("https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/")); }
 
-void MainWindow::saveSessionReport() {
-    if (m_currentSession.processId == 0) return;
+QString MainWindow::saveSessionReport()
+{
+    if (m_currentSession.processId == 0 || m_currentSession.dataHistory.isEmpty()) return QString();
 
     QString reportsPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/reports";
     QDir dir(reportsPath);
@@ -999,55 +1020,27 @@ void MainWindow::saveSessionReport() {
     QString safeGameName = m_currentSession.displayName;
     safeGameName.remove(QRegularExpression(QStringLiteral("[\\/:*?\"<>|]")));
 
-    bool isCsv = (m_reportFormatComboBox->currentIndex() == 1);
-    QString extension = isCsv ? ".csv" : ".txt";
-    QString filePath = reportsPath + "/" + safeGameName + "_" + timestamp + extension;
+    QString filePath = reportsPath + "/" + safeGameName + "_" + timestamp + ".csv";
 
     QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return QString();
 
     QTextStream out(&file);
+    out << "Tempo (s),FPS,Temp_CPU (C),Uso_CPU (%),Temp_GPU (C),Uso_GPU (%)\n";
 
-    if (isCsv) {
-        out << "Métrica,Média,Máximo,Mínimo,Unidade\n";
-    } else {
-        out << "=============== Relatório de Sessão - LAG Zero ===============\n\n";
-        out << "Jogo: " << m_currentSession.displayName << " (" << m_currentSession.exeName << ")\n";
-        out << "Data: " << QDateTime::currentDateTime().toString("dd/MM/yyyy HH:mm:ss") << "\n";
-        qint64 elapsed = m_currentSession.timer.elapsed() / 1000;
-        QString timeString = QString("%1:%2:%3").arg(elapsed / 3600, 2, 10, QChar('0')).arg((elapsed % 3600) / 60, 2, 10, QChar('0')).arg(elapsed % 60, 2, 10, QChar('0'));
-        out << "Duração da Sessão: " << timeString << "\n\n--- Resumo da Performance ---\n";
+    // Usa o histórico de alta precisão
+    for (const SessionDataPoint& point : m_currentSession.dataHistory) {
+        double timeSec = point.timestampMs / 1000.0;
+        out << QString::number(timeSec, 'f', 3) << ","
+            << point.fps << ","
+            << QString::number(point.cpuTemp, 'f', 1) << ","
+            << QString::number(point.cpuUsage, 'f', 1) << ","
+            << QString::number(point.gpuTemp, 'f', 1) << ","
+            << QString::number(point.gpuUsage, 'f', 1) << "\n";
     }
 
-    auto writeStats = [&](const QString& name, const QList<double>& data, const QString& unit) {
-        if (data.isEmpty()) return;
-        double sum = std::accumulate(data.begin(), data.end(), 0.0);
-        double avg = sum / data.size();
-        double min = *std::min_element(data.begin(), data.end());
-        double max = *std::max_element(data.begin(), data.end());
-
-        if (isCsv) {
-            out << QString("%1,%2,%3,%4,%5\n").arg(name).arg(avg, 0, 'f', 1).arg(max, 0, 'f', 1).arg(min, 0, 'f', 1).arg(unit);
-        } else {
-            out << QString("%1:").arg(name).leftJustified(15, ' ') << QString("Méd: %1 / Máx: %2 / Mín: %3 %4\n").arg(avg, 0, 'f', 1).arg(max, 0, 'f', 1).arg(min, 0, 'f', 1).arg(unit);
-        }
-    };
-
-    if (m_cpuChart) {
-        writeStats("FPS", m_cpuChart->getFpsData(), "");
-        writeStats("Temp. CPU", m_cpuChart->getTempData(), "C");
-    }
-    if (m_gpuChart) {
-        writeStats("Temp. GPU", m_gpuChart->getTempData(), "C");
-    }
-
-    if (m_mbSummaryCard && m_currentSession.lastTemps.contains(AppConfig::MB_KEY)) {
-        writeStats("Temp. Placa-mãe", QList<double>() << m_currentSession.lastTemps.value(AppConfig::MB_KEY).temperature, "C");
-    }
-
-
-    if (!isCsv) out << "\n============================================================\n";
     file.close();
+    return filePath;
 }
 
 void MainWindow::onHelperMissing()
@@ -1108,7 +1101,8 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
         const HardwareInfo& info = deviceInfos.value(AppConfig::CPU_KEY);
         m_cpuSummaryCard->updateMetrics(info);
         if (m_currentSession.processId != 0 && info.temperature >= 0) {
-            m_cpuChart->addDataPoint(info.temperature, info.usage);
+            double currentFps = m_currentSession.lastFps;
+            m_cpuChart->addDataPoint(info.temperature, info.usage, currentFps);
         }
     }
 
@@ -1116,7 +1110,8 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
         const HardwareInfo& info = deviceInfos.value(AppConfig::GPU_KEY);
         m_gpuSummaryCard->updateMetrics(info);
         if (m_currentSession.processId != 0 && info.temperature >= 0) {
-            m_gpuChart->addDataPoint(info.temperature, info.usage);
+            double currentFps = m_currentSession.lastFps;
+            m_gpuChart->addDataPoint(info.temperature, info.usage, currentFps);
         }
     }
 
@@ -1167,6 +1162,26 @@ void MainWindow::onHardwareUpdated(const QMap<QString, HardwareInfo> &deviceInfo
         } else {
             ++it;
         }
+    }
+
+    if (m_currentSession.processId != 0) {
+        SessionDataPoint point;
+        point.timestampMs = m_currentSession.timer.elapsed(); // Tempo exato em ms
+        point.fps = m_currentSession.lastFps;
+
+        point.cpuTemp = 0; point.cpuUsage = 0;
+        if (deviceInfos.contains(AppConfig::CPU_KEY)) {
+            point.cpuTemp = deviceInfos[AppConfig::CPU_KEY].temperature;
+            point.cpuUsage = deviceInfos[AppConfig::CPU_KEY].usage;
+        }
+
+        point.gpuTemp = 0; point.gpuUsage = 0;
+        if (deviceInfos.contains(AppConfig::GPU_KEY)) {
+            point.gpuTemp = deviceInfos[AppConfig::GPU_KEY].temperature;
+            point.gpuUsage = deviceInfos[AppConfig::GPU_KEY].usage;
+        }
+
+        m_currentSession.dataHistory.append(point);
     }
 
     // --- INÍCIO DA REFORMULAÇÃO DA ABA DE VENTOINHAS ---
@@ -1315,4 +1330,78 @@ QString MainWindow::findEpicGameDisplayName(const QString& executablePath)
         }
     }
     return QString();
+}
+
+void MainWindow::runAnalysisScript(const QString& csvPath)
+{
+    if (m_analysisProcess->state() == QProcess::Running) {
+        qDebug() << "AVISO: A análise anterior ainda está em execução.";
+        return;
+    }
+
+    QString pythonPath = "python";
+    QString scriptPath = QCoreApplication::applicationDirPath() + "/analise_sessao.py";
+
+    if (!QFile::exists(scriptPath)) {
+        qDebug() << "ERRO CRÍTICO: Script não encontrado em" << scriptPath;
+        return;
+    }
+
+    QStringList args;
+    args << scriptPath << csvPath;
+    m_analysisProcess->start(pythonPath, args);
+}
+
+void MainWindow::onAnalysisFinished()
+{
+    if (m_analysisProcess->exitStatus() != QProcess::NormalExit || m_analysisProcess->exitCode() != 0) {
+        qDebug() << "Erro no Python (Stderr):" << m_analysisProcess->readAllStandardError();
+        return;
+    }
+
+    QByteArray output = m_analysisProcess->readAllStandardOutput();
+    QJsonDocument doc = QJsonDocument::fromJson(output);
+    if (doc.isNull() || !doc.isObject()) {
+        qDebug() << "JSON inválido:" << output;
+        return;
+    }
+
+    QJsonObject result = doc.object();
+    if (result["sucesso"].toBool()) {
+        QString gameName = "Sessão de Jogo";
+        if (!m_currentSession.displayName.isEmpty()) gameName = m_currentSession.displayName;
+        else {
+            QFileInfo fi(m_lastSessionCsvPath);
+            gameName = fi.baseName().split('_').first();
+        }
+
+        SessionReportDialog dialog(result, gameName, this);
+        dialog.exec();
+    } else {
+        qWarning() << "Erro lógico no Python:" << result["erro"].toString();
+    }
+}
+
+void MainWindow::recordSessionData()
+{
+    if (m_currentSession.processId == 0) return;
+
+    SessionDataPoint point;
+    point.timestampMs = m_currentSession.timer.elapsed();
+    point.fps = m_currentSession.lastFps; // Pega o FPS mais recente (rápido)
+
+    // Pega a temperatura mais recente (mesmo que seja antiga, para não deixar buraco)
+    point.cpuTemp = 0; point.cpuUsage = 0;
+    if (m_currentSession.lastTemps.contains(AppConfig::CPU_KEY)) {
+        point.cpuTemp = m_currentSession.lastTemps[AppConfig::CPU_KEY].temperature;
+        point.cpuUsage = m_currentSession.lastTemps[AppConfig::CPU_KEY].usage;
+    }
+
+    point.gpuTemp = 0; point.gpuUsage = 0;
+    if (m_currentSession.lastTemps.contains(AppConfig::GPU_KEY)) {
+        point.gpuTemp = m_currentSession.lastTemps[AppConfig::GPU_KEY].temperature;
+        point.gpuUsage = m_currentSession.lastTemps[AppConfig::GPU_KEY].usage;
+    }
+
+    m_currentSession.dataHistory.append(point);
 }

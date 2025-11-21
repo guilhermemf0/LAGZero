@@ -1,2 +1,0 @@
-C:\Projetos\LAGZero\App\helper\bin\Release\net9.0\win-x64\publish\helper.pdb
-C:\Projetos\LAGZero\App\helper\bin\Release\net9.0\win-x64\publish\helper.exe

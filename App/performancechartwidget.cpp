@@ -18,12 +18,14 @@ PerformanceChartWidget::PerformanceChartWidget(QWidget *parent)
     setMouseTracking(true);
 }
 
-void PerformanceChartWidget::addDataPoint(double temperature, double fps)
+void PerformanceChartWidget::addDataPoint(double temperature, double usage, double fps)
 {
     m_tempData.append(temperature);
+    m_usageData.append(usage);
     m_fpsData.append(fps);
 
     while (m_tempData.size() > m_maxDataPoints) m_tempData.removeFirst();
+    while (m_usageData.size() > m_maxDataPoints) m_usageData.removeFirst();
     while (m_fpsData.size() > m_maxDataPoints) m_fpsData.removeFirst();
 
     update();
@@ -58,6 +60,7 @@ void PerformanceChartWidget::setMaxDataPoints(int points)
 
 
 QList<double> PerformanceChartWidget::getTempData() const { return m_tempData; }
+QList<double> PerformanceChartWidget::getUsageData() const { return m_usageData; }
 QList<double> PerformanceChartWidget::getFpsData() const { return m_fpsData; }
 
 void PerformanceChartWidget::paintEvent(QPaintEvent *event)

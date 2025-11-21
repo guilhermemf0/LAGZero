@@ -11,14 +11,14 @@ class PerformanceChartWidget : public QWidget
 public:
     explicit PerformanceChartWidget(QWidget *parent = nullptr);
 
-    void addDataPoint(double temperature, double fps);
+    void addDataPoint(double temperature, double usage, double fps);
     void clearData();
     QList<double> getTempData() const;
+    QList<double> getUsageData() const;
     QList<double> getFpsData() const;
 
     void setColors(const QColor& tempColor, const QColor& fpsColor);
     void setLabels(const QString& tempLabel, const QString& fpsLabel);
-    // NOVO: Permite alterar o período do gráfico dinamicamente
     void setMaxDataPoints(int points);
 
 protected:
@@ -27,10 +27,9 @@ protected:
     void leaveEvent(QEvent *event) override;
 
 private:
-    // Dados
     QList<double> m_tempData;
+    QList<double> m_usageData;
     QList<double> m_fpsData;
-    // ALTERADO: Valor padrão inicial
     int m_maxDataPoints = 120;
 
     // Estilo

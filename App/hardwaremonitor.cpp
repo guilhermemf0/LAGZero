@@ -50,7 +50,7 @@ void HardwareWorker::process() {
 
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &HardwareWorker::readHardwareData);
-    m_timer->start(2000);
+    m_timer->start(500);
     readHardwareData();
 }
 

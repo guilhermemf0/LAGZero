@@ -18,6 +18,9 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QComboBox>
+#include <QProcess>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "hardwaremonitor.h"
 #include "particleswidget.h"
@@ -28,7 +31,6 @@
 #include "hardwaresummarycard.h"
 #include "overlaypositionselector.h"
 #include "overlaystyleselector.h"
-#include "overlaystyleselector.h"
 
 class FpsMonitor;
 class QButtonGroup;
@@ -36,6 +38,16 @@ class QButtonGroup;
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+// Estrutura para um ponto de dados no tempo (para o CSV)
+struct SessionDataPoint {
+    qint64 timestampMs;
+    int fps;
+    double cpuTemp;
+    double cpuUsage;
+    double gpuTemp;
+    double gpuUsage;
+};
 
 struct CurrentSession {
     uint32_t processId = 0;
@@ -45,6 +57,9 @@ struct CurrentSession {
     QElapsedTimer timer;
     int lastFps = 0;
     QMap<QString, HardwareInfo> lastTemps;
+
+    // Lista completa de dados da sessão
+    QList<SessionDataPoint> dataHistory;
 };
 
 class MainWindow : public QMainWindow
@@ -82,6 +97,10 @@ private slots:
     void onOverlayPositionChanged(int id);
     void onOverlayStyleChanged(int id);
 
+    // NOVOS SLOTS
+    void recordSessionData();          // Grava uma linha no histórico
+    void runAnalysisScript(const QString& csvPath); // Chama o Python
+    void onAnalysisFinished();         // Recebe o JSON do Python
 
 private:
     Ui::MainWindow *ui;
@@ -124,12 +143,10 @@ private:
     QScrollArea* m_fansScrollArea;
     QWidget* m_fansContainer;
     QGridLayout* m_fansLayout;
-    // TIPO DE WIDGET CORRIGIDO (revertido para InfoCardWidget)
     QMap<QString, InfoCardWidget*> m_fanCards;
 
     QCheckBox *m_enableParticlesCheckBox;
     QCheckBox *m_saveReportsCheckBox;
-    QComboBox *m_reportFormatComboBox;
     QComboBox *m_chartDurationComboBox;
 
     QCheckBox* m_overlayEnabledCheckBox;
@@ -154,12 +171,16 @@ private:
     QCheckBox* m_overlayShowGpuClockCheckBox;
     QCheckBox* m_overlayShowFansCheckBox;
 
-
     QFrame *m_rtssStatusCard;
     QFrame *m_hardwareStatusCard;
 
     CurrentSession m_currentSession;
     QTimer* m_sessionTimer;
+    QTimer* m_recordingTimer; // Timer dedicado para gravação de dados
+
+    // Variáveis para o Processo Python
+    QProcess* m_analysisProcess;
+    QString m_lastSessionCsvPath;
 
     void setupUi();
     void setupConnections();
@@ -175,7 +196,7 @@ private:
     void setActiveGameView(bool active);
     void updateButtonStyles(QPushButton *activeButton, QList<QPushButton*> &buttonGroup);
     void updateSettingsButtonIcon(bool selected);
-    void saveSessionReport();
+    QString saveSessionReport(); // Alterado para retornar o caminho
     QString findEpicGameDisplayName(const QString& executablePath);
     void triggerCoverChange(const QString& executableName);
 };
