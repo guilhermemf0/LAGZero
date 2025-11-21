@@ -1,6 +1,6 @@
 #include "analysispage.h"
 #include "databasemanager.h"
-#include "appconstants.h" // Certifique-se de ter este arquivo para os ícones
+#include "appconstants.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -13,7 +13,7 @@
 #include <QtSvg/QSvgRenderer>
 #include <QPainter>
 #include <QPushButton>
-#include <QMessageBox> // Necessário para confirmação de exclusão
+#include <QMessageBox>
 
 AnalysisPage::AnalysisPage(QWidget *parent) : QWidget(parent)
 {
@@ -28,7 +28,6 @@ void AnalysisPage::setupUi()
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // --- COLUNA DA ESQUERDA (LISTA) ---
     auto* leftWidget = new QWidget();
     leftWidget->setFixedWidth(300);
     leftWidget->setStyleSheet("background-color: #0d1117; border-right: 1px solid #30363d;");
@@ -48,7 +47,6 @@ void AnalysisPage::setupUi()
     connect(m_sessionList, &QListWidget::itemClicked, this, &AnalysisPage::onSessionSelected);
     leftLayout->addWidget(m_sessionList);
 
-    // Botão Deletar
     auto* deleteBtn = new QPushButton("Deletar Sessão Selecionada");
     deleteBtn->setCursor(Qt::PointingHandCursor);
     deleteBtn->setStyleSheet("QPushButton { background-color: #da3633; color: white; border-radius: 6px; padding: 8px; font-weight: bold; border: none; }"
@@ -57,17 +55,13 @@ void AnalysisPage::setupUi()
         QListWidgetItem* item = m_sessionList->currentItem();
         if (!item) return;
 
-        // Confirmação
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Confirmar Exclusão", "Tem certeza que deseja apagar esta análise e seus dados?",
                                       QMessageBox::Yes|QMessageBox::No);
         if (reply == QMessageBox::Yes) {
-            int id = item->data(Qt::UserRole + 2).toInt(); // Recupera o ID salvo
+            int id = item->data(Qt::UserRole + 2).toInt();
             if (DatabaseManager::instance().deleteSession(id)) {
-                refreshSessions(); // Atualiza a lista
-
-                // Limpa a tela da direita se a sessão deletada era a atual
-                // (Simplesmente limpamos tudo para garantir)
+                refreshSessions();
                 QLayoutItem* child;
                 while ((child = m_detailsLayout->takeAt(0)) != 0) {
                     if (child->widget()) child->widget()->deleteLater();
@@ -81,10 +75,8 @@ void AnalysisPage::setupUi()
         }
     });
     leftLayout->addWidget(deleteBtn);
-
     mainLayout->addWidget(leftWidget);
 
-    // --- COLUNA DA DIREITA (DETALHES) ---
     auto* scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
     scrollArea->setStyleSheet("QScrollArea { background: transparent; border: none; } QScrollBar:vertical { background: #0d1117; width: 12px; }");
@@ -110,15 +102,11 @@ void AnalysisPage::refreshSessions()
     m_sessionList->clear();
     auto sessions = DatabaseManager::instance().getAllSessions();
     for (const auto& s : sessions) {
-        // Formata o texto do item da lista
         QString itemText = QString("%1\n%2 • %3").arg(s.gameName, s.startTime, s.duration);
         auto* item = new QListWidgetItem(itemText);
-
-        // Salva dados ocultos no item para uso posterior
         item->setData(Qt::UserRole, s.reportPath);
         item->setData(Qt::UserRole + 1, s.gameName);
-        item->setData(Qt::UserRole + 2, s.id); // Salva o ID para deletar
-
+        item->setData(Qt::UserRole + 2, s.id);
         m_sessionList->addItem(item);
     }
 }
@@ -129,27 +117,23 @@ void AnalysisPage::onSessionSelected(QListWidgetItem* item)
     m_currentGameName = item->data(Qt::UserRole + 1).toString();
     m_currentCsvPath = csvPath;
 
-    // Limpa a área de detalhes
     QLayoutItem* child;
     while ((child = m_detailsLayout->takeAt(0)) != 0) {
         if (child->widget()) child->widget()->deleteLater();
         delete child;
     }
 
-    // Mostra mensagem de carregamento
     auto* loading = new QLabel("Executando Análise Matemática Avançada...");
     loading->setStyleSheet("color: #58a6ff; font-weight: bold; font-size: 16px; margin-top: 50px; border: none;");
     loading->setAlignment(Qt::AlignCenter);
     m_detailsLayout->addWidget(loading);
 
-    // Chama o Python
     QString scriptPath = QCoreApplication::applicationDirPath() + "/analise_sessao.py";
     m_pythonProcess->start("python", QStringList() << scriptPath << csvPath);
 }
 
 void AnalysisPage::onPythonFinished(int, QProcess::ExitStatus)
 {
-    // Remove o loading
     QLayoutItem* child;
     while ((child = m_detailsLayout->takeAt(0)) != 0) {
         if (child->widget()) child->widget()->deleteLater();
@@ -170,7 +154,6 @@ void AnalysisPage::onPythonFinished(int, QProcess::ExitStatus)
     displayResults(doc.object());
 }
 
-// Função auxiliar para criar os cartões de estatística simples
 QWidget* createStatCard(const QString& label, const QString& value, const QString& color) {
     auto* w = new QWidget();
     auto* l = new QVBoxLayout(w);
@@ -181,7 +164,6 @@ QWidget* createStatCard(const QString& label, const QString& value, const QStrin
     return w;
 }
 
-// Função auxiliar para criar os cartões de explicação matemática (com borda colorida na esquerda)
 QWidget* createMathCard(const QString& title, const QString& value, const QString& description, const QString& color) {
     auto* card = new QFrame();
     card->setStyleSheet(QString("QFrame { background: #161b22; border-radius: 8px; border-left: 4px solid %1; }").arg(color));
@@ -200,54 +182,46 @@ QWidget* createMathCard(const QString& title, const QString& value, const QStrin
 
 void AnalysisPage::displayResults(const QJsonObject& r)
 {
-    // 1. Título do Jogo
+    auto* headerObj = new QWidget();
+    auto* headerLayout = new QHBoxLayout(headerObj);
     auto* title = new QLabel(m_currentGameName);
     title->setStyleSheet("font-size: 28px; font-weight: bold; color: #ffffff; border: none; margin-bottom: 10px;");
-    m_detailsLayout->addWidget(title);
+    headerLayout->addWidget(title);
+    m_detailsLayout->addWidget(headerObj);
 
-    // 2. Resumo Geral (Stats)
     auto* statsFrame = new QFrame();
     statsFrame->setStyleSheet("background: #161b22; border-radius: 8px; border: 1px solid #30363d;");
     auto* statsLayout = new QHBoxLayout(statsFrame);
     statsLayout->setContentsMargins(20, 15, 20, 15);
 
     statsLayout->addWidget(createStatCard("FPS Médio", QString::number(r["fps_medio"].toDouble(), 'f', 0), "#ffffff"));
-    statsLayout->addWidget(createStatCard("FPS Mín (1%)", QString::number(r["fps_min"].toDouble(), 'f', 0), "#f85149")); // Vermelho
+    statsLayout->addWidget(createStatCard("FPS Mín (1%)", QString::number(r["fps_min"].toDouble(), 'f', 0), "#f85149"));
     statsLayout->addWidget(createStatCard("Temp. Máx CPU", QString::number(r["temp_max_cpu"].toDouble(), 'f', 0)+"°C", "#ff7b72"));
 
     m_detailsLayout->addWidget(statsFrame);
 
-    // 3. Título e Gráfico
-    auto* chartTitle = new QLabel("Correlação: Temperatura (X) vs. Desempenho (Y)");
+    auto* chartTitle = new QLabel("Modelagem Matemática: f(Temperatura) = FPS");
     chartTitle->setStyleSheet("font-size: 16px; font-weight: 600; color: #58a6ff; margin-top: 20px; border: none;");
     m_detailsLayout->addWidget(chartTitle);
 
-    // --- EXIBIR A EQUAÇÃO ---
     double a = r["equacao_a"].toDouble();
     double b = r["equacao_b"].toDouble();
     double c = r["equacao_c"].toDouble();
-
     QString sinalB = (b >= 0) ? "+" : "";
     QString sinalC = (c >= 0) ? "+" : "";
-
-    QString eqStr = QString("Modelo Matemático: f(x) = %1x² %2%3x %4%5")
-                        .arg(QString::number(a, 'f', 4))
-                        .arg(sinalB).arg(QString::number(b, 'f', 2))
-                        .arg(sinalC).arg(QString::number(c, 'f', 2));
+    QString eqStr = QString("f(x) = %1x² %2%3x %4%5")
+                        .arg(QString::number(a, 'f', 4)).arg(sinalB).arg(QString::number(b, 'f', 2)).arg(sinalC).arg(QString::number(c, 'f', 2));
 
     auto* eqLabel = new QLabel(eqStr);
-    eqLabel->setStyleSheet("color: #238636; font-family: 'Consolas', 'Courier New', monospace; font-weight: bold; font-size: 13px; border: none;");
+    eqLabel->setStyleSheet("color: #238636; font-family: 'Consolas', monospace; font-weight: bold; font-size: 13px; border: none;");
     eqLabel->setAlignment(Qt::AlignCenter);
     m_detailsLayout->addWidget(eqLabel);
-    // ------------------------
 
     m_chart = new StaticChartWidget();
-
-    // Carregar dados do CSV para os pontos
     QList<double> fpsData, tempData;
     QFile file(m_currentCsvPath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file); in.readLine(); // Pula header
+        QTextStream in(&file); in.readLine();
         while (!in.atEnd()) {
             QStringList p = in.readLine().split(',');
             if (p.size() >= 3) {
@@ -257,49 +231,67 @@ void AnalysisPage::displayResults(const QJsonObject& r)
         }
     }
     m_chart->loadData(fpsData, tempData);
-    // Passa a equação para o gráfico desenhar a linha
     m_chart->setEquation(a, b, c);
+    m_chart->setTangent(r["tangente_x"].toDouble(), r["tangente_y"].toDouble(), r["tangente_m"].toDouble());
 
     m_detailsLayout->addWidget(m_chart);
 
-    // 4. Explicações Matemáticas (Cards)
+    auto* calcTitle = new QLabel("Engenharia Reversa de Performance");
+    calcTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: #d2a8ff; margin-top: 20px; border-bottom: 1px solid #30363d; padding-bottom: 5px; border-top: none; border-left: none; border-right: none;");
+    m_detailsLayout->addWidget(calcTitle);
 
-    // --- INTEGRAL ---
-    double carga = r["carga_termica_cpu"].toDouble();
-    QString integralDesc =
-        "<b>O que é?</b> A Integral Definida calcula a área total sob a curva de temperatura no gráfico Tempo x Temp.<br>"
-        "<b>Interpretação:</b> Este valor representa o 'dano acumulado' ou estresse total que o processador sofreu nesta sessão. "
-        "Valores muito altos indicam que o sistema de refrigeração foi exigido por muito tempo.";
+    double r2 = r["r_squared"].toDouble();
+    QString r2Str = QString::number(r2 * 100, 'f', 1) + "%";
+    QString r2Desc;
+    QString r2Color;
 
-    m_detailsLayout->addWidget(createMathCard("Estresse Térmico Total (Integral)",
-                                              QString::number(carga, 'f', 0) + " Grau-segundos",
-                                              integralDesc, "#d2a8ff")); // Roxo
-
-    // --- DERIVADA ---
-    double gargalo = r["gargalo_cpu"].toDouble();
-    QString gargaloVal;
-    QString derivDesc;
-
-    if (gargalo > 0) {
-        gargaloVal = QString("Risco em %1 °C").arg(QString::number(gargalo, 'f', 1));
-        derivDesc = "<b>O que é?</b> Usamos a Derivada para encontrar o ponto onde a inclinação da curva de performance se torna zero (máximo local).<br>"
-                    "<b>Alerta:</b> Detectamos que, ao atingir essa temperatura, o desempenho (FPS) parou de subir ou começou a cair. "
-                    "Isso sugere Thermal Throttling.";
+    if (r2 > 0.6) {
+        r2Desc = "<b>Alta Precisão:</b> Encontramos uma correlação matemática clara! O calor está afetando o desempenho seguindo o padrão da curva verde.";
+        r2Color = "#238636";
+    } else if (r2 >= 0.0) {
+        r2Desc = "<b>Baixa Correlação:</b> Os dados estão dispersos. O desempenho oscilou por outros motivos (loading, menus) e não apenas pela temperatura.";
+        r2Color = "#e3b341";
     } else {
-        gargaloVal = "Estável (Sem Gargalo)";
-        derivDesc = "<b>O que é?</b> Usamos a Derivada para analisar a taxa de variação do desempenho em relação à temperatura.<br>"
-                    "<b>Diagnóstico:</b> A derivada se manteve positiva ou estável. O aumento de temperatura não causou queda de FPS nesta sessão.";
+        r2Str = "Inconclusivo";
+        r2Desc = "<b>Sessão Estável / Sem Variação:</b> O hardware não foi estressado o suficiente. "
+                 "A temperatura e o FPS ficaram constantes (linha reta). "
+                 "Para ver o Cálculo em ação, teste um jogo pesado e desligue o V-Sync.";
+        r2Color = "#8b949e";
     }
+    m_detailsLayout->addWidget(createMathCard("Validade do Modelo Matemático (R²)", r2Str, r2Desc, r2Color));
 
-    m_detailsLayout->addWidget(createMathCard("Ponto de Ruptura (Derivada)",
-                                              gargaloVal,
-                                              derivDesc, "#ff7b72")); // Vermelho/Laranja
+    double carga = r["carga_termica_cpu"].toDouble();
+    double tvm = r["temp_tvm_cpu"].toDouble();
+    m_detailsLayout->addWidget(createMathCard(
+        "Carga Térmica & TVM (Integral)",
+        QString::number(carga, 'f', 0) + " Gs",
+        QString("<b>∫ f(t) dt:</b> Estresse térmico acumulado.<br><b>TVM:</b> O hardware se comportou como se estivesse a <b>%1°C</b> constantes.").arg(QString::number(tvm, 'f', 1)),
+        "#d2a8ff"));
 
-    // --- MÉDIA ---
-    double media = r["temp_media_cpu"].toDouble();
-    m_detailsLayout->addWidget(createMathCard("Temperatura Média",
-                                              QString::number(media, 'f', 1) + " °C",
-                                              "Média aritmética simples da temperatura durante toda a sessão.", "#79c0ff")); // Azul
+    double sensibilidade = r["tangente_m"].toDouble();
+    QString sensVal = QString::number(sensibilidade, 'f', 2) + " FPS/°C";
+    QString sensCor = (sensibilidade < -0.5) ? "#f85149" : "#79c0ff";
+    m_detailsLayout->addWidget(createMathCard(
+        "Sensibilidade no Pico (Derivada f')",
+        sensVal,
+        "<b>Inclinação da Tangente (Reta Roxa):</b> Taxa de variação instantânea no pico de calor. Se negativo, indica perda ativa de FPS por grau.",
+        sensCor));
+
+    double aceleracao = r["aceleracao_queda"].toDouble();
+    QString acelVal = QString::number(aceleracao, 'f', 4);
+    QString acelCor = (aceleracao < -0.001) ? "#ff7b72" : "#58a6ff";
+    m_detailsLayout->addWidget(createMathCard(
+        "Aceleração (Derivada f'')",
+        acelVal,
+        "<b>Concavidade:</b> Se negativo, a queda de desempenho acelera conforme esquenta (efeito bola de neve).",
+        acelCor));
+
+    double previsao = r["previsao_fps_100c"].toDouble();
+    m_detailsLayout->addWidget(createMathCard(
+        "Extrapolação (Limite T→100°C)",
+        QString::number(previsao, 'f', 0) + " FPS",
+        "<b>Previsão Matemática:</b> Desempenho estimado caso a temperatura atingisse o ponto de ebulição (limite físico).",
+        "#e3b341"));
 
     m_detailsLayout->addStretch();
 }

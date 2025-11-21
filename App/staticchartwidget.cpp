@@ -14,7 +14,15 @@ void StaticChartWidget::loadData(const QList<double>& fps, const QList<double>& 
 {
     m_fpsData = fps;
     m_tempData = temp;
+    m_showTangent = false;
     m_hasEquation = false; // Reseta equação ao carregar novos dados
+    update();
+}
+
+void StaticChartWidget::setTangent(double x, double y, double slope)
+{
+    m_tanX = x; m_tanY = y; m_tanM = slope;
+    m_showTangent = true;
     update();
 }
 
@@ -100,6 +108,37 @@ void StaticChartWidget::paintEvent(QPaintEvent *event)
 
         // Legenda da Linha
         p.drawText(graphRect.topRight() + QPoint(-100, 20), "— Modelo f(x)");
+    }
+
+    if (m_showTangent) {
+        // Equação da Reta: Y = Y1 + m(X - X1)
+        // Vamos desenhar uma linha curta ao redor do ponto X1 (Temp Max)
+        double deltaX = (maxTemp - minTemp) * 0.15; // A linha ocupa 15% da largura do gráfico
+        double x1 = m_tanX - deltaX;
+        double x2 = m_tanX + deltaX;
+
+        double y1 = m_tanY + m_tanM * (x1 - m_tanX);
+        double y2 = m_tanY + m_tanM * (x2 - m_tanX);
+
+        // Converter para Pixels
+        auto valToPoint = [&](double vX, double vY) {
+            double px = graphRect.left() + ((vX - minTemp) / (maxTemp - minTemp)) * graphRect.width();
+            double py = graphRect.bottom() - ((vY - minFps) / (maxFps - minFps)) * graphRect.height();
+            return QPointF(px, py);
+        };
+
+        QPointF p1 = valToPoint(x1, y1);
+        QPointF p2 = valToPoint(x2, y2);
+
+        // Desenha a linha
+        p.setPen(QPen(QColor("#d2a8ff"), 2, Qt::DashLine)); // Roxo tracejado
+        p.drawLine(p1, p2);
+
+        // Desenha o ponto de tangência
+        p.setBrush(QColor("#d2a8ff"));
+        p.drawEllipse(valToPoint(m_tanX, m_tanY), 4, 4);
+
+        p.drawText(p2 + QPoint(5, 0), "Tangente (Derivada)");
     }
 
     // Textos Min/Max

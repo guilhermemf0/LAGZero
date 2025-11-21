@@ -33,20 +33,41 @@ def analisar_sessao(caminho_csv):
         duracao = float(tempo.iloc[-1] - tempo.iloc[0])
         if duracao == 0: return {"erro": "Sessão curta demais."}
 
-        # 1. INTEGRAL
+        # 1. INTEGRAL & TEOREMA DO VALOR MÉDIO
         carga_cpu = integrate.simpson(y=temp_cpu, x=tempo)
+        # TVM: A temperatura constante que geraria o mesmo desgaste térmico
+        tvm_cpu = carga_cpu / duracao 
         
-        # 2. DERIVADA E EQUAÇÃO (Regressão Polinomial Grau 2)
-        # f(x) = ax^2 + bx + c
+        # 2. MODELAGEM & R-QUADRADO (R²)
         coefs_cpu = np.polyfit(temp_cpu, fps, 2)
+        modelo_fps = np.poly1d(coefs_cpu)
         
-        func_derivada_cpu = np.poly1d(coefs_cpu).deriv()
-        temp_gargalo_cpu = func_derivada_cpu.roots[0]
+        # Cálculo do R² (Coeficiente de Determinação)
+        # R² = 1 - (Soma dos Quadrados dos Resíduos / Soma Total dos Quadrados)
+        fps_predito = modelo_fps(temp_cpu)
+        residuos = fps - fps_predito
+        ss_res = np.sum(residuos**2)
+        ss_tot = np.sum((fps - np.mean(fps))**2)
+        r_squared = 1 - (ss_res / ss_tot)
         
-        # Filtra gargalos irreais
+        # 3. DERIVADA & TANGENTE
+        derivada_primeira = modelo_fps.deriv()
+        temp_gargalo_cpu = derivada_primeira.roots[0]
+        
         if coefs_cpu[0] >= -0.01 or not (40 < temp_gargalo_cpu < 110):
             temp_gargalo_cpu = 0.0
 
+        # Dados para desenhar a Reta Tangente na Temp Máxima
+        # y - y1 = m(x - x1)
+        temp_max_atingida = temp_cpu.max()
+        fps_na_temp_max = modelo_fps(temp_max_atingida) # y1
+        inclinacao_tangente = derivada_primeira(temp_max_atingida) # m (Derivada)
+
+        # 4. PREVISÃO (LIMITE)
+        previsao_fps_100c = modelo_fps(100.0)
+        if previsao_fps_100c < 0: previsao_fps_100c = 0.0
+
+        # GPU (Simplificado)
         carga_gpu = 0.0
         temp_gargalo_gpu = 0.0
         if temp_gpu.sum() > 0:
@@ -60,18 +81,25 @@ def analisar_sessao(caminho_csv):
             "sucesso": True,
             "duracao_s": duracao,
             "fps_medio": float(fps.mean()),
-            "fps_max": float(fps.max()),
             "fps_min": float(fps.min()),
-            "temp_max_cpu": float(temp_cpu.max()),
-            "temp_media_cpu": float(temp_cpu.mean()),
+            "temp_max_cpu": float(temp_max_atingida),
+            "temp_media_cpu": float(temp_cpu.mean()), # Média Aritmética
+            "temp_tvm_cpu": float(tvm_cpu),           # Média via Integral (Mais precisa)
             "carga_termica_cpu": carga_cpu,
             "gargalo_cpu": temp_gargalo_cpu,
             
-            # --- NOVO: Retornamos a equação encontrada ---
+            # Matemática Avançada
             "equacao_a": float(coefs_cpu[0]),
             "equacao_b": float(coefs_cpu[1]),
             "equacao_c": float(coefs_cpu[2]),
+            "r_squared": float(r_squared), # Qualidade do Modelo
             
+            # Dados da Tangente Visual
+            "tangente_x": float(temp_max_atingida),
+            "tangente_y": float(fps_na_temp_max),
+            "tangente_m": float(inclinacao_tangente),
+            
+            "previsao_fps_100c": float(previsao_fps_100c),
             "carga_termica_gpu": carga_gpu,
             "gargalo_gpu": temp_gargalo_gpu
         }
