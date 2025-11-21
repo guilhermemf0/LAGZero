@@ -25,6 +25,7 @@
 #include "hardwaremonitor.h"
 #include "particleswidget.h"
 #include "apimanager.h"
+#include "analysispage.h"
 #include "performancechartwidget.h"
 #include "gamecoverwidget.h"
 #include "infocardwidget.h"
@@ -56,6 +57,7 @@ struct CurrentSession {
     QString coverPath;
     QElapsedTimer timer;
     int lastFps = 0;
+    qint64 startTimeEpoch = 0;
     QMap<QString, HardwareInfo> lastTemps;
 
     // Lista completa de dados da sessão
@@ -113,6 +115,7 @@ private:
     QStackedWidget *m_mainStackedWidget;
     QList<QPushButton*> m_navButtons;
     QPushButton *m_settingsButton;
+    AnalysisPage* m_analysisPage;
 
     QWidget* m_activeGameWidget;
     QLabel* m_activeGameCoverLabel;

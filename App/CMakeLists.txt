@@ -63,7 +63,9 @@ else()
         hardwaresummarycard.h hardwaresummarycard.cpp
         overlaypositionselector.h overlaypositionselector.cpp
         overlaystyleselector.h overlaystyleselector.cpp
-        sessionreportdialog.h sessionreportdialog.cpp)
+        sessionreportdialog.h sessionreportdialog.cpp
+        staticchartwidget.h staticchartwidget.cpp
+        analysispage.h analysispage.cpp)
 endif()
 
 target_link_libraries(App PRIVATE Qt6::Widgets Qt6::Core Qt6::Svg Qt6::Network Qt6::Sql)

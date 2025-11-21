@@ -52,10 +52,12 @@ void DatabaseManager::initDatabase()
                     "start_time INTEGER, "
                     "end_time INTEGER, "
                     "average_fps REAL, "
+                    "report_path TEXT, " // <--- NOVO CAMPO
                     "FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE)")) {
         qWarning() << "Failed to create table 'game_sessions':" << query.lastError();
+    } else {
+        query.exec("ALTER TABLE game_sessions ADD COLUMN report_path TEXT");
     }
-
     query.exec("ALTER TABLE games ADD COLUMN user_display_name TEXT");
 }
 
@@ -163,6 +165,65 @@ QList<GameData> DatabaseManager::getAllGames()
     return games;
 }
 
+QList<SessionEntry> DatabaseManager::getAllSessions()
+{
+    QList<SessionEntry> list;
+    QSqlQuery query(m_db);
+
+    query.prepare("SELECT s.id, COALESCE(g.user_display_name, g.display_name), s.start_time, s.end_time, s.report_path "
+                  "FROM game_sessions s "
+                  "JOIN games g ON s.game_id = g.id "
+                  "WHERE s.report_path IS NOT NULL AND s.report_path != '' "
+                  "ORDER BY s.start_time DESC");
+
+    if (query.exec()) {
+        while(query.next()) {
+            SessionEntry entry;
+            entry.id = query.value(0).toInt();
+            entry.gameName = query.value(1).toString();
+
+            // Converte timestamps
+            qint64 startTs = query.value(2).toLongLong();
+            qint64 endTs = query.value(3).toLongLong();
+            QDateTime start = QDateTime::fromSecsSinceEpoch(startTs);
+            QDateTime end = QDateTime::fromSecsSinceEpoch(endTs);
+
+            // Formata Data (Ex: 20/11 14:30)
+            entry.startTime = start.toString("dd/MM HH:mm");
+
+            // Formata Duração Inteligente
+            qint64 durationSecs = start.secsTo(end);
+            if (durationSecs < 60) {
+                entry.duration = QString("%1s").arg(durationSecs);
+            } else {
+                int mins = durationSecs / 60;
+                int secs = durationSecs % 60;
+                entry.duration = QString("%1m %2s").arg(mins).arg(secs);
+            }
+
+            entry.reportPath = query.value(4).toString();
+            list.append(entry);
+        }
+    }
+    return list;
+}
+
+bool DatabaseManager::deleteSession(int sessionId)
+{
+    QSqlQuery query(m_db);
+    // Primeiro pegamos o caminho para deletar o arquivo
+    query.prepare("SELECT report_path FROM game_sessions WHERE id = :id");
+    query.bindValue(":id", sessionId);
+    if (query.exec() && query.next()) {
+        QString path = query.value(0).toString();
+        if (!path.isEmpty()) QFile::remove(path);
+    }
+
+    // Deleta do banco
+    query.prepare("DELETE FROM game_sessions WHERE id = :id");
+    query.bindValue(":id", sessionId);
+    return query.exec();
+}
 
 bool DatabaseManager::updateGameCover(int gameId, const QString& coverPath)
 {
@@ -193,15 +254,17 @@ bool DatabaseManager::removeGame(const QString& executableName)
     return true;
 }
 
-bool DatabaseManager::addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps)
+bool DatabaseManager::addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps, const QString& reportPath)
 {
     QSqlQuery query(m_db);
-    query.prepare("INSERT INTO game_sessions (game_id, start_time, end_time, average_fps) "
-                  "VALUES (:id, :start, :end, :avg_fps)");
+    query.prepare("INSERT INTO game_sessions (game_id, start_time, end_time, average_fps, report_path) "
+                  "VALUES (:id, :start, :end, :avg_fps, :path)");
     query.bindValue(":id", gameId);
     query.bindValue(":start", startTime);
     query.bindValue(":end", endTime);
     query.bindValue(":avg_fps", averageFps);
+    query.bindValue(":path", reportPath); // <--- NOVO
+
     if (!query.exec()) {
         qWarning() << "Failed to add game session:" << query.lastError();
         return false;

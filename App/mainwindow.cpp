@@ -204,7 +204,8 @@ void MainWindow::setupUi()
 
     m_navButtons << new QPushButton(" Visão Geral")
                  << new QPushButton(" Biblioteca")
-                 << new QPushButton(" Componentes");
+                 << new QPushButton(" Componentes")
+                 << new QPushButton(" Análises");
 
     for(auto btn : m_navButtons) navLayout->addWidget(btn);
     navLayout->addStretch();
@@ -222,6 +223,8 @@ void MainWindow::setupUi()
     setupOverviewPage();
     setupLibraryPage();
     setupTempPage();
+    m_analysisPage = new AnalysisPage();
+    m_mainStackedWidget->addWidget(m_analysisPage);
     setupSettingsPage();
 }
 
@@ -738,6 +741,7 @@ void MainWindow::onGameSessionStarted(const QString& exeName, const QString& win
     m_currentSession = CurrentSession();
     m_currentSession.processId = processId;
     m_currentSession.exeName = exeName;
+    m_currentSession.startTimeEpoch = QDateTime::currentSecsSinceEpoch();
 
     // Limpa o histórico e começa a gravação
     m_currentSession.dataHistory.clear();
@@ -776,7 +780,13 @@ void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double ave
 
     int gameId = DatabaseManager::instance().getGameId(exeName);
     if (gameId != -1) {
-        DatabaseManager::instance().addGameSession(gameId, 0, QDateTime::currentSecsSinceEpoch(), averageFps);
+        DatabaseManager::instance().addGameSession(
+            gameId,
+            m_currentSession.startTimeEpoch,     // Início Real
+            QDateTime::currentSecsSinceEpoch(),  // Fim Real (Agora)
+            averageFps,
+            csvPath
+            );
         populateRecentGames();
         populateLibrary();
     }
@@ -788,7 +798,6 @@ void MainWindow::onGameSessionEnded(uint32_t, const QString& exeName, double ave
 
     if (!csvPath.isEmpty()) {
         m_lastSessionCsvPath = csvPath;
-        runAnalysisScript(csvPath);
     }
 }
 
@@ -953,6 +962,10 @@ void MainWindow::onNavigationButtonClicked() {
         m_mainStackedWidget->setCurrentIndex(index);
         updateButtonStyles(button, m_navButtons);
         updateSettingsButtonIcon(false);
+
+        if (index == 3) {
+            m_analysisPage->refreshSessions();
+        }
     }
 }
 

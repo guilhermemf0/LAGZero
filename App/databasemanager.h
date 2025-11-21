@@ -16,6 +16,16 @@ struct GameData {
     double allTimeAverageFps = 0.0;
 };
 
+struct SessionEntry {
+    int id;
+    QString gameName;
+    QString startTime;
+    QString duration;
+    QString reportPath;
+};
+
+
+
 class DatabaseManager : public QObject
 {
     Q_OBJECT
@@ -30,9 +40,11 @@ public:
     QList<GameData> getAllGames(); // Nova função para a biblioteca
     bool updateGameCover(int gameId, const QString& coverPath);
     bool removeGame(const QString& executableName);
-    bool addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps);
+    bool addGameSession(int gameId, qint64 startTime, qint64 endTime, double averageFps, const QString& reportPath);
     bool setManualGameName(const QString& executableName, const QString& newName);
     bool clearAllHistory(); // Nova função para limpar o histórico
+    QList<SessionEntry> getAllSessions();
+    bool deleteSession(int sessionId);
 
 private:
     explicit DatabaseManager(QObject *parent = nullptr);
